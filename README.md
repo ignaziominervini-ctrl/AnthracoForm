@@ -52,8 +52,25 @@ Released under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## References
 
+- Allué, E., Euba Rementeria, I., and Solé, A. (2009). Charcoal taphonomy: the
+  study of the cell structure and surface deformations of *Pinus sylvestris* type
+  for the understanding of formation processes of archaeological charcoal
+  assemblages. *Journal of Taphonomy*, 7(2–3), 57–72.
+
 - Chabal, L. (1990). L'étude paléo-écologique de sites protohistoriques à partir
-  des charbons de bois : la question de l'unité de mesure.
-- Wheeler, E.A., Baas, P., Gasson, P.E. (1989). IAWA list of microscopic features
-  for hardwood identification.
-- Lancelotti, C. (2018). [IAWA reference dataset used in the comparison tool.]
+  des charbons de bois : la question de l'unité de mesure. *Bulletin de la Société
+  Botanique de France — Actualités Botaniques*, 137(2), 117–129.
+
+- Lancelotti, C. (2018). 'Not all that burns is wood'. A social perspective on
+  fuel exploitation and use during the Indus urban period (2600–1900 BC).
+  *PLOS ONE*, 13(3), 1–23.
+
+- Ruiz-Giralt, A., Bouchaud, C., Salavert, A., Lancelotti, C., and D'Andrea, A.C.
+  (2021). Human-woodland interactions during the Pre-Aksumite and Aksumite periods
+  in northeastern Tigray, Ethiopia: insights from the wood charcoal analyses from
+  Mezber and Ona Adi. *Vegetation History and Archaeobotany*, 30(6), 713–728.
+  https://doi.org/10.1007/s00334-021-00825-2
+
+- Wheeler, E.A., Baas, P., and Gasson, P.E. (eds.) (1989). IAWA list of
+  microscopic features for hardwood identification. *IAWA Bulletin*, 10(3),
+  219–332.
