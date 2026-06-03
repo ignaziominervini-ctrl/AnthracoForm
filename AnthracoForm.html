@@ -1046,7 +1046,7 @@ const ALL_IAWA_CODES=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,2
   118,119,120,121,122,136,137,138,142,143];
 
 const CSV_COLS=['id_det','site_code','id_samp','trench','su','layer','context','curv_sat','hflf','fraction','fracture_type',
-  'det','det_botanic','family','eco','tipo','tipo_desc',
+  'det','family','eco','tipo','tipo_desc',
   'undetermined','twig','bark','curv',
   'radial_crack','wood_compression','xylophagous_activity',
   'ossidation','mineralisation','cell_deformation','vitrification',
@@ -1392,10 +1392,10 @@ function downloadCSV(){
     return(v.includes(',')||v.includes('"'))?`"${v.replace(/"/g,'""')}"`  :v;
   }).join(','));
   const csv=[header,...rows].join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url;a.download=`anthracoform_${new Date().toISOString().slice(0,10)}.csv`;
+  a.href=url;a.download=(csvHandle&&csvHandle.name)?csvHandle.name:`anthracoform_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();URL.revokeObjectURL(url);
   showToast(`Downloaded ${records.length} records`);
 }
@@ -1694,7 +1694,7 @@ function openRisolviModal(){
      Fill in the fields to overwrite — leave blank to keep unchanged.<br>
      The <b>tipo</b> field will be cleared on all resolved records.`;
   document.getElementById('btn-apply-risolvi').textContent=`✓ Apply to ${count} records`;
-  ['res-det','res-botanic','res-family','res-eco'].forEach(id=>document.getElementById(id).value='');
+  ['res-det','res-family','res-eco'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('risolvi-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('res-det').focus(),80);
 }
