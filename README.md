@@ -1,76 +1,4286 @@
-# AnthracoForm
+<!--
+  AnthracoForm v1.0 — Anthracological Determination & Analysis Tool
+  Copyright (c) 2026 Ignazio Minervini / CASEs Research Group, Universitat Pompeu Fabra
+  Released under the MIT License. See LICENSE file for details.
+-->
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20487674.svg)](https://doi.org/10.5281/zenodo.20487674)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>AnthracoForm</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d1117;--s1:#161b22;--s2:#21262d;--s3:#2d333b;
+  --border:#444c56;--border2:#30363d;
+  --text:#adbac7;--text-b:#cdd9e5;--text-d:#768390;
+  --acc:#4caf82;--acc-bg:rgba(76,175,130,.13);--acc-br:rgba(76,175,130,.4);
+  --red:#e5534b;--red-bg:rgba(229,83,75,.12);--red-br:rgba(229,83,75,.35);
+  --blue:#539bf5;--blue-bg:rgba(83,155,245,.12);--blue-br:rgba(83,155,245,.35);
+  --green:#3a7d44;--green-b:#46954a;
+  --orange:#e09132;--orange-bg:rgba(224,145,50,.13);--orange-br:rgba(224,145,50,.4);
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --mono:'Cascadia Code','Consolas','Courier New',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12px;min-height:100vh;}
 
-**A single-file, offline tool for anthracological determination and analysis.**
+/* HEADER */
+header{background:var(--s1);border-bottom:1px solid var(--border2);padding:6px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:200;}
+.h-title{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--acc);letter-spacing:.04em;white-space:nowrap;}
+.h-keys{display:flex;gap:14px;font-size:10px;color:var(--text-d);}
+.h-keys kbd{background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-family:var(--mono);font-size:10px;color:var(--text-b);}
 
-AnthracoForm is a self-contained HTML application for recording, managing and
-analysing wood-charcoal (anthracological) data. It runs entirely in the browser
-with no installation and no internet connection required, and stores data in a
-CSV format designed to be analysis-ready in R.
+/* HEADER NAV WIDGET */
+.h-nav{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;}
+.h-mode{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:3px;white-space:nowrap;}
+.h-mode.new{background:var(--acc-bg);border:1px solid var(--acc-br);color:var(--acc);}
+.h-mode.edit{background:var(--blue-bg);border:1px solid var(--blue-br);color:var(--blue);}
+.h-sep{width:1px;height:18px;background:var(--border2);margin:0 2px;}
+.h-nav-btn{background:var(--s3);border:1px solid var(--border);border-radius:3px;color:var(--text-b);font-size:13px;line-height:1;padding:2px 8px;cursor:pointer;transition:all .12s;}
+.h-nav-btn:hover:not(:disabled){border-color:var(--acc);color:var(--acc);}
+.h-nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.h-nav-info{font-family:var(--mono);font-size:10px;color:var(--text-d);min-width:48px;text-align:center;}
+.h-counter{font-family:var(--mono);font-size:10px;color:var(--text-d);white-space:nowrap;}
+.h-counter b{color:var(--acc);}
+.h-btn-save{padding:4px 11px;border-radius:4px;border:none;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:700;background:var(--acc);color:#0d1117;white-space:nowrap;transition:all .12s;}
+.h-btn-save:hover{background:#f5c44a;}
+.h-btn-save:disabled{background:var(--s3);color:var(--text-d);cursor:not-allowed;}
+.h-btn-new{padding:4px 10px;border-radius:4px;border:1px solid var(--border);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;background:var(--s3);color:var(--text-b);white-space:nowrap;transition:all .12s;}
+.h-btn-new:hover{border-color:var(--acc);color:var(--acc);}
+.h-btn-del{padding:4px 10px;border-radius:4px;border:1px solid var(--red-br);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;background:var(--red-bg);color:var(--red);white-space:nowrap;transition:all .12s;display:none;}
+.h-btn-del:hover{background:var(--red);color:#fff;}
 
-## Features
 
-- Charcoal fragment data entry with IAWA anatomical feature coding
-- Taxon determination with a customisable taxa dictionary
-- Automatic saturation (species-accumulation) curves per stratigraphic unit (SU),
-  with a Chabal (1990) stop criterion
-- SU summary and whole-assemblage views
-- Offline taxon comparison tool based on published IAWA reference data
-- Export of publication-ready figures (B&W, 170 mm, 300 DPI)
-- CSV import/export compatible with R workflows
+/* FILE BAR */
+#file-bar{background:var(--s3);border-bottom:1px solid var(--border2);padding:7px 14px;display:flex;align-items:center;gap:12px;}
+#file-status{font-family:var(--mono);font-size:11px;flex:1;}
+.fs-none{color:var(--red);}
+.fs-ok{color:var(--green-b);}
+.fs-time{color:var(--text-d);font-size:10px;margin-left:8px;}
+.btn-file{padding:5px 12px;border-radius:4px;border:1px solid var(--acc-br);background:var(--acc-bg);color:var(--acc);font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;}
+.btn-file:hover{background:var(--acc);color:#0d1117;}
+.warn-nofsa{font-size:10px;color:var(--red);font-family:var(--mono);}
 
-## Usage
+/* WRAP */
+.wrap{padding:10px;display:flex;flex-direction:column;gap:8px;}
 
-Open `AnthracoForm.html` in a modern browser (Chrome recommended, for File System
-Access API support). No server, no dependencies, no internet connection needed.
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;}
+.card-title{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;color:var(--text-d);text-transform:uppercase;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--s3);}
 
-## How to cite
+/* FIELDS */
+.fg{display:flex;flex-direction:column;gap:3px;}
+.fg label{font-size:9px;color:var(--text-d);font-family:var(--mono);letter-spacing:.04em;}
+.fg input,.fg select,.fg textarea{background:var(--s2);border:1px solid var(--border);border-radius:4px;color:var(--text-b);font-family:var(--mono);font-size:12px;padding:4px 7px;width:100%;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--acc);}
+.fg select option{background:var(--s2);}
 
-If you use AnthracoForm in your research, please cite it as:
+/* CF BUTTON */
+.btn-cf{padding:4px 6px;width:32px;border-radius:4px;border:1px solid var(--border);background:var(--s2);color:var(--text-d);font-family:var(--mono);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .12s;flex-shrink:0;}
+.btn-cf:hover{border-color:var(--acc-br);color:var(--acc);}
+.btn-cf.on{background:var(--acc-bg);border-color:var(--acc-br);color:var(--acc);}
 
-> Minervini, I. (2026). *AnthracoForm: Offline single-file tool for anthracological
-> determination and analysis* (v1.0). Zenodo.
-> https://doi.org/10.5281/zenodo.20487674
+/* LOCK */
+.lock-bar{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;}
+.lock-lbl{font-size:8.5px;font-family:var(--mono);color:var(--text-d);letter-spacing:.08em;margin-right:2px;}
+.lock-item{display:flex;align-items:center;gap:3px;padding:2px 7px;border-radius:3px;border:1px solid var(--border2);background:var(--s2);cursor:pointer;user-select:none;transition:all .15s;}
+.lock-item:hover{border-color:var(--acc-br);}
+.lock-item.on{background:var(--acc-bg);border-color:var(--acc-br);}
+.lock-item input{width:11px;height:11px;accent-color:var(--acc);cursor:pointer;pointer-events:none;}
+.lock-item span{font-size:9px;font-family:var(--mono);color:var(--text-d);}
+.lock-item.on span{color:var(--acc);}
 
-## Authors
+/* GRID META */
+.meta-r1{display:grid;grid-template-columns:50px 55px 80px 55px 55px 75px 75px 60px;gap:6px;align-items:end;}
+.meta-r2{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr;gap:6px;align-items:end;margin-top:6px;}
+.meta-r3{display:flex;gap:18px;align-items:flex-end;margin-top:6px;flex-wrap:wrap;}
 
-Ignazio Minervini, CASEs Research Group (Culture, Archaeology and Socio-Ecological
-Dynamics), Universitat Pompeu Fabra, Barcelona.
+/* PILL TOGGLE */
+.pill-group{display:flex;gap:3px;align-items:center;}
+.pill-lbl{font-size:9px;color:var(--text-d);font-family:var(--mono);letter-spacing:.04em;margin-right:4px;white-space:nowrap;}
+.pill-opt{padding:3px 9px;border-radius:3px;border:1px solid var(--border2);background:var(--s2);color:var(--text-d);font-family:var(--mono);font-size:10px;font-weight:600;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap;}
+.pill-opt:hover{border-color:var(--acc-br);color:var(--text-b);}
+.pill-opt.on{background:var(--acc-bg);border-color:var(--acc-br);color:var(--acc);}
 
-## AI Acknowledgement
 
-AnthracoForm was developed with the assistance of Claude (Anthropic), an AI
-assistant used throughout the design, coding, and testing of the tool. The
-authors acknowledge the role of AI-assisted development in this work, in the
-spirit of transparency encouraged by the scientific community.
+/* MAIN */
+.main{display:grid;grid-template-columns:130px 1fr 1fr 1fr;gap:8px;}
 
-## License
+/* DESC SECTION */
+.sec-hdr{font-family:var(--mono);font-size:10px;font-weight:600;padding:4px 8px;border-radius:4px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
+.trv-h{background:rgba(83,155,245,.16);color:#539bf5;}
+.tan-h{background:rgba(70,149,74,.16);color:#5ab85e;}
+.rad-h{background:rgba(230,168,23,.16);color:#e6a817;}
 
-Released under the MIT License. See the [LICENSE](LICENSE) file for details.
+.search{background:var(--s2);border:1px solid var(--border);border-radius:4px;color:var(--text-b);font-family:var(--mono);font-size:11px;padding:4px 8px;width:100%;margin-bottom:6px;}
+.search:focus{outline:none;border-color:var(--acc);}
+.search::placeholder{color:var(--text-d);}
 
-## References
+.dlist{display:flex;flex-direction:column;gap:2px;max-height:490px;overflow-y:auto;padding-right:3px;}
+.dlist::-webkit-scrollbar{width:4px;}
+.dlist::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 
-- Allué, E., Euba Rementeria, I., and Solé, A. (2009). Charcoal taphonomy: the
-  study of the cell structure and surface deformations of *Pinus sylvestris* type
-  for the understanding of formation processes of archaeological charcoal
-  assemblages. *Journal of Taphonomy*, 7(2–3), 57–72.
+.dgroup{font-size:8.5px;font-family:var(--mono);color:var(--text-d);text-transform:uppercase;letter-spacing:.09em;padding:5px 4px 2px;margin-top:3px;border-top:1px solid var(--s3);}
+.dgroup:first-child{border-top:none;margin-top:0;padding-top:2px;}
 
-- Chabal, L. (1990). L'étude paléo-écologique de sites protohistoriques à partir
-  des charbons de bois : la question de l'unité de mesure. *Bulletin de la Société
-  Botanique de France — Actualités Botaniques*, 137(2), 117–129.
+.ditem{display:flex;align-items:flex-start;gap:5px;padding:3px 5px;border-radius:3px;cursor:pointer;border:1px solid transparent;transition:background .1s;}
+.ditem:hover{background:var(--s2);}
+.ditem.on{background:var(--acc-bg);border-color:var(--acc-br);}
+.ditem input[type=checkbox]{width:12px;height:12px;accent-color:var(--acc);cursor:pointer;flex-shrink:0;margin-top:1px;}
+.dcode{font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--acc);width:24px;flex-shrink:0;}
+.dlabel{font-size:11px;color:var(--text);line-height:1.35;}
+.ditem.hidden{display:none;}
 
-- Lancelotti, C. (2018). 'Not all that burns is wood'. A social perspective on
-  fuel exploitation and use during the Indus urban period (2600–1900 BC).
-  *PLOS ONE*, 13(3), 1–23.
+/* TAFONOMIA */
+.tlist{display:flex;flex-direction:column;gap:3px;}
+.titem{display:flex;align-items:center;gap:6px;padding:3px 5px;border-radius:3px;cursor:pointer;border:1px solid transparent;}
+.titem:hover{background:var(--s2);}
+.titem.on{background:var(--red-bg);border-color:var(--red-br);}
+.titem input[type=checkbox]{width:12px;height:12px;accent-color:var(--red);cursor:pointer;}
+.tlabel{font-size:11px;color:var(--text);}
 
-- Ruiz-Giralt, A., Bouchaud, C., Salavert, A., Lancelotti, C., and D'Andrea, A.C.
-  (2021). Human-woodland interactions during the Pre-Aksumite and Aksumite periods
-  in northeastern Tigray, Ethiopia: insights from the wood charcoal analyses from
-  Mezber and Ona Adi. *Vegetation History and Archaeobotany*, 30(6), 713–728.
-  https://doi.org/10.1007/s00334-021-00825-2
+/* VISTE */
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;}
+.vitem{display:flex;align-items:center;gap:5px;padding:3px 5px;border-radius:3px;cursor:pointer;border:1px solid transparent;}
+.vitem:hover{background:var(--s2);}
+.vitem.on{background:var(--blue-bg);border-color:var(--blue-br);}
+.vitem input{accent-color:var(--blue);width:12px;height:12px;}
+.vlabel{font-size:11px;color:var(--text);}
 
-- Wheeler, E.A., Baas, P., and Gasson, P.E. (eds.) (1989). IAWA list of
-  microscopic features for hardwood identification. *IAWA Bulletin*, 10(3),
-  219–332.
+/* N_IAWA */
+.iawa-box{background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-family:var(--mono);font-size:12px;color:var(--acc);min-height:36px;word-break:break-all;letter-spacing:.03em;}
+.iawa-sub{font-size:10px;color:var(--text-d);margin-top:4px;font-family:var(--mono);}
+
+/* FOOTER */
+.foot{display:grid;grid-template-columns:1fr 160px 140px;gap:8px;align-items:end;}
+.btn-row{display:flex;gap:6px;flex-direction:column;}
+button{padding:7px 13px;border-radius:5px;border:none;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;transition:all .15s;width:100%;}
+.btn-new{background:var(--s2);color:var(--text-b);border:1px solid var(--border);}
+.btn-new:hover{border-color:var(--acc);color:var(--acc);}
+.btn-save{background:var(--acc);color:#0d1117;}
+.btn-save:hover{background:#f5c44a;}
+.btn-save:disabled{background:var(--s3);color:var(--text-d);cursor:not-allowed;}
+.btn-report{background:var(--s2);color:#539bf5;border:1px solid var(--blue-br)!important;font-size:11px;}
+.btn-report:hover{background:var(--blue-bg);}
+.btn-fallback{background:var(--green);color:#fff;font-size:11px;}
+.btn-fallback:hover{background:var(--green-b);}
+.counter{font-family:var(--mono);font-size:10px;background:var(--s2);border:1px solid var(--border2);border-radius:4px;padding:4px 8px;color:var(--text-d);margin-bottom:5px;text-align:center;}
+.counter b{color:var(--acc);}
+.nav-row{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.nav-btn{width:auto!important;padding:4px 11px!important;background:var(--s2);color:var(--text-b);border:1px solid var(--border);border-radius:4px;font-size:14px;line-height:1;}
+.nav-btn:hover:not(:disabled){border-color:var(--acc);color:var(--acc);}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.nav-info{font-family:var(--mono);font-size:10px;color:var(--text-d);flex:1;text-align:center;}
+.mode-badge{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 7px;border-radius:3px;text-align:center;margin-bottom:4px;letter-spacing:.05em;}
+.mode-new{background:var(--acc-bg);border:1px solid var(--acc-br);color:var(--acc);}
+.mode-edit{background:var(--blue-bg);border:1px solid var(--blue-br);color:var(--blue);}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--acc);color:#0d1117;padding:9px 16px;border-radius:6px;font-weight:600;font-size:12px;transform:translateY(50px);opacity:0;transition:all .3s;z-index:999;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:5px;vertical-align:middle;flex-shrink:0;}
+.dot-green{background:#4caf82;}
+.dot-orange{background:#e6812a;}
+.dot-blue{background:#539bf5;}
+.dot-yellow{background:#e6c817;}
+textarea{resize:vertical;}
+.h-cases{display:flex;flex-direction:column;line-height:1.15;flex-shrink:0;}
+.h-cases-name{font-size:13px;font-weight:400;color:#c0392b;letter-spacing:.01em;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;}
+.h-cases-sub{font-size:9px;color:#c0392b;letter-spacing:.01em;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;white-space:normal;max-width:200px;}
+
+
+
+
+/* NUOVA SPECIE BADGE */
+.new-taxa-badge{display:none;font-family:var(--mono);font-size:9px;font-weight:700;color:#c0392b;background:#fff176;border:1px solid #f9a825;border-radius:3px;padding:1px 6px;margin-left:6px;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:translateY(0)}}
+.taxa-bar{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;align-items:center;}
+.taxa-bar-lbl{font-family:var(--mono);font-size:8.5px;color:var(--text-d);letter-spacing:.06em;margin-right:2px;white-space:nowrap;}
+.taxa-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:3px;border:1px solid var(--border2);background:var(--s2);font-family:var(--mono);font-size:10px;font-style:italic;color:var(--text-d);cursor:pointer;user-select:none;transition:all .12s;}
+.taxa-pill:hover{border-color:var(--acc-br);color:var(--acc);background:var(--acc-bg);}
+.taxa-pill-del{font-style:normal;font-size:9px;color:var(--text-d);margin-left:2px;padding:0 2px;border-radius:2px;line-height:1;}
+.taxa-pill-del:hover{color:var(--red)!important;}
+
+/* UNDET */
+.undet-wrap{display:flex;align-items:center;cursor:pointer;padding:2px 6px;border-radius:3px;border:1px solid transparent;transition:all .15s;}
+.undet-wrap:hover{border-color:var(--red-br);background:var(--red-bg);}
+.undet-wrap.on{border-color:var(--red-br);background:var(--red-bg);}
+.undet-wrap.on span{color:var(--red)!important;}
+
+/* TIPO */
+.tipo-row{display:grid;grid-template-columns:110px 1fr;gap:6px;margin-top:6px;align-items:end;}
+.tipo-desc-wrap{position:relative;}
+.tipo-desc-wrap input{width:100%;padding-right:60px;}
+.tipo-rec-count{position:absolute;right:7px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:9px;color:var(--text-d);pointer-events:none;}
+.tipo-rec-count b{color:var(--blue);}
+
+/* MODAL RISOLVI */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:400;display:none;align-items:flex-start;justify-content:center;padding-top:80px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--border);border-radius:8px;width:520px;box-shadow:0 12px 40px rgba(0,0,0,.5);}
+.modal-head{padding:11px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text-b);}
+.modal-close-btn{background:none;border:none;color:var(--text-d);font-size:16px;cursor:pointer;padding:2px 7px;border-radius:3px;line-height:1;}
+.modal-close-btn:hover{color:var(--red);}
+.modal-body{padding:14px 16px;}
+.modal-foot{padding:10px 16px;border-top:1px solid var(--border2);display:flex;gap:8px;justify-content:flex-end;}
+.modal-info{font-family:var(--mono);font-size:10px;color:var(--text-d);margin-bottom:10px;}
+.modal-info b{color:var(--blue);}
+.resolve-grid{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr;gap:8px;}
+.btn-apply{padding:6px 16px;border-radius:4px;border:none;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;background:var(--acc);color:#0d1117;transition:all .12s;}
+.btn-apply:hover{background:#f5c44a;}
+.btn-cancel{padding:6px 12px;border-radius:4px;border:1px solid var(--border);cursor:pointer;font-family:var(--mono);font-size:11px;background:var(--s3);color:var(--text-d);}
+.btn-cancel:hover{border-color:var(--red-br);color:var(--red);}
+
+/* SATURATION CURVE MODAL */
+.sat-modal{width:600px;}
+.sat-info-bar{font-family:var(--mono);font-size:10px;color:var(--text-d);margin-bottom:10px;display:flex;gap:16px;flex-wrap:wrap;}
+.sat-info-bar b{color:var(--acc);}
+.sat-svg-wrap{background:var(--s1);border:1px solid var(--border2);border-radius:5px;overflow:hidden;}
+.sat-su-sel{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.sat-su-sel label{font-family:var(--mono);font-size:10px;color:var(--text-d);}
+.sat-su-sel select{background:var(--s2);border:1px solid var(--border);border-radius:4px;color:var(--text-b);font-family:var(--mono);font-size:11px;padding:3px 6px;}
+
+/* SU SUMMARY MODAL */
+.sum-modal{width:700px;}
+.sum-modal .modal-body{max-height:72vh;overflow-y:auto;padding-right:14px;}
+.sum-tabs{display:flex;gap:2px;margin-bottom:10px;flex-wrap:wrap;}
+.sum-tab{padding:4px 10px;border-radius:4px;border:1px solid var(--border2);background:var(--s2);color:var(--text-d);font-family:var(--mono);font-size:10px;font-weight:600;cursor:pointer;transition:all .12s;white-space:nowrap;}
+.sum-tab:hover{border-color:var(--blue-br);color:var(--text-b);}
+.sum-tab.active{background:var(--blue-bg);border-color:var(--blue-br);color:var(--blue);}
+
+/* PHOTO */
+.photo-box{display:block;cursor:pointer;border:1px dashed var(--border);border-radius:5px;background:var(--s2);overflow:hidden;transition:border-color .15s;}
+.photo-box:hover{border-color:var(--acc-br);}
+.photo-preview{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;position:relative;}
+.photo-preview img{width:100%;height:100%;object-fit:cover;border-radius:4px;}
+.photo-placeholder{font-family:var(--mono);font-size:11px;color:var(--text-d);}
+.photo-fname{font-family:var(--mono);font-size:9px;color:var(--text-d);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.photo-clear{margin-top:3px;padding:2px 8px!important;width:auto!important;background:var(--red-bg);border:1px solid var(--red-br)!important;color:var(--red);font-size:9px;font-family:var(--mono);border-radius:3px;cursor:pointer;}
+.photo-clear:hover{background:var(--red);color:#fff;}
+
+
+/* ============================================================
+   MAIN TAB BAR (Form / Lookup / Key)
+   ============================================================ */
+.main-tabs{background:var(--s1);border-bottom:1px solid var(--border2);padding:0 14px;display:flex;gap:2px;flex-shrink:0;position:sticky;top:0;z-index:90;}
+.main-tab{padding:9px 22px;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text-d);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;letter-spacing:.03em;display:flex;align-items:center;gap:6px;}
+.main-tab:hover{color:var(--text-b);}
+.main-tab.active{color:var(--acc);border-bottom-color:var(--acc);}
+.main-tab-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;background:var(--s3);color:var(--text-d);margin-left:3px;}
+.main-tab.active .main-tab-badge{background:var(--acc-bg);color:var(--acc);border:1px solid var(--acc-br);}
+
+.main-panel{display:none;}
+.main-panel.active{display:block;}
+
+/* ============================================================
+   TAB 2: LOOKUP VIEW
+   ============================================================ */
+.lookup-wrap{padding:14px;display:flex;flex-direction:column;gap:10px;max-width:1200px;margin:0 auto;}
+.lookup-bar{background:var(--s1);border:1px solid var(--border2);border-radius:7px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.lookup-bar-title{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text-d);text-transform:uppercase;white-space:nowrap;}
+.lookup-chips{display:flex;flex-wrap:wrap;gap:3px;flex:1;min-height:20px;}
+.l-chip{display:inline-flex;align-items:center;background:var(--blue-bg);border:1px solid var(--blue-br);border-radius:3px;padding:1px 7px;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--blue);}
+.lookup-chips-empty{font-size:11px;color:var(--text-d);font-style:italic;align-self:center;}
+.lookup-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:var(--s1);border:1px solid var(--border2);border-radius:7px;padding:8px 14px;}
+.lc-lbl{font-family:var(--mono);font-size:10px;color:var(--text-d);letter-spacing:.05em;text-transform:uppercase;}
+.lc-btn{padding:3px 10px;border-radius:4px;border:1px solid var(--border2);background:var(--s2);color:var(--text-d);font-family:var(--mono);font-size:10px;cursor:pointer;transition:all .12s;}
+.lc-btn.on{background:var(--acc-bg);border-color:var(--acc-br);color:var(--acc);}
+.lc-btn:hover:not(.on){color:var(--text-b);}
+.lc-tip-wrap{position:relative;display:inline-block;}
+.lc-tip-wrap:hover .lc-tip{display:block;}
+.lc-tip{display:none;position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--s1);border:1px solid var(--border);border-radius:5px;padding:7px 10px;font-size:11px;color:var(--text);line-height:1.5;width:220px;z-index:50;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.5);}
+.lc-tip b{color:var(--acc);}
+.lc-min{background:var(--s2);border:1px solid var(--border2);border-radius:3px;color:var(--text-b);font-family:var(--mono);font-size:10px;padding:2px 6px;width:40px;margin-left:auto;}
+.lookup-results{display:flex;flex-direction:column;gap:8px;}
+.lr-empty{font-size:13px;color:var(--text-d);font-style:italic;text-align:center;padding:30px 10px;background:var(--s1);border:1px dashed var(--border2);border-radius:7px;}
+.lr-empty a{color:var(--acc);text-decoration:underline;cursor:pointer;}
+.lr-card{background:var(--s1);border:1px solid var(--border2);border-radius:7px;overflow:hidden;}
+.lr-card.top{border-color:var(--acc-br);}
+.lr-head{display:flex;flex-direction:column;gap:6px;padding:9px 13px;background:var(--s2);border-bottom:1px solid var(--border2);}
+.lr-head-top{display:flex;align-items:center;gap:9px;}
+.lr-rank{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text-d);min-width:22px;}
+.lr-name{font-size:14px;font-weight:700;font-style:italic;color:var(--text-b);flex:1;line-height:1.3;}
+.lr-name.fam{font-style:normal;color:#e6a817;}
+.lr-bar-o{width:100%;height:5px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.lr-bar-i{height:100%;border-radius:3px;transition:width .35s;}
+.lr-stats{display:flex;gap:12px;font-family:var(--mono);font-size:9px;color:var(--text-d);}
+.lr-stats b{color:var(--acc);}
+.lr-stats .ok{color:var(--acc);}
+.lr-stats .warn{color:var(--red);}
+.lr-body{padding:8px 13px;display:flex;flex-direction:column;gap:5px;}
+.lr-mst{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-d);margin-bottom:2px;}
+.lr-mpills{display:flex;flex-wrap:wrap;gap:3px;}
+.lr-mp{border-radius:3px;padding:2px 6px;font-family:var(--mono);font-size:10px;font-weight:700;}
+.lr-mp.m{background:var(--acc-bg);border:1px solid var(--acc-br);color:var(--acc);}
+.lr-mp.x{background:var(--red-bg);border:1px solid var(--red-br);color:var(--red);}
+.lr-mp.e{background:var(--s3);border:1px solid var(--border2);color:var(--text-d);}
+.lr-apply-row{display:flex;justify-content:flex-end;padding:6px 13px;border-top:1px solid var(--border2);background:var(--s2);}
+.lr-apply{padding:5px 14px;border-radius:4px;border:none;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;background:var(--acc);color:#0d1117;transition:all .12s;}
+.lr-apply:hover{background:#f5c44a;}
+
+/* ============================================================
+   TAB 3: DICHOTOMOUS KEY VIEW
+   ============================================================ */
+.key-wrap{display:grid;grid-template-columns:240px 1fr;flex:1;min-height:calc(100vh - 130px);}
+.key-sidebar{background:var(--s1);border-right:1px solid var(--border2);padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+.key-sidebar-title{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text-d);text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid var(--border2);}
+.key-path-empty{font-size:11px;color:var(--text-d);font-style:italic;text-align:center;margin-top:18px;}
+.key-path-step{display:flex;flex-direction:column;gap:2px;padding:5px 8px;border-radius:4px;background:var(--s2);border:1px solid var(--border2);}
+.key-path-num{font-family:var(--mono);font-size:8.5px;color:var(--text-d);letter-spacing:.06em;}
+.key-path-choice{font-size:10px;color:var(--text-b);line-height:1.35;}
+.key-path-arrow{font-size:9px;color:var(--acc);font-family:var(--mono);}
+.key-path-conn{width:1px;height:8px;background:var(--border2);margin:0 auto;}
+.key-right{display:flex;flex-direction:column;overflow:hidden;}
+.key-nav{padding:9px 16px;border-bottom:1px solid var(--border2);display:flex;gap:8px;align-items:center;background:var(--s1);flex-shrink:0;}
+.key-content{padding:18px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px;}
+.k-btn{padding:4px 12px;border-radius:4px;border:1px solid var(--border);background:var(--s3);color:var(--text-d);font-family:var(--mono);font-size:10px;font-weight:600;cursor:pointer;transition:all .12s;}
+.k-btn:hover{border-color:var(--acc-br);color:var(--acc);}
+.k-btn:disabled{opacity:.35;cursor:not-allowed;}
+.k-btn.dnger:hover{border-color:var(--red-br);color:var(--red);}
+.k-pbar-wrap{flex:1;background:var(--s3);border-radius:2px;height:3px;overflow:hidden;}
+.k-pbar{height:100%;background:var(--acc);border-radius:2px;transition:width .3s;}
+.k-plbl{font-family:var(--mono);font-size:10px;color:var(--text-d);}
+.k-coup-card{background:var(--s1);border:1px solid var(--border2);border-radius:8px;overflow:hidden;}
+.k-coup-hdr{background:var(--s2);padding:8px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border2);}
+.k-coup-num{font-family:var(--mono);font-size:11px;font-weight:700;color:#e6a817;background:rgba(230,168,23,.13);border:1px solid rgba(230,168,23,.4);border-radius:3px;padding:1px 8px;}
+.k-coup-lbl{font-size:10px;color:var(--text-d);font-family:var(--mono);}
+.k-coup-body{padding:11px 14px;display:flex;flex-direction:column;gap:6px;}
+.k-cho{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border-radius:5px;border:1px solid var(--border2);background:var(--s2);cursor:pointer;transition:all .15s;text-align:left;width:100%;}
+.k-cho:hover{border-color:var(--acc-br);background:var(--acc-bg);}
+.k-cho:hover .k-cl{color:var(--acc);}
+.k-cho:hover .k-ct{color:var(--text-b);}
+.k-cl{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text-d);min-width:18px;padding-top:1px;}
+.k-ct{font-size:13px;color:var(--text);line-height:1.45;flex:1;}
+.k-cd{font-family:var(--mono);font-size:10px;color:var(--text-d);margin-top:3px;}
+.k-cd.t{color:#e6a817;}
+.k-det-card{background:var(--s1);border:2px solid var(--acc-br);border-radius:8px;overflow:hidden;}
+.k-det-hdr{background:var(--acc-bg);padding:9px 16px;border-bottom:1px solid var(--acc-br);display:flex;align-items:center;justify-content:space-between;}
+.k-det-badge{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--acc);background:var(--s2);border:1px solid var(--acc-br);border-radius:3px;padding:2px 8px;letter-spacing:.08em;}
+.k-det-body{padding:16px;}
+.k-det-taxon{font-size:22px;font-weight:700;font-style:italic;color:var(--text-b);margin-bottom:4px;}
+.k-det-taxon.fam{font-style:normal;color:#e6a817;}
+.k-det-note{font-size:12px;color:var(--text-d);margin-bottom:12px;font-family:var(--mono);}
+.k-det-ilbl{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.1em;color:var(--text-d);text-transform:uppercase;margin-bottom:6px;}
+.k-ipills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;}
+.k-ipill{background:rgba(230,168,23,.13);border:1px solid rgba(230,168,23,.4);border-radius:3px;padding:2px 7px;font-family:var(--mono);font-size:10px;font-weight:700;color:#e6a817;}
+.k-det-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.k-dbtn{padding:7px 14px;border-radius:4px;border:none;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;transition:all .12s;}
+.k-dbtn.apply{background:var(--acc);color:#0d1117;}.k-dbtn.apply:hover{background:#f5c44a;}
+.k-dbtn.sec{background:var(--s3);color:var(--text-d);border:1px solid var(--border);}.k-dbtn.sec:hover{border-color:var(--acc-br);color:var(--acc);}
+
+/* ============================================================
+   WELCOME MODAL
+   ============================================================ */
+.welcome-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:999;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px);}
+.welcome-overlay.open{display:flex;animation:wfadein .35s ease;}
+.welcome-modal{background:var(--s1);border:1px solid var(--border);border-radius:10px;max-width:620px;width:100%;padding:0;box-shadow:0 16px 50px rgba(0,0,0,.6);overflow:hidden;}
+.welcome-head{background:linear-gradient(135deg,rgba(76,175,130,.18),rgba(230,168,23,.12));padding:18px 26px;border-bottom:1px solid var(--border2);}
+.welcome-title{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--acc);letter-spacing:.03em;margin-bottom:3px;}
+.welcome-sub{font-family:var(--mono);font-size:10px;color:#c0392b;letter-spacing:.04em;}
+.welcome-body{padding:24px 28px;}
+.welcome-body p{font-size:14px;line-height:1.65;color:var(--text-b);margin-bottom:14px;}
+.welcome-body p.tagline{font-size:13px;color:var(--text-d);font-style:italic;line-height:1.6;margin-bottom:0;border-left:3px solid #e6a817;padding-left:14px;}
+.welcome-body em{color:var(--acc);font-style:normal;font-weight:600;}
+.welcome-body strong{color:#e6a817;font-weight:600;}
+.welcome-foot{padding:14px 28px 22px;display:flex;justify-content:flex-end;align-items:center;gap:14px;}
+.welcome-foot label{font-size:11px;color:var(--text-d);font-family:var(--mono);display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;}
+.welcome-foot label input{accent-color:var(--acc);cursor:pointer;}
+.welcome-btn{padding:9px 22px;border-radius:5px;border:none;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:700;background:var(--acc);color:#0d1117;transition:all .12s;letter-spacing:.03em;}
+.welcome-btn:hover{background:#f5c44a;transform:translateY(-1px);}
+@keyframes wfadein{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+
+/* CITATION BADGE + MINI-MODAL */
+.cit-badge{padding:2px 9px;border-radius:3px;border:1px solid rgba(230,168,23,.3);background:rgba(230,168,23,.08);color:rgba(230,168,23,.7);font-family:var(--mono);font-size:9px;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:all .15s;white-space:nowrap;margin-left:auto;}
+.cit-badge:hover{border-color:rgba(230,168,23,.7);color:#e6a817;background:rgba(230,168,23,.15);}
+.cit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:none;align-items:center;justify-content:center;padding:20px;}
+.cit-overlay.open{display:flex;}
+.cit-modal{background:var(--s1);border:1px solid var(--border);border-radius:8px;max-width:560px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.55);overflow:hidden;}
+.cit-head{background:var(--s2);padding:10px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+.cit-head-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text-d);letter-spacing:.08em;text-transform:uppercase;}
+.cit-close{background:none;border:none;color:var(--text-d);font-size:15px;cursor:pointer;padding:2px 6px;border-radius:3px;}
+.cit-close:hover{color:var(--red);}
+.cit-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px;}
+.cit-entry{background:var(--s2);border:1px solid var(--border2);border-radius:5px;padding:11px 14px;}
+.cit-entry-lbl{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--text-d);text-transform:uppercase;margin-bottom:6px;}
+.cit-entry-text{font-size:12px;color:var(--text-b);line-height:1.6;font-style:italic;}
+.cit-entry-text span{font-style:normal;}
+.cit-entry-text a{color:var(--acc);text-decoration:none;}
+.cit-entry-text a:hover{text-decoration:underline;}
+.cit-foot{padding:10px 20px 16px;display:flex;justify-content:flex-end;gap:8px;}
+.cit-copy{padding:6px 14px;border-radius:4px;border:1px solid var(--acc-br);background:var(--acc-bg);color:var(--acc);font-family:var(--mono);font-size:10px;font-weight:700;cursor:pointer;transition:all .12s;}
+.cit-copy:hover{background:var(--acc);color:#0d1117;}
+
+/* ============================================================
+   TAB 4: COMPARE TAXA
+   ============================================================ */
+.cmp-wrap{padding:16px;max-width:1050px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+.cmp-selector{background:var(--s1);border:1px solid var(--border2);border-radius:7px;padding:14px 18px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;}
+.cmp-sel-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px;}
+.cmp-sel-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-d);}
+.cmp-sel-input{background:var(--s2);border:1px solid var(--border);border-radius:4px;color:var(--text-b);font-family:var(--mono);font-size:12px;padding:6px 9px;width:100%;}
+.cmp-sel-input:focus{outline:none;border-color:var(--acc);}
+.cmp-sel-input option{background:var(--s2);}
+.cmp-vs{font-size:16px;font-weight:700;color:var(--text-d);padding-bottom:4px;flex-shrink:0;}
+.cmp-btn-go{padding:7px 20px;border-radius:4px;border:none;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;background:var(--acc);color:#0d1117;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.cmp-btn-go:hover{background:#f5c44a;}
+.cmp-btn-go:disabled{background:var(--s3);color:var(--text-d);cursor:not-allowed;}
+.cmp-history{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.cmp-hist-lbl{font-size:9px;color:var(--text-d);letter-spacing:.08em;}
+.cmp-hist-pill{padding:2px 9px;border-radius:3px;border:1px solid var(--border2);background:var(--s2);color:var(--text-d);font-size:10px;font-family:var(--mono);cursor:pointer;transition:all .12s;}
+.cmp-hist-pill:hover{border-color:var(--acc-br);color:var(--acc);}
+.cmp-empty{background:var(--s1);border:1px dashed var(--border2);border-radius:7px;padding:36px;text-align:center;color:var(--text-d);font-family:var(--mono);font-size:11px;line-height:1.9;}
+.cmp-empty-icon{font-size:28px;margin-bottom:6px;opacity:.35;}
+.cmp-loading{background:var(--s1);border:1px solid var(--border2);border-radius:7px;padding:28px;text-align:center;}
+.cmp-dots{display:inline-flex;gap:5px;align-items:center;}
+.cmp-dots span{width:6px;height:6px;border-radius:50%;background:var(--acc);animation:cmpPulse 1.2s ease-in-out infinite;}
+.cmp-dots span:nth-child(2){animation-delay:.2s;}
+.cmp-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes cmpPulse{0%,80%,100%{transform:scale(.6);opacity:.4;}40%{transform:scale(1);opacity:1;}}
+.cmp-loading-txt{font-size:10px;color:var(--text-d);margin-top:8px;font-family:var(--mono);}
+.cmp-card{background:var(--s1);border:1px solid var(--border2);border-radius:7px;overflow:hidden;animation:cmpFade .3s ease;}
+@keyframes cmpFade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.cmp-card-head{display:grid;grid-template-columns:1fr 70px 1fr;background:var(--s2);border-bottom:1px solid var(--border2);}
+.cmp-tx-head{padding:12px 14px;}
+.cmp-tx-head.a{border-right:1px solid var(--border2);}
+.cmp-tx-head.b{border-left:1px solid var(--border2);}
+.cmp-tx-name{font-size:14px;font-style:italic;font-weight:700;color:var(--text-b);margin-bottom:2px;font-family:serif;}
+.cmp-tx-meta{font-size:9px;color:var(--text-d);letter-spacing:.04em;}
+.cmp-tx-meta b{color:var(--blue);}
+.cmp-vs-ctr{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text-d);}
+.cmp-body{padding:14px;}
+.cmp-keydiff{background:var(--acc-bg);border:1px solid var(--acc-br);border-radius:5px;padding:10px 13px;margin-bottom:12px;}
+.cmp-kd-title{font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin-bottom:7px;}
+.cmp-kd-item{display:flex;align-items:flex-start;gap:7px;margin-bottom:4px;font-size:11px;color:var(--text-b);line-height:1.45;}
+.cmp-kd-arrow{color:var(--acc);flex-shrink:0;}
+.cmp-sec-row{display:grid;grid-template-columns:1fr 52px 1fr;margin-bottom:8px;}
+.cmp-sec-lbl{display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-d);border-left:1px solid var(--border2);border-right:1px solid var(--border2);}
+.cmp-feat-col{padding:4px 0;}
+.cmp-feat-col.a{padding-right:10px;}
+.cmp-feat-col.b{padding-left:10px;}
+.cmp-feat{display:flex;align-items:flex-start;gap:5px;padding:2px 5px;border-radius:3px;margin-bottom:2px;font-size:10.5px;line-height:1.4;color:var(--text);}
+.cmp-feat.diff{background:var(--acc-bg);border-left:2px solid var(--acc-br);}
+.cmp-feat-dot{width:4px;height:4px;border-radius:50%;background:var(--text-d);flex-shrink:0;margin-top:5px;}
+.cmp-feat.diff .cmp-feat-dot{background:var(--acc);}
+.cmp-divider{height:1px;background:var(--border2);margin:8px 0;}
+.cmp-iawa{display:flex;flex-wrap:wrap;gap:3px;padding:2px 0;}
+.cmp-iawa-chip{font-size:8.5px;font-family:var(--mono);font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-br);border-radius:2px;padding:1px 5px;}
+.cmp-caution{background:rgba(230,200,23,.08);border:1px solid rgba(230,200,23,.3);border-radius:5px;padding:9px 12px;display:flex;gap:7px;align-items:flex-start;}
+.cmp-caution-icon{color:#e6c817;flex-shrink:0;font-size:12px;}
+.cmp-caution-lbl{font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#e6c817;margin-bottom:3px;}
+.cmp-caution-txt{font-size:10.5px;color:var(--text);line-height:1.5;}
+.cmp-error{background:var(--red-bg);border:1px solid var(--red-br);border-radius:5px;padding:10px 13px;font-size:11px;color:var(--red);}
+/* 3-col layout */
+.cmp-sec-block{margin-bottom:10px;}
+.cmp-sec-hdr{font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-d);padding:4px 0 4px 4px;border-bottom:1px solid var(--border2);margin-bottom:4px;}
+.cmp-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;}
+.cmp-col-a,.cmp-col-mid,.cmp-col-b{padding:2px 4px;}
+.cmp-col-mid{border-left:1px solid var(--border2);border-right:1px solid var(--border2);}
+.cmp-feat{display:flex;align-items:flex-start;gap:4px;padding:2px 3px;border-radius:3px;margin-bottom:2px;font-size:10px;line-height:1.4;}
+.cmp-feat.only-a{background:var(--acc-bg);border-left:2px solid var(--acc-br);}
+.cmp-feat.only-b{background:var(--blue-bg);border-left:2px solid var(--blue-br);}
+.cmp-feat.shared{background:var(--s3);}
+.cmp-code{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--acc);min-width:20px;flex-shrink:0;}
+.cmp-feat.only-b .cmp-code{color:var(--blue);}
+.cmp-feat.shared .cmp-code{color:var(--text-d);}
+.cmp-legend{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:9px;}
+.cmp-leg{font-family:var(--mono);}
+.cmp-leg-a{color:var(--acc);}
+.cmp-leg-s{color:var(--text-d);}
+.cmp-leg-b{color:var(--blue);}
+.cmp-col-labels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px;}
+.cmp-col-lbl{font-size:9px;font-style:italic;text-align:center;color:var(--text-d);padding:2px 4px;}
+.cmp-col-lbl.a{color:var(--acc);}
+.cmp-col-lbl.b{color:var(--blue);}
+.cmp-col-lbl.s{color:var(--text-d);}
+.cmp-col-lbl.c{color:var(--orange);}
+.cmp-kd-tc{color:var(--orange);}
+/* 3-TAXON CARD */
+.cmp3-card{background:var(--s1);border:1px solid var(--border2);border-radius:7px;overflow:hidden;animation:cmpFade .3s ease;}
+.cmp3-head{display:grid;grid-template-columns:1fr 44px 1fr 44px 1fr;background:var(--s2);border-bottom:1px solid var(--border2);}
+.cmp3-tx-head{padding:10px 14px;}
+.cmp3-tx-name{font-size:13px;font-style:italic;font-weight:700;color:var(--text-b);font-family:serif;margin-bottom:2px;}
+.cmp3-tx-meta{font-size:9px;color:var(--text-d);}
+.cmp3-vs{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text-d);}
+.cmp3-body{padding:12px 14px;}
+.cmp3-tbl{width:100%;border-collapse:collapse;font-size:10px;margin-top:8px;}
+.cmp3-tbl thead th{font-size:8px;font-family:var(--mono);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-d);padding:4px 6px;border-bottom:2px solid var(--border2);text-align:left;}
+.cmp3-th-tx{text-align:center !important;min-width:40px;}
+.cmp3-th-tx.a{color:var(--acc) !important;}
+.cmp3-th-tx.b{color:var(--blue) !important;}
+.cmp3-th-tx.c{color:var(--orange) !important;}
+.cmp3-tbl tbody tr{border-bottom:1px solid var(--border2);}
+.cmp3-tbl tbody tr:hover{background:var(--s2);}
+.cmp3-tbl tbody tr.row-a{background:var(--acc-bg);}
+.cmp3-tbl tbody tr.row-b{background:var(--blue-bg);}
+.cmp3-tbl tbody tr.row-c{background:var(--orange-bg);}
+.cmp3-tbl tbody tr.row-all{background:var(--s3);}
+.cmp3-tbl td{padding:3px 6px;vertical-align:middle;}
+.cmp3-td-code{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text-d);min-width:24px;}
+.cmp3-td-feat{color:var(--text);font-size:10px;line-height:1.35;}
+.cmp3-td-chk{text-align:center;font-weight:700;font-size:12px;}
+.cmp3-td-chk.a{color:var(--acc);}
+.cmp3-td-chk.b{color:var(--blue);}
+.cmp3-td-chk.c{color:var(--orange);}
+.cmp3-td-chk.no{color:var(--border2);}
+.cmp3-sec-row td{font-size:8px;font-family:var(--mono);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-d);background:var(--s2);padding:3px 6px;border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);}
+.cmp-sel-lbl.c{color:var(--orange);}
+.cmp-kd-sec{font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--text-d);background:var(--s3);border-radius:2px;padding:1px 5px;flex-shrink:0;margin-right:4px;}
+.cmp-kd-ta{color:var(--acc);}
+.cmp-kd-tb{color:var(--blue);}
+.cmp-sec-badge{font-family:var(--mono);font-size:8px;font-weight:700;border-radius:2px;padding:1px 4px;flex-shrink:0;margin-right:4px;}
+.cmp-sec-badge.trv{background:rgba(83,155,245,.15);color:#539bf5;}
+.cmp-sec-badge.rad{background:rgba(230,168,23,.15);color:#e6a817;}
+.cmp-sec-badge.tan{background:rgba(70,149,74,.2);color:#5ab85e;}
+.cmp-sec-badge.—{background:var(--s3);color:var(--text-d);}
+.cmp-feat-txt{font-size:10px;line-height:1.4;color:var(--text);}
+.cmp-feat.only-a .cmp-feat-txt{color:var(--text-b);}
+.cmp-feat.only-b .cmp-feat-txt{color:var(--text-b);}
+.cmp-feat-code{font-family:var(--mono);font-size:9px;color:var(--text-d);}
+.cmp-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;align-items:start;}
+.cmp-col-a,.cmp-col-mid,.cmp-col-b{padding:2px 4px;}
+.cmp-col-mid{border-left:1px solid var(--border2);border-right:1px solid var(--border2);}
+</style>
+</head>
+<body>
+
+<!-- WELCOME MODAL -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-modal">
+    <div class="welcome-head">
+      <div class="welcome-title">Welcome to AnthracoForm</div>
+      <div class="welcome-sub">CASEs · Culture, Archaeology and Socio-Ecological Dynamics Research Group</div>
+    </div>
+    <div class="welcome-body">
+      <p>This tool was created to <em>speed up</em> the recording of anthracological determinations.</p>
+      <p>But <strong>nothing</strong> replaces the study of manuals, reference atlases, and the beautiful hours spent at the microscope.</p>
+      <p class="tagline">The tool is an aid, not a shortcut; the eye, patience, and knowledge of the manuals remain irreplaceable.</p>
+    </div>
+    <div class="welcome-foot">
+      <label><input type="checkbox" id="welcome-dontshow"> don't show again on startup</label>
+      <button class="welcome-btn" onclick="closeWelcome()">Let's start →</button>
+    </div>
+  </div>
+</div>
+<header>
+<div class="h-cases">
+    <span class="h-cases-name">CASEs</span>
+    <span class="h-cases-sub">Culture, Archaeology and Socio-Ecological Dynamics Research Group</span>
+  </div>
+    <div class="h-title">AnthracoForm — Anthracological Determination</div>
+
+  <!-- NAV WIDGET STICKY -->
+  <div class="h-nav">
+    <div class="h-mode new" id="h-mode-badge">NEW RECORD</div>
+    <div class="h-sep"></div>
+    <button class="h-nav-btn" id="h-btn-first" onclick="firstRecord()" disabled title="First record">⇤</button>
+    <button class="h-nav-btn" id="h-btn-prev" onclick="prevRecord()" disabled title="Alt+←">←</button>
+    <span class="h-nav-info" id="h-nav-info">—</span>
+    <button class="h-nav-btn" id="h-btn-next" onclick="nextRecord()" disabled title="Alt+→">→</button>
+    <button class="h-nav-btn" id="h-btn-last" onclick="lastRecord()" disabled title="Last record">⇥</button>
+    <div class="h-sep"></div>
+    <span class="h-counter">Tot: <b id="h-record-count">0</b></span>
+    <div class="h-sep"></div>
+    <button class="h-btn-save" id="h-btn-save" onclick="saveRecord()" disabled>✓ Save</button>
+    <button class="h-btn-del" id="h-btn-del" onclick="deleteRecord()" title="Delete current record">✕ Delete</button>
+  </div>
+
+  <div class="h-keys">
+    <span><kbd>Ctrl+S</kbd> Save</span>
+    <span><kbd>Alt+←/→</kbd> Navigate</span>
+  </div>
+</header>
+
+<!-- FILE BAR -->
+<div id="file-bar">
+  <div id="file-status"><span class="fs-none">No folder selected — click "Select folder"</span></div>
+  <button class="btn-file" id="btn-connect" onclick="selectFolder()">Select folder</button>
+  <button class="btn-file" id="btn-reload" onclick="reloadCSV()" style="display:none;background:var(--blue-bg);border-color:var(--blue-br);color:var(--blue);">⟳ Reload CSV</button>
+  <span class="warn-nofsa" id="warn-nofsa" style="display:none">⚠ Use Chrome (version 86+)</span>
+</div>
+
+<div class="main-tabs">
+  <button class="main-tab active" data-tab="form" onclick="switchMainTab('form')">📝 Form</button>
+  <button class="main-tab" data-tab="lookup" onclick="switchMainTab('lookup')">🔍 IAWA Reverse Lookup <span class="main-tab-badge" id="tab-lookup-count">0</span></button>
+  <button class="main-tab" data-tab="key" onclick="switchMainTab('key')">🗝 Dichotomous Key</button>
+  <button class="main-tab" data-tab="compare" onclick="switchMainTab('compare')">🔬 Compare Taxa</button>
+</div>
+
+<div class="main-panel active" id="panel-form">
+<div class="wrap">
+
+  <!-- METADATI -->
+  <div class="card">
+    <div class="card-title">Sample metadata</div>
+
+    <!-- BARRA LOCK -->
+    <div class="lock-bar">
+      <span class="lock-lbl">🔒 KEEP:</span>
+      <div class="lock-item" id="lock-id_samp" onclick="toggleLock('id_samp')">
+        <input type="checkbox" id="lck-id_samp"><span>id samp.</span>
+      </div>
+      <div class="lock-item" id="lock-site_code" onclick="toggleLock('site_code')">
+        <input type="checkbox" id="lck-site_code"><span>site</span>
+      </div>
+      <div class="lock-item" id="lock-trench" onclick="toggleLock('trench')">
+        <input type="checkbox" id="lck-trench"><span>trench</span>
+      </div>
+      <div class="lock-item" id="lock-su" onclick="toggleLock('su')">
+        <input type="checkbox" id="lck-su"><span>SU</span>
+      </div>
+      <div class="lock-item" id="lock-layer" onclick="toggleLock('layer')">
+        <input type="checkbox" id="lck-layer"><span>layer</span>
+      </div>
+      <div class="lock-item" id="lock-context" onclick="toggleLock('context')">
+        <input type="checkbox" id="lck-context"><span>context</span>
+      </div>
+      <div class="lock-item" id="lock-operator" onclick="toggleLock('operator')">
+        <input type="checkbox" id="lck-operator"><span>operator</span>
+      </div>
+      <div class="lock-item" id="lock-microscope" onclick="toggleLock('microscope')">
+        <input type="checkbox" id="lck-microscope"><span>microscope</span>
+      </div>
+      <div class="lock-item" id="lock-curv_sat" onclick="toggleLock('curv_sat')">
+        <input type="checkbox" id="lck-curv_sat"><span>sat. curv.</span>
+      </div>
+      <span class="lock-lbl" style="margin-left:2px;">channel:</span>
+      <div class="lock-item" id="lock-ch-HF" onclick="toggleChannelLock('HF')">
+        <input type="checkbox" id="lck-ch-HF"><span>HF</span>
+      </div>
+      <div class="lock-item" id="lock-ch-LF" onclick="toggleChannelLock('LF')">
+        <input type="checkbox" id="lck-ch-LF"><span>LF</span>
+      </div>
+      <div class="lock-item" id="lock-ch-HC" onclick="toggleChannelLock('HC')">
+        <input type="checkbox" id="lck-ch-HC"><span>HC</span>
+      </div>
+      <div class="lock-item" id="lock-ch-DS" onclick="toggleChannelLock('DS')">
+        <input type="checkbox" id="lck-ch-DS"><span>DS</span>
+      </div>
+      <div class="lock-item" id="lock-ch-STR" onclick="toggleChannelLock('STR')">
+        <input type="checkbox" id="lck-ch-STR"><span>STR</span>
+      </div>
+      <div class="lock-item" id="lock-ch-C14" onclick="toggleChannelLock('C14')">
+        <input type="checkbox" id="lck-ch-C14"><span>C14</span>
+      </div>
+      <div class="lock-item" id="lock-fraction" onclick="toggleLock('fraction')">
+        <input type="checkbox" id="lck-fraction"><span>fraction</span>
+      </div>
+    </div>
+
+    <div class="meta-r1">
+      <div class="fg"><label>id det.</label><input id="id_det" type="number" value="1" min="1"></div>
+      <div class="fg"><label>id samp.</label><input id="id_samp" type="number"></div>
+      <div class="fg"><label>site</label><input id="site_code" style="text-transform:uppercase;"></div>
+      <div class="fg"><label>trench</label><input id="trench"></div>
+      <div class="fg"><label>SU</label><input id="su"></div>
+      <div class="fg"><label>layer</label><input id="layer"></div>
+      <div class="fg"><label>context</label><input id="context"></div>
+      <div class="fg">
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:3px;">
+          <span>sat. curv.</span>
+          <span style="display:flex;gap:3px;">
+            <button onclick="openTDCModal()" style="padding:1px 5px;border-radius:3px;border:1px solid var(--acc-br);background:var(--acc-bg);color:var(--acc);font-size:10px;font-weight:700;cursor:pointer;line-height:1.4;width:auto;" title="TDC — Taxonomic Discovery Curve (site-level, HC only)">TDC</button>
+            <button onclick="openCDCModal()" style="padding:1px 5px;border-radius:3px;border:1px solid var(--acc-br);background:var(--acc-bg);color:var(--acc);font-size:10px;font-weight:700;cursor:pointer;line-height:1.4;width:auto;" title="CDC — Conditional Discovery Curve (DS, per SU; inherits HF+LF taxa list)">CDC</button>
+            <button onclick="openSumModal()" style="padding:1px 5px;border-radius:3px;border:1px solid var(--blue-br);background:var(--blue-bg);color:var(--blue);font-size:10px;cursor:pointer;line-height:1.4;width:auto;" title="SU Summary / Whole assemblage">📊</button>
+          </span>
+        </label>
+        <input id="curv_sat" type="number">
+      </div>
+    </div>
+    <div class="meta-r3">
+      <div class="pill-group">
+        <span class="pill-lbl">CHANNEL</span>
+        <div class="pill-opt" data-group="hflf" data-value="HF" onclick="setPill('hflf','HF')">HF</div>
+        <div class="pill-opt" data-group="hflf" data-value="LF" onclick="setPill('hflf','LF')">LF</div>
+        <div class="pill-opt" data-group="hflf" data-value="HC" onclick="setPill('hflf','HC')">HC</div>
+        <div class="pill-opt" data-group="hflf" data-value="DS" onclick="setPill('hflf','DS')">DS</div>
+        <div class="pill-opt" data-group="hflf" data-value="STR" onclick="setPill('hflf','STR')">STR</div>
+        <div class="pill-opt" data-group="hflf" data-value="C14" onclick="setPill('hflf','C14')">C14</div>
+      </div>
+      <div class="pill-group">
+        <span class="pill-lbl">FRACTION</span>
+        <div class="pill-opt" data-group="fraction" data-value="gt4" onclick="setPill('fraction','gt4')">&gt;4</div>
+		<div class="pill-opt" data-group="fraction" data-value="4to2" onclick="setPill('fraction','4to2')">4–2</div>
+		<div class="pill-opt" data-group="fraction" data-value="2to1" onclick="setPill('fraction','2to1')">2–1</div>
+		<div class="pill-opt" data-group="fraction" data-value="1to05" onclick="setPill('fraction','1to05')">1–0.5</div>
+      </div>
+      <div class="pill-group">
+        <span class="pill-lbl">FRACTURE TYPE</span>
+        <div class="pill-opt" data-group="fracture_type" data-value="irregular" onclick="setPill('fracture_type','irregular')">irregular</div>
+        <div class="pill-opt" data-group="fracture_type" data-value="cubical" onclick="setPill('fracture_type','cubical')">cubical</div>
+        <div class="pill-opt" data-group="fracture_type" data-value="wedge shaped" onclick="setPill('fracture_type','wedge shaped')">wedge shaped</div>
+        <div class="pill-opt" data-group="fracture_type" data-value="elongated" onclick="setPill('fracture_type','elongated')">elongated</div>
+      </div>
+    </div>
+    <div class="meta-r2">
+      <div class="fg">
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          <span>det</span>
+          <span class="undet-wrap" onclick="toggleUndet(event)">
+            <input type="checkbox" id="undet-cb" style="width:11px;height:11px;accent-color:var(--red);cursor:pointer;pointer-events:none;">
+            <span style="font-size:9px;font-family:var(--mono);color:var(--text-d);margin-left:3px;">undetermined</span>
+          </span>
+        </label>
+        <div style="display:flex;gap:5px;align-items:center;">
+          <input id="det" oninput="onDetInput()" style="flex:1;min-width:0;">
+          <button id="btn-cf" onclick="toggleCf()" title="Insert / remove cf." class="btn-cf">cf.</button>
+        </div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px;">
+          <span class="new-taxa-badge" id="new-taxa-badge">new taxon → update saturation curve</span>
+        </div>
+        <div class="taxa-bar" id="taxa-bar"><span class="taxa-bar-lbl">TAXA:</span></div>
+      </div>
+      <div class="fg"><label>family</label><input id="family"></div>
+      <div class="fg"><label>eco</label><input id="eco"></div>
+    </div>
+    <!-- TIPO ROW -->
+    <div class="tipo-row">
+      <div class="fg">
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          <span>morphological type</span>
+          <button id="btn-risolvi" onclick="openRisolviModal()" style="display:none;padding:2px 7px;border-radius:3px;border:1px solid var(--blue-br);background:var(--blue-bg);color:var(--blue);font-family:var(--mono);font-size:9px;font-weight:700;cursor:pointer;">Resolve →</button>
+        </label>
+        <select id="tipo" onchange="onTipoChange()">
+          <option value="">—</option>
+          <option>tipo_1</option><option>tipo_2</option><option>tipo_3</option>
+          <option>tipo_4</option><option>tipo_5</option><option>tipo_6</option>
+          <option>tipo_7</option><option>tipo_8</option><option>tipo_9</option>
+          <option>tipo_10</option><option>tipo_11</option><option>tipo_12</option>
+          <option>tipo_13</option><option>tipo_14</option><option>tipo_15</option>
+          <option>tipo_16</option><option>tipo_17</option><option>tipo_18</option>
+          <option>tipo_19</option><option>tipo_20</option>
+        </select>
+      </div>
+      <div class="fg tipo-desc-wrap">
+        <label>type description <span id="tipo-rec-lbl" class="tipo-rec-count"></span></label>
+        <input id="tipo_desc">
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="card">
+      <div class="card-title">Taphonomy</div>
+      <div class="tlist" id="taph-list"></div>
+      <div class="card-title" style="margin-top:10px;">Morphology</div>
+      <div class="tlist">
+        <div class="titem" id="twig-item" onclick="toggleMorpho('twig')">
+          <input type="checkbox" id="morph_twig" style="accent-color:var(--acc);">
+          <span class="tlabel">twig</span><span class="dot dot-green" title="Verde = twig"></span>
+        </div>
+        <div class="titem" id="bark-item" onclick="toggleMorpho('bark')">
+          <input type="checkbox" id="morph_bark" style="accent-color:var(--acc);">
+          <span class="tlabel">bark</span><span class="dot dot-orange" title="Arancione = bark"></span>
+        </div>
+        <div class="titem" id="curv-item" onclick="toggleMorpho('curv')">
+          <input type="checkbox" id="morph_curv" style="accent-color:var(--blue);">
+          <span class="tlabel">curv</span><span class="dot dot-blue" title="Blu = diametro Dufraisse"></span>
+        </div>
+      </div>
+      <div class="card-title" style="margin-top:10px;">Observed sections</div>
+      <div class="vgrid" id="view-list"></div>
+      <div class="card-title" style="margin-top:10px;">Photo status <span class="dot dot-yellow" style="margin-left:4px;"></span></div>
+      <div class="vgrid" id="view-photo-list"></div>
+    </div>
+    <div class="card">
+      <div class="sec-hdr trv-h">TRV <span id="trv-count">0</span></div>
+      <input class="search" placeholder="Filter TRV..." oninput="filterSection(this.value,'trv')">
+      <div class="dlist" id="trv-list"></div>
+    </div>
+    <div class="card">
+      <div class="sec-hdr tan-h">TAN <span id="tan-count">0</span></div>
+      <input class="search" placeholder="Filter TAN..." oninput="filterSection(this.value,'tan')">
+      <div class="dlist" id="tan-list"></div>
+    </div>
+    <div class="card">
+      <div class="sec-hdr rad-h">RAD <span id="rad-count">0</span></div>
+      <input class="search" placeholder="Filter RAD..." oninput="filterSection(this.value,'rad')">
+      <div class="dlist" id="rad-list"></div>
+    </div>
+  </div>
+
+  <!-- N_iawa -->
+  <div class="card">
+    <div class="card-title">N_iawa — selected IAWA codes (auto-generated)</div>
+    <div class="iawa-box" id="iawa-display">—</div>
+    <div class="iawa-sub" id="iawa-count">0 descriptors selected</div>
+  </div>
+
+  <!-- FOTO -->
+  <div class="card">
+    <div class="card-title">Photos — TRV · TAN · RAD</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:#539bf5;font-weight:600;margin-bottom:4px;letter-spacing:.06em;">TRV</div>
+        <label class="photo-box" id="photo-box-trv" for="photo-input-trv">
+          <div class="photo-preview" id="photo-prev-trv">
+            <span class="photo-placeholder">＋ load TRV photo</span>
+          </div>
+          <input type="file" id="photo-input-trv" accept="image/*" style="display:none" onchange="loadPhoto(this,'trv')">
+        </label>
+        <div class="photo-fname" id="photo-fname-trv">—</div>
+        <button class="photo-clear" onclick="clearPhoto('trv')" style="display:none" id="photo-clr-trv">✕ remove</button>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:#5ab85e;font-weight:600;margin-bottom:4px;letter-spacing:.06em;">TAN</div>
+        <label class="photo-box" id="photo-box-tan" for="photo-input-tan">
+          <div class="photo-preview" id="photo-prev-tan">
+            <span class="photo-placeholder">＋ load TAN photo</span>
+          </div>
+          <input type="file" id="photo-input-tan" accept="image/*" style="display:none" onchange="loadPhoto(this,'tan')">
+        </label>
+        <div class="photo-fname" id="photo-fname-tan">—</div>
+        <button class="photo-clear" onclick="clearPhoto('tan')" style="display:none" id="photo-clr-tan">✕ remove</button>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:#e6a817;font-weight:600;margin-bottom:4px;letter-spacing:.06em;">RAD</div>
+        <label class="photo-box" id="photo-box-rad" for="photo-input-rad">
+          <div class="photo-preview" id="photo-prev-rad">
+            <span class="photo-placeholder">＋ load RAD photo</span>
+          </div>
+          <input type="file" id="photo-input-rad" accept="image/*" style="display:none" onchange="loadPhoto(this,'rad')">
+        </label>
+        <div class="photo-fname" id="photo-fname-rad">—</div>
+        <button class="photo-clear" onclick="clearPhoto('rad')" style="display:none" id="photo-clr-rad">✕ remove</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="foot">
+      <div class="fg"><label>Notes</label><textarea id="note" rows="3" placeholder="Diagnostic observations, comparative notes..."></textarea></div>
+      <div>
+        <div class="fg" style="margin-bottom:5px;"><label>Operator</label><input id="operator"></div>
+        <div class="fg"><label>Microscope</label><input id="microscope"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;justify-content:flex-end;">
+        <div class="fg"><label>Date</label><input id="date" type="date"></div>
+        <button class="btn-report" onclick="printReport()">📄 PDF Report</button>
+        <button class="btn-fallback" id="btn-fallback" onclick="downloadCSV()" style="display:none">↓ Download CSV</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- MODAL SATURATION CURVE -->
+<div class="modal-overlay" id="sat-overlay" onclick="if(event.target===this)closeSatModal()">
+  <div class="modal sat-modal">
+    <div class="modal-head">
+      <span class="modal-title" id="sat-modal-title">Saturation curve</span>
+      <button class="modal-close-btn" onclick="closeSatModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sat-su-sel">
+        <label>SU:</label>
+        <select id="sat-su-select" onchange="renderSatCurve(this.value)"></select>
+      </div>
+      <div class="sat-info-bar" id="sat-info-bar"></div>
+      <div class="sat-svg-wrap" id="sat-svg-wrap"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeSatModal()">Close</button>
+      <button class="btn-apply" onclick="exportSatPNG()" style="background:var(--s3);color:var(--text-b);border:1px solid var(--border);">↓ PNG 300 DPI</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TDC (Taxonomic Discovery Curve) — site-level, HC only -->
+<div class="modal-overlay" id="tdc-overlay" onclick="if(event.target===this)closeTDCModal()">
+  <div class="modal sat-modal">
+    <div class="modal-head">
+      <span class="modal-title" id="tdc-modal-title">TDC — Taxonomic Discovery Curve</span>
+      <button class="modal-close-btn" onclick="closeTDCModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sat-su-sel">
+        <label>Site:</label>
+        <select id="tdc-site-select" onchange="renderTDC(this.value)"></select>
+      </div>
+      <div class="sat-info-bar" id="tdc-info-bar"></div>
+      <div class="sat-info-bar" id="tdc-coverage-bar" style="margin-top:-4px;"></div>
+      <div class="sat-svg-wrap" id="tdc-svg-wrap"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeTDCModal()">Close</button>
+      <button class="btn-apply" onclick="exportTDCPNG()" style="background:var(--s3);color:var(--text-b);border:1px solid var(--border);">↓ PNG 300 DPI</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CDC (Conditional Discovery Curve) — DS, per SU, inherits HF+LF taxa list -->
+<div class="modal-overlay" id="cdc-overlay" onclick="if(event.target===this)closeCDCModal()">
+  <div class="modal sat-modal">
+    <div class="modal-head">
+      <span class="modal-title" id="cdc-modal-title">CDC — Conditional Discovery Curve (DS)</span>
+      <button class="modal-close-btn" onclick="closeCDCModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sat-su-sel">
+        <label>SU:</label>
+        <select id="cdc-su-select" onchange="renderCDC(this.value)"></select>
+      </div>
+      <div class="sat-info-bar" id="cdc-info-bar"></div>
+      <div class="sat-svg-wrap" id="cdc-svg-wrap"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeCDCModal()">Close</button>
+      <button class="btn-apply" onclick="exportCDCPNG()" style="background:var(--s3);color:var(--text-b);border:1px solid var(--border);">↓ PNG 300 DPI</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SU SUMMARY -->
+<div class="modal-overlay" id="sum-overlay" onclick="if(event.target===this)closeSumModal()">
+  <div class="modal sum-modal">
+    <div class="modal-head">
+      <span class="modal-title" id="sum-modal-title">📊 SU Summary</span>
+      <button class="modal-close-btn" onclick="closeSumModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sat-su-sel">
+        <label>SU:</label>
+        <select id="sum-su-select" onchange="renderSumSU(this.value)"></select>
+      </div>
+      <div class="sum-tabs">
+        <button class="sum-tab active" onclick="switchSumTab(1)">1 · Saturation</button>
+        <button class="sum-tab" onclick="switchSumTab(2)">2 · Richness</button>
+        <button class="sum-tab" onclick="switchSumTab(3)">3 · Simpson</button>
+        <button class="sum-tab" onclick="switchSumTab(4)">4 · Ecology</button>
+        <button class="sum-tab" onclick="switchSumTab(5)">5 · Taphonomy</button>
+        <button class="sum-tab" onclick="switchSumTab(6)">6 · Fracture</button>
+        <button class="sum-tab" onclick="switchSumTab(7)">7 · HF/LF</button>
+      </div>
+      <div class="sat-info-bar" id="sum-info-bar"></div>
+      <div class="sat-svg-wrap" id="sum-svg-wrap"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeSumModal()">Close</button>
+      <button class="btn-apply" onclick="exportSumPNG()" style="background:var(--s3);color:var(--text-b);border:1px solid var(--border);">↓ PNG 300 DPI</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RISOLVI TIPO -->
+<div class="modal-overlay" id="risolvi-overlay" onclick="if(event.target===this)closeRisolviModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="risolvi-title">Resolve type</span>
+      <button class="modal-close-btn" onclick="closeRisolviModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info" id="risolvi-info">—</div>
+      <div class="resolve-grid" style="grid-template-columns:2fr 1fr 1fr;">
+        <div class="fg"><label>det</label><input id="res-det"></div>
+        <div class="fg"><label>family</label><input id="res-family"></div>
+        <div class="fg"><label>eco</label><input id="res-eco"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeRisolviModal()">Cancel</button>
+      <button class="btn-apply" id="btn-apply-risolvi" onclick="applyRisolvi()">✓ Apply to all</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+</div>
+
+
+<script>
+// ============================================================
+// DATI IAWA
+// ============================================================
+const TRV_DATA=[
+  {g:'Growth rings',d:[{c:1,l:'growth ring boundaries distinct'},{c:2,l:'growth ring boundaries indistinct or absent'}]},
+  {g:'Porosity',d:[{c:3,l:'ring-porous'},{c:4,l:'semi-ring-porous'},{c:5,l:'diffuse-porous'}]},
+  {g:'Vessel arrangement',d:[
+    {c:6,l:'vessels in tangential bands'},{c:7,l:'vessels in diagonal and/or radial pattern'},
+    {c:8,l:'vessels in dendritic pattern'},{c:9,l:'vessels exclusively solitary (90% or more)'},
+    {c:10,l:'radial multiples of 4 or more common'},{c:11,l:'vessel clusters common'},
+    {c:12,l:'solitary vessels outline angular'},
+    {c:45,l:'vessels of two distinct diameter classes (non ring-porous)'}
+  ]},
+  {g:'Vessel contents',d:[{c:56,l:'tyloses common'}]},
+  {g:'Fibres',d:[{c:68,l:'fibres very thin-walled'},{c:69,l:'fibres thin- to thick-walled'},{c:70,l:'fibres very thick-walled'}]},
+  {g:'Parenchyma',d:[
+    {c:76,l:'axial parenchyma diffuse'},{c:77,l:'axial parenchyma diffuse-in-aggregates'},
+    {c:78,l:'axial parenchyma scanty paratracheal'},{c:79,l:'axial parenchyma vasicentric'},
+    {c:80,l:'axial parenchyma aliform'},{c:81,l:'axial parenchyma lozenge-aliform'},
+    {c:82,l:'axial parenchyma winged-aliform'},
+    {c:83,l:'axial parenchyma confluent'},{c:84,l:'axial parenchyma unilateral paratracheal'},
+    {c:85,l:'axial parenchyma bands more than 3 cells wide'},{c:86,l:'axial parenchyma in narrow bands ≤3 cells wide'},
+    {c:89,l:'axial parenchyma in marginal or seemingly marginal bands'}
+  ]},
+];
+
+const TAN_DATA=[
+  {g:'Tracheids and fibres',d:[
+    {c:61,l:'fibres with simple to minutely bordered pits= libriform fibres'}
+  ]},
+  {g:'Vessel contents',d:[{c:56,l:'tyloses common'}]},
+  {g:'Parenchyma',d:[
+    {c:90,l:'parenchyma fusiform'},{c:91,l:'parenchyma 2 cells/strand'},
+    {c:92,l:'parenchyma 3–4 cells/strand'},{c:93,l:'parenchyma 5–8 cells/strand'},
+    {c:94,l:'parenchyma >8 cells/strand'}
+  ]},
+  {g:'Rays — width',d:[
+    {c:96,l:'rays exclusively uniseriate'},{c:97,l:'ray width 1 to 3 cells'},
+    {c:98,l:'larger rays commonly 4- to 10-seriate'},{c:99,l:'larger rays commonly >10-seriate'},
+    {c:100,l:'rays with multiseriate portions as wide as uniseriate'}
+  ]},
+  {g:'Rays — size and structure',d:[
+    {c:102,l:'ray height >1 mm'},{c:103,l:'rays of two distinct sizes'},{c:110,l:'sheath cells'}
+  ]},
+  {g:'Storied',d:[
+    {c:118,l:'all rays storied'},{c:119,l:'low rays storied, high rays non-storied'},
+    {c:120,l:'axial parenchyma and/or vessel elements storied'},{c:121,l:'fibres storied'},
+    {c:122,l:'rays and/or axial elements irregularly storied'}
+  ]},
+  {g:'Crystals',d:[{c:136,l:'prismatic crystals present'}]},
+];
+
+const RAD_DATA=[
+  {g:'Perforation plates',d:[
+    {c:13,l:'perforation plates simple'},{c:14,l:'perforation plates scalariform'},
+    {c:15,l:'scalariform perforation plates ≤10 bars'},
+    {c:16,l:'scalariform perforation plates 10–20 bars'},
+    {c:17,l:'scalariform perforation plates 20–40 bars'},
+    {c:18,l:'scalariform perforation plates ≥40 bars'},
+    {c:19,l:'perforation plates reticulate/foraminate/other'}
+  ]},
+  {g:'Intervessel pits — type',d:[
+    {c:20,l:'intervessel pits scalariform'},{c:21,l:'intervessel pits opposite'},
+    {c:22,l:'intervessel pits alternate'},{c:23,l:'intervessel pits polygonal'}
+  ]},
+  {g:'Intervessel pits — size',d:[
+    {c:24,l:'intervessel pits minute ≤4 μm'},{c:25,l:'intervessel pits small 4–7 μm'},
+    {c:26,l:'intervessel pits medium 7–10 μm'},{c:27,l:'intervessel pits large ≥10 μm'},
+    {c:29,l:'vestured pits'}
+  ]},
+  {g:'Vessel-ray pits',d:[
+    {c:30,l:'vessel-ray pits with distinct borders, similar to intervessel pits'},
+    {c:31,l:'vessel-ray pits reduced: rounded/angular'},
+    {c:32,l:'vessel-ray pits reduced: horizontal/scalariform'},
+    {c:33,l:'vessel-ray pits of two distinct sizes in same ray cell'}
+  ]},
+  {g:'Helical thickenings',d:[
+    {c:36,l:'helical thickenings in vessel elements present'},
+    {c:37,l:'helical thickenings throughout body of vessel element'},
+    {c:38,l:'helical thickenings only in vessel element tails'},
+    {c:39,l:'helical thickenings only in narrower vessel elements'}
+  ]},
+  {g:'Tracheids and fibres',d:[
+    {c:60,l:'vascular/vasicentric tracheids present'},{c:61,l:'fibres with simple to minutely bordered pits= libriform fibres'},
+    {c:62,l:'fibres with distinctly bordered pits'},{c:63,l:'fibre pits common in both radial and tangential walls'},
+    {c:65,l:'septate fibres present'},{c:66,l:'non-septate fibres present'}
+  ]},
+  {g:'Ray cells',d:[
+    {c:104,l:'all ray cells procumbent'},{c:105,l:'all ray cells upright and/or square'},
+    {c:106,l:'ray cells procumbent with 1 row upright/square marginal cells'},
+    {c:107,l:'ray cells procumbent with 2–4 rows upright/square marginal cells'},
+    {c:108,l:'ray cells procumbent with >4 rows upright/square marginal cells'},
+    {c:109,l:'rays with procumbent, square and upright cells mixed throughout'}
+  ]},
+  {g:'Crystals',d:[
+    {c:136,l:'prismatic crystals present'},{c:137,l:'prismatic crystals in upright and/or square ray cells'},
+    {c:138,l:'prismatic crystals in procumbent ray cells'},
+    {c:142,l:'prismatic crystals in chambered axial parenchyma cells'},
+    {c:143,l:'prismatic crystals in fibres'}
+  ]},
+];
+
+const TAPH=[
+  {id:'radial_crack',l:'radial crack'},{id:'wood_compression',l:'wood compression'},
+  {id:'xylophagous_activity',l:'xylophagous activity'},{id:'ossidation',l:'ossidation'},
+  {id:'mineralisation',l:'mineralisation'},{id:'cell_deformation',l:'cell deformation'},
+  {id:'vitrification',l:'vitrification'},
+];
+
+const VIEWS_SECTIONS=[
+  {id:'trv_view',l:'TRV view'},{id:'tan_view',l:'TAN view'},{id:'rad_view',l:'RAD view'},
+];
+const VIEWS_PHOTO=[
+  {id:'photo_todo',l:'to-do',dot:0},{id:'photo_id',l:'ID',dot:0},
+  {id:'photo_taph',l:'taph',dot:0},{id:'photo_iawa',l:'IAWA',dot:0},{id:'photo_pub',l:'pub',dot:0},
+];
+const VIEWS=[...VIEWS_SECTIONS,...VIEWS_PHOTO];
+
+// tutti i codici IAWA presenti nel form (unione TRV+TAN+RAD, deduplicati, ordinati)
+const ALL_IAWA_CODES=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,29,
+  30,31,32,33,36,37,38,39,45,56,60,61,62,63,65,66,68,69,70,76,77,78,79,80,81,82,
+  83,84,85,86,89,90,91,92,93,94,96,97,98,99,100,102,103,104,105,106,107,108,109,110,
+  118,119,120,121,122,136,137,138,142,143];
+
+const CSV_COLS=['id_det','site_code','id_samp','trench','su','layer','context','curv_sat','channel','fraction','fracture_type',
+  'det','family','eco','tipo','tipo_desc',
+  'undetermined','twig','bark','curv',
+  'radial_crack','wood_compression','xylophagous_activity',
+  'ossidation','mineralisation','cell_deformation','vitrification',
+  'trv_view','tan_view','rad_view','photo_todo','photo_id','photo_taph','photo_iawa','photo_pub',
+  ...ALL_IAWA_CODES.map(c=>`iawa_${c}`),
+  'note','operator','microscope','date',
+  'photo_trv','photo_tan','photo_rad'];
+
+// ============================================================
+// STATO
+// ============================================================
+let records=[];
+let dirHandle=null;
+let csvHandle=null;
+let lastSave=null;
+let currentIndex=-1;
+const HAS_FSA='showDirectoryPicker' in window;
+
+// campi bloccabili — id HTML del campo : id del lock-item
+const LOCK_FIELDS=['site_code','id_samp','trench','su','layer','context','operator','microscope','curv_sat'];
+const PILL_LOCK_GROUPS=['fraction'];
+
+// ============================================================
+// PILL TOGGLE
+// ============================================================
+const pillValues={hflf:'',fraction:'',fracture_type:''};
+
+function setPill(group,value){
+  // secondo click sulla stessa pill = deseleziona
+  const newVal=pillValues[group]===value?'':value;
+  pillValues[group]=newVal;
+  document.querySelectorAll(`.pill-opt[data-group="${group}"]`).forEach(el=>{
+    el.classList.toggle('on',el.getAttribute('data-value')===newVal);
+  });
+}
+
+function loadPills(group,value){
+  pillValues[group]=value||'';
+  document.querySelectorAll(`.pill-opt[data-group="${group}"]`).forEach(el=>{
+    el.classList.toggle('on',el.getAttribute('data-value')===(value||''));
+  });
+}
+
+function resetPills(){
+  ['hflf','fraction','fracture_type'].forEach(g=>loadPills(g,''));
+}
+
+// ---- CHANNEL LOCK: caselle radio-like che fissano un canale come default per i nuovi record ----
+const CHANNEL_VALUES=['HF','LF','HC','DS','STR','C14'];
+let channelLock='';
+try{const _cl=localStorage.getItem('af_lock_channel');if(_cl&&CHANNEL_VALUES.includes(_cl))channelLock=_cl;}catch(e){}
+
+function refreshChannelLockChips(){
+  CHANNEL_VALUES.forEach(v=>{
+    const cb=document.getElementById('lck-ch-'+v);
+    const wrap=document.getElementById('lock-ch-'+v);
+    if(cb) cb.checked=(channelLock===v);
+    if(wrap) wrap.classList.toggle('on',channelLock===v);
+  });
+}
+
+function toggleChannelLock(value){
+  channelLock=(channelLock===value)?'':value;      // ri-click sullo stesso chip = sblocca
+  try{localStorage.setItem('af_lock_channel',channelLock);}catch(e){}
+  refreshChannelLockChips();
+  if(channelLock) setPill('hflf',channelLock);      // spuntare imposta anche il canale del record corrente
+}
+
+
+function toggleLock(fieldId){
+  const cb=document.getElementById('lck-'+fieldId);
+  const wrap=document.getElementById('lock-'+fieldId);
+  cb.checked=!cb.checked;
+  wrap.classList.toggle('on',cb.checked);
+  try{localStorage.setItem('af_lock_'+fieldId,cb.checked?'1':'0');}catch(e){}
+}
+
+function initLocks(){
+  [...LOCK_FIELDS,...PILL_LOCK_GROUPS].forEach(id=>{
+    try{
+      if(localStorage.getItem('af_lock_'+id)==='1'){
+        document.getElementById('lck-'+id).checked=true;
+        document.getElementById('lock-'+id).classList.add('on');
+      }
+    }catch(e){}
+  });
+  refreshChannelLockChips();
+}
+
+function getLockedValues(){
+  const saved={};
+  LOCK_FIELDS.forEach(id=>{
+    const cb=document.getElementById('lck-'+id);
+    if(cb&&cb.checked){const el=document.getElementById(id);if(el)saved[id]=el.value;}
+  });
+  PILL_LOCK_GROUPS.forEach(group=>{
+    const cb=document.getElementById('lck-'+group);
+    if(cb&&cb.checked) saved['__pill__'+group]=pillValues[group];
+  });
+  return saved;
+}
+
+function restoreLockedValues(saved){
+  Object.entries(saved).forEach(([id,val])=>{
+    if(id.startsWith('__pill__')){
+      loadPills(id.replace('__pill__',''),val);
+    } else {
+      const el=document.getElementById(id);if(el)el.value=val;
+    }
+  });
+}
+
+// ============================================================
+// DIRECTORY + FILE ACCESS
+// ============================================================
+async function selectFolder(){
+  if(!HAS_FSA){showToast('Use Chrome 86+ for direct folder write access',true);return;}
+  try{
+    dirHandle=await window.showDirectoryPicker({mode:'readwrite'});
+    const lastCsv=localStorage.getItem('af_last_csv')||'det';
+const input=prompt('CSV file name for this session:\n(without .csv — will be created or opened if already exists)',lastCsv);
+if(input===null){dirHandle=null;return;}
+const fname=(input.trim()||lastCsv).replace(/\.csv$/i,'')+'.csv';
+try{localStorage.setItem('af_last_csv',fname.replace(/\.csv$/i,''));}catch(e){}
+    let existing=false;
+    try{
+      csvHandle=await dirHandle.getFileHandle(fname,{create:false});
+      existing=true;
+    }catch(e){
+      csvHandle=await dirHandle.getFileHandle(fname,{create:true});
+    }
+    if(existing){
+      const file=await csvHandle.getFile();
+      if(file.size>0){
+        const text=await file.text();
+        records=parseCSV(text);
+        showToast(`Folder connected — ${records.length} records loaded`);
+      } else {
+        records=[];
+        await writeFile();
+        showToast(`Folder connected — new file ${fname}`);
+      }
+    } else {
+      records=[];
+      await writeFile();
+      showToast(`Folder connected — created ${fname}`);
+    }
+    onFileReady();
+  }catch(e){
+    if(e.name!=='AbortError') showToast('Error: '+e.message,true);
+  }
+}
+
+function onFileReady(){
+  const cnt=document.getElementById('h-record-count');
+  if(cnt) cnt.textContent=records.length;
+  const lastId=records.length>0?Math.max(...records.map(r=>parseInt(r.id_det)||0)):0;
+  document.getElementById('id_det').value=lastId+1;
+  document.getElementById('btn-connect').textContent='Change folder';
+  document.getElementById('btn-connect').style.cssText='background:var(--s3);color:var(--text-d);border-color:var(--border);padding:5px 12px;border-radius:4px;border:1px solid var(--border);font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;';
+  document.getElementById('btn-reload').style.display='inline-block';
+  syncTaxaFromRecords();
+  updateFileStatus();updateNavUI();
+}
+
+async function writeFile(){
+  if(!csvHandle) return false;
+  try{
+    const header=CSV_COLS.join(',');
+    const rows=records.map(r=>CSV_COLS.map(k=>{
+      const v=String(r[k]??'');
+      return(v.includes(',')||v.includes('"')||v.includes('\n'))?`"${v.replace(/"/g,'""')}"`  :v;
+    }).join(','));
+    const csv=[header,...rows].join('\n');
+    const w=await csvHandle.createWritable();
+    await w.write(csv);
+    await w.close();
+    lastSave=new Date();
+    updateFileStatus();
+    return true;
+  }catch(e){
+    console.error('writeFile:',e);
+    return false;
+  }
+}
+
+function updateFileStatus(){
+  const el=document.getElementById('file-status');
+  if(!dirHandle){el.innerHTML='<span class="fs-none">Nessuna cartella selezionata</span>';return;}
+  const fname=csvHandle?csvHandle.name:'—';
+  const t=lastSave?lastSave.toLocaleTimeString('it-IT'):'—';
+  el.innerHTML=`<span class="fs-ok">● ${dirHandle.name} / ${fname}</span><span class="fs-time">  Ultimo salv.: ${t}  ·  Record: ${records.length}</span>`;
+}
+
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  if(lines.length<2) return[];
+  // auto-rileva separatore: conta virgole e puntovirgola nella prima riga
+  const firstLine=lines[0];
+  const nComma=(firstLine.match(/,/g)||[]).length;
+  const nSemi=(firstLine.match(/;/g)||[]).length;
+  const sep=nSemi>nComma?';':',';
+  if(sep===';') showToast('⚠ CSV with ";" detected (Italian Excel) — imported correctly');
+  const headers=parseLine(lines[0],sep);
+  return lines.slice(1).filter(l=>l.trim()).map(line=>{
+    const vals=parseLine(line,sep);const obj={};
+    headers.forEach((h,i)=>{obj[h.trim()]=(vals[i]||'').trim();});
+    if(obj.channel===undefined && obj.hflf!==undefined) obj.channel=obj.hflf; // retrocompat: vecchio header 'hflf'
+    delete obj.hflf;
+    return obj;
+  });
+}
+function parseLine(line,sep=','){
+  const r=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+    else if(c===sep&&!inQ){r.push(cur);cur='';}
+    else cur+=c;
+  }
+  r.push(cur);return r;
+}
+
+// ============================================================
+// RENDER SEZIONI IAWA
+// ============================================================
+function renderSection(containerId,data,prefix){
+  const el=document.getElementById(containerId);el.innerHTML='';
+  data.forEach(grp=>{
+    const g=document.createElement('div');g.className='dgroup';g.textContent=grp.g;el.appendChild(g);
+    grp.d.forEach(item=>{
+      const div=document.createElement('div');div.className='ditem';
+      div.id=`item_${prefix}_${item.c}`;
+      div.setAttribute('data-code',item.c);
+      div.setAttribute('data-label',item.l.toLowerCase());
+      div.innerHTML=`<input type="checkbox" id="${prefix}_${item.c}" data-code="${item.c}">
+        <span class="dcode">${item.c}</span><span class="dlabel">${item.l}</span>`;
+      div.querySelector('input').addEventListener('change',function(){onCheck(this,prefix);});
+      div.addEventListener('click',function(e){
+        if(e.target.tagName!=='INPUT'){const cb=this.querySelector('input');cb.checked=!cb.checked;cb.dispatchEvent(new Event('change'));}
+      });
+      el.appendChild(div);
+    });
+  });
+}
+
+function renderTaph(){
+  const el=document.getElementById('taph-list');el.innerHTML='';
+  TAPH.forEach(t=>{
+    const div=document.createElement('div');div.className='titem';
+    div.innerHTML=`<input type="checkbox" id="taph_${t.id}"><span class="tlabel">${t.l}</span>`;
+    const cb=div.querySelector('input');
+    cb.addEventListener('change',function(){div.classList.toggle('on',this.checked);});
+    div.addEventListener('click',function(e){if(e.target.tagName!=='INPUT'){cb.checked=!cb.checked;cb.dispatchEvent(new Event('change'));}});
+    el.appendChild(div);
+  });
+}
+
+function renderViews(){
+  function renderGroup(containerId,data){
+    const el=document.getElementById(containerId);el.innerHTML='';
+    data.forEach(v=>{
+      const div=document.createElement('div');div.className='vitem';
+      const dotHtml=v.dot?`<span class="dot dot-${v.dot}"></span>`:'';
+      div.innerHTML=`<input type="checkbox" id="view_${v.id}"><span class="vlabel">${v.l}</span>${dotHtml}`;
+      const cb=div.querySelector('input');
+      cb.addEventListener('change',function(){div.classList.toggle('on',this.checked);});
+      div.addEventListener('click',function(e){if(e.target.tagName!=='INPUT'){cb.checked=!cb.checked;cb.dispatchEvent(new Event('change'));}});
+      el.appendChild(div);
+    });
+  }
+  renderGroup('view-list',VIEWS_SECTIONS);
+  renderGroup('view-photo-list',VIEWS_PHOTO);
+}
+
+// ============================================================
+// CHECKBOX HANDLER
+// ============================================================
+function onCheck(cb,prefix){
+  const code=cb.getAttribute('data-code');
+  const div=document.getElementById(`item_${prefix}_${code}`);
+  if(div) div.classList.toggle('on',cb.checked);
+  ['trv','tan','rad'].forEach(p=>{
+    if(p!==prefix){
+      const other=document.getElementById(`${p}_${code}`);
+      if(other){other.checked=cb.checked;const od=document.getElementById(`item_${p}_${code}`);if(od)od.classList.toggle('on',cb.checked);}
+    }
+  });
+  updateiawa();updateCounts();
+}
+
+function filterSection(q,prefix){
+  const term=q.toLowerCase().trim();
+  document.querySelectorAll(`#${prefix}-list .ditem`).forEach(el=>{
+    if(!term){el.classList.remove('hidden');return;}
+    el.classList.toggle('hidden',!el.getAttribute('data-code').includes(term)&&!el.getAttribute('data-label').includes(term));
+  });
+}
+
+function updateiawa(){
+  const codes=new Set();
+  document.querySelectorAll('.dlist input[type=checkbox]:checked').forEach(cb=>{codes.add(parseInt(cb.getAttribute('data-code')));});
+  const sorted=Array.from(codes).sort((a,b)=>a-b);
+  const jd=document.getElementById('iawa-display');const jc=document.getElementById('iawa-count');
+  if(!sorted.length){jd.textContent='—';jc.textContent='0 descriptors selected';}
+  else{jd.textContent=sorted.join('; ')+';';jc.textContent=`${sorted.length} descriptors selected`;}
+}
+
+function updateCounts(){
+  ['trv','tan','rad'].forEach(p=>{
+    const n=document.querySelectorAll(`#${p}-list input:checked`).length;
+    const el=document.getElementById(`${p}-count`);if(el) el.textContent=n;
+  });
+}
+
+// ============================================================
+// FORM DATA
+// ============================================================
+function getFormData(){
+  const checkedCodes=new Set();
+  document.querySelectorAll('.dlist input[type=checkbox]:checked').forEach(cb=>{
+    checkedCodes.add(parseInt(cb.getAttribute('data-code')));
+  });
+  // colonna binaria 0/1 per ogni codice IAWA
+  const iawaFields={};
+  ALL_IAWA_CODES.forEach(c=>{iawaFields[`iawa_${c}`]=checkedCodes.has(c)?1:0;});
+  const taph={};TAPH.forEach(t=>{taph[t.id]=document.getElementById(`taph_${t.id}`).checked?1:0;});
+  const views={};VIEWS.forEach(v=>{views[v.id]=document.getElementById(`view_${v.id}`).checked?1:0;});
+  return{
+    site_code:(document.getElementById('site_code').value||'').trim().toUpperCase(),
+    id_det:document.getElementById('id_det').value,
+    id_samp:document.getElementById('id_samp').value,
+    trench:document.getElementById('trench').value,
+    su:document.getElementById('su').value,
+    layer:document.getElementById('layer').value,
+    context:document.getElementById('context').value,
+    curv_sat:document.getElementById('curv_sat').value,
+    channel:pillValues.hflf,
+    fraction:pillValues.fraction,
+    fracture_type:pillValues.fracture_type,
+    det:document.getElementById('det').value,
+    family:document.getElementById('family').value,
+    eco:document.getElementById('eco').value,
+    tipo:document.getElementById('tipo').value,
+    tipo_desc:document.getElementById('tipo_desc').value,
+    ...taph,...views,
+    ...iawaFields,
+    undetermined:document.getElementById('undet-cb').checked?1:0,
+    twig:document.getElementById('morph_twig').checked?1:0,
+    bark:document.getElementById('morph_bark').checked?1:0,
+    curv:document.getElementById('morph_curv').checked?1:0,
+    note:document.getElementById('note').value,
+    operator:document.getElementById('operator').value,
+    microscope:document.getElementById('microscope').value,
+    date:(()=>{const v=document.getElementById('date').value;if(!v)return'';if(v.includes('/')){const p=v.split('/');return p.length===3?`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`:v;}return v;})(),
+    photo_trv:photoData.trv?photoData.trv.name:'',
+    photo_tan:photoData.tan?photoData.tan.name:'',
+    photo_rad:photoData.rad?photoData.rad.name:'',
+  };
+}
+
+function downloadCSV(){
+  if(records.length===0){showToast('No records to export',true);return;}
+  const header=CSV_COLS.join(',');
+  const rows=records.map(r=>CSV_COLS.map(k=>{
+    const v=String(r[k]??'');
+    return(v.includes(',')||v.includes('"'))?`"${v.replace(/"/g,'""')}"`  :v;
+  }).join(','));
+  const csv=[header,...rows].join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=(csvHandle&&csvHandle.name)?csvHandle.name:`anthracoform_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();URL.revokeObjectURL(url);
+  showToast(`Downloaded ${records.length} records`);
+}
+
+// ============================================================
+// NAVIGAZIONE RECORD
+// ============================================================
+function loadRecord(idx){
+  if(idx<0||idx>=records.length){
+    showToast('Record not found',true);return;
+  }
+  try{
+  currentIndex=idx;const r=records[idx];
+  if(!r){showToast('Empty or corrupted record',true);return;}
+  ['site_code','id_det','id_samp','trench','su','layer','context','curv_sat',
+   'det','family','eco','note','operator','microscope','date'].forEach(id=>{
+    const el=document.getElementById(id);if(el) el.value=r[id]||'';
+  });
+  // converti data dd/mm/yyyy → yyyy-mm-dd
+  const dateEl=document.getElementById('date');
+  if(dateEl&&dateEl.value&&dateEl.value.includes('/')){
+    const p=dateEl.value.split('/');
+    if(p.length===3) dateEl.value=`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+  }
+  const badge=document.getElementById('new-taxa-badge');
+  if(badge) badge.style.display='none';
+  // tipo: seleziona dalla tendina e carica descrizione dal registro
+  const tipoEl=document.getElementById('tipo');
+  tipoEl.value=r.tipo||'';
+  onTipoChange(false); // false = non sovrascrivere descrizione se già in registro
+  // se il record aveva una descrizione salvata, usa quella
+  if(r.tipo_desc) document.getElementById('tipo_desc').value=r.tipo_desc;
+  loadPills('hflf',r.channel||'');
+  loadPills('fraction',r.fraction||'');
+  loadPills('fracture_type',r.fracture_type||'');
+  document.querySelectorAll('.ditem').forEach(d=>{d.classList.remove('on');d.querySelector('input').checked=false;});
+  document.querySelectorAll('.titem').forEach(d=>{d.classList.remove('on');d.querySelector('input').checked=false;});
+  document.querySelectorAll('.vitem').forEach(d=>{d.classList.remove('on');d.querySelector('input').checked=false;});
+  // ripristina codici IAWA dalle colonne binarie iawa_N
+  ALL_IAWA_CODES.forEach(c=>{
+    const active=String(r[`iawa_${c}`])==='1';
+    ['trv','tan','rad'].forEach(prefix=>{
+      const cb=document.getElementById(`${prefix}_${c}`);
+      if(cb){cb.checked=active;const d=document.getElementById(`item_${prefix}_${c}`);if(d)d.classList.toggle('on',active);}
+    });
+  });
+  TAPH.forEach(t=>{const cb=document.getElementById(`taph_${t.id}`);if(cb){cb.checked=String(r[t.id])==='1';const d=cb.closest('.titem');if(d)d.classList.toggle('on',cb.checked);}});
+  VIEWS.forEach(v=>{const cb=document.getElementById(`view_${v.id}`);if(cb){cb.checked=String(r[v.id])==='1';const d=cb.closest('.vitem');if(d)d.classList.toggle('on',cb.checked);}});
+  // undetermined
+  const undetCb=document.getElementById('undet-cb');
+  const isUndet=String(r.undetermined)==='1';
+  undetCb.checked=isUndet;
+  undetCb.closest('.undet-wrap').classList.toggle('on',isUndet);
+  const detEl=document.getElementById('det');
+  detEl.readOnly=isUndet;detEl.style.color=isUndet?'var(--red)':'';detEl.style.opacity=isUndet?'.7':'';
+  // twig / bark
+  ['twig','bark','curv'].forEach(id=>{
+    const cb=document.getElementById(`morph_${id}`);
+    const item=document.getElementById(`${id}-item`);
+    if(cb){
+      cb.checked=String(r[id])==='1';
+      const isBlue=id==='curv';
+      if(item){item.classList.toggle('on',cb.checked);item.style.borderColor=cb.checked?(isBlue?'var(--blue-br)':'var(--acc-br)'):'transparent';item.style.background=cb.checked?(isBlue?'var(--blue-bg)':'var(--acc-bg)'):'';} 
+    }
+  });
+  // foto: mostra solo il nome se presente (i dati binari non vengono ricaricati dal CSV)
+  ['trv','tan','rad'].forEach(s=>{
+    const fname=r[`photo_${s}`]||'';
+    clearPhoto(s);
+    if(fname){
+      document.getElementById(`photo-fname-${s}`).textContent=fname;
+      document.getElementById(`photo-prev-${s}`).innerHTML=`<span class="photo-placeholder" style="font-size:10px;color:var(--text-b);">📎 ${fname}</span>`;
+      document.getElementById(`photo-clr-${s}`).style.display='inline-block';
+    }
+  });
+  updateiawa();updateCounts();updateNavUI();
+  // sync cf. button
+  const cfBtn=document.getElementById('btn-cf');
+  if(cfBtn){const dv=(r['det']||'').trim();cfBtn.classList.toggle('on',dv.split(/\s+/)[1]==='cf.');}
+  }catch(err){
+    console.error('loadRecord error at index',idx,':',err);
+    showToast('Error loading record '+idx+': '+err.message,true);
+  }
+}
+
+function autoSaveIfEditing(){
+  if(currentIndex===-1) return;
+  const data=getFormData();
+  addTaxaToRegistry(data.det);
+  records[currentIndex]=data;
+  if(csvHandle) writeFile();
+}
+
+function prevRecord(){
+  autoSaveIfEditing();
+  if(currentIndex===-1&&records.length>0) loadRecord(records.length-1);
+  else if(currentIndex>0) loadRecord(currentIndex-1);
+}
+
+function nextRecord(){
+  autoSaveIfEditing();
+  if(currentIndex>=0&&currentIndex<records.length-1) loadRecord(currentIndex+1);
+  else if(currentIndex===records.length-1){currentIndex=-1;newRecord(false);}
+}
+
+function firstRecord(){
+  autoSaveIfEditing();
+  if(records.length>0) loadRecord(0);
+}
+function lastRecord(){
+  autoSaveIfEditing();
+  if(records.length>0) loadRecord(records.length-1);
+}
+
+function updateNavUI(){
+  const total=records.length;
+  const badge=document.getElementById('h-mode-badge');
+  const info=document.getElementById('h-nav-info');
+  const prev=document.getElementById('h-btn-prev');
+  const next=document.getElementById('h-btn-next');
+  const first=document.getElementById('h-btn-first');
+  const last=document.getElementById('h-btn-last');
+  const saveBtn=document.getElementById('h-btn-save');
+  const delBtn=document.getElementById('h-btn-del');
+  const counter=document.getElementById('h-record-count');
+  if(counter) counter.textContent=total;
+  if(currentIndex===-1){
+    if(badge){badge.textContent='NEW RECORD';badge.className='h-mode new';}
+    if(info) info.textContent=total>0?`— / ${total}`:'—';
+    if(prev) prev.disabled=total===0;
+    if(next) next.disabled=true;
+    if(first) first.disabled=total===0;
+    if(last) last.disabled=total===0;
+    if(saveBtn){saveBtn.textContent='✓ Save';saveBtn.disabled=false;}
+    if(delBtn) delBtn.style.display='none';
+  } else {
+    if(badge){badge.textContent=`EDIT ${currentIndex+1}/${total}`;badge.className='h-mode edit';}
+    if(info) info.textContent=`${currentIndex+1} / ${total}`;
+    if(prev) prev.disabled=currentIndex===0;
+    if(next) next.disabled=false;
+    if(first) first.disabled=currentIndex===0;
+    if(last) last.disabled=currentIndex===records.length-1;
+    if(saveBtn){saveBtn.textContent='✓ Update';saveBtn.disabled=false;}
+    if(delBtn) delBtn.style.display='inline-block';
+  }
+  document.getElementById('record-count')&&(document.getElementById('record-count').textContent=total);
+}
+
+// ============================================================
+// CURVA DI SATURAZIONE — calcolo progressivo per SU
+// ============================================================
+function updateCurvSatForSU(su){
+  if(!su) return;
+  // prendi tutti i record della SU ordinati per id_det
+  const suItems=records
+    .map((r,i)=>({r,i}))
+    .filter(({r})=>r.su===su)
+    .sort((a,b)=>(parseInt(a.r.id_det)||0)-(parseInt(b.r.id_det)||0));
+
+  // cumulativo progressivo — ancorato a HF+LF (DS/STR/C14/HC restano fuori dalla curva)
+  const seen=new Set();
+  suItems.forEach(({r,i})=>{
+    if(isHFLF(r)){
+      if(isTaxonCountable(r.det)) seen.add(r.det.trim());
+      records[i].curv_sat=seen.size||'';
+    } else {
+      records[i].curv_sat='';
+    }
+  });
+
+  // aggiorna il campo visibile se il record corrente è in questa SU
+  if(currentIndex>=0&&records[currentIndex]&&records[currentIndex].su===su){
+    document.getElementById('curv_sat').value=records[currentIndex].curv_sat;
+  }
+}
+
+// ============================================================
+// SAVE / NEW
+// ============================================================
+async function saveRecord(){
+  try{
+    const data=getFormData();
+    if(!data){showToast('Error: unable to read form data',true);return;}
+    addTaxaToRegistry(data.det);
+    // auto-salva family/eco se taxon non è già noto nel dizionario
+    const detVal=(data.det||'').trim();
+    if(detVal&&detVal!=='undetermined'&&(data.family||data.eco)){
+      if(!lookupTaxon(detVal)){
+        userTaxaDict[detVal]={family:data.family||'',eco:data.eco||''};
+        saveUserTaxaDict();
+        showToast(`✓ "${detVal}" aggiunto al dizionario`);
+      }
+    }
+    const isEdit=currentIndex!==-1;
+    if(isEdit){records[currentIndex]=data;}else{records.push(data);}
+    // ricalcola curv_sat progressivo per tutti i record della SU
+    if(data.su) updateCurvSatForSU(data.su);
+    const cnt=document.getElementById('h-record-count');
+    if(cnt){cnt.textContent=records.length;cnt.style.color='var(--acc)';setTimeout(()=>cnt.style.color='',700);}
+    if(csvHandle){writeFile().then(ok=>{if(!ok)showToast('⚠ Data in memory — download CSV at end of session',true);});}
+    if(isEdit){showToast(`✓ Record ${data.id_det} updated`);updateNavUI();}
+    else{showToast(`✓ Record ${data.id_det} saved — total ${records.length}`);newRecord(true);}
+  }catch(err){
+    console.error('saveRecord error:',err);
+    showToast('Error saving: '+err.message,true);
+  }
+}
+
+function newRecord(afterSave=false){
+  currentIndex=-1;
+  const locked=getLockedValues();
+  const lastId=parseInt(document.getElementById('id_det').value)||0;
+  // svuota tutti i campi testo/select
+  ['site_code','id_samp','trench','su','layer','context','curv_sat','det','family','eco','note','operator','microscope'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('tipo').value='';
+  document.getElementById('tipo_desc').value='';
+  document.getElementById('btn-risolvi').style.display='none';
+  document.getElementById('tipo-rec-lbl').textContent='';
+  // reset flag modifica manuale family/eco
+  document.getElementById('family')._manualEdit=false;
+  document.getElementById('eco')._manualEdit=false;
+  resetPills();
+  if(channelLock) setPill('hflf',channelLock);   // canale bloccato → default sul nuovo record
+  document.getElementById('id_det').value=lastId+1;
+  document.getElementById('date').value=new Date().toISOString().slice(0,10);
+  const nb=document.getElementById('new-taxa-badge');if(nb)nb.style.display='none';
+  // ripristina i bloccati
+  restoreLockedValues(locked);
+  // reset checkbox
+  document.querySelectorAll('.ditem').forEach(d=>{d.classList.remove('on');d.querySelector('input').checked=false;});
+  document.querySelectorAll('.titem').forEach(d=>{d.classList.remove('on');d.querySelector('input').checked=false;});
+  document.querySelectorAll('.vitem').forEach(d=>{d.classList.remove('on');d.querySelector('input').checked=false;});
+  // reset undetermined
+  const undetCb=document.getElementById('undet-cb');
+  undetCb.checked=false;undetCb.closest('.undet-wrap').classList.remove('on');
+  const detEl=document.getElementById('det');detEl.readOnly=false;detEl.style.color='';detEl.style.opacity='';
+  // reset twig/bark
+  ['twig','bark','curv'].forEach(id=>{
+    const cb=document.getElementById(`morph_${id}`);const item=document.getElementById(`${id}-item`);
+    if(cb){cb.checked=false;if(item){item.classList.remove('on');item.style.borderColor='transparent';item.style.background='';}}
+  });
+  // reset foto
+  resetPhotos();
+  document.querySelectorAll('.search').forEach(s=>{s.value='';});
+  ['trv','tan','rad'].forEach(p=>filterSection('',p));
+  updateiawa();updateCounts();updateNavUI();
+  document.getElementById('id_samp').focus();
+  // reset cf. button
+  const cfBtn=document.getElementById('btn-cf');
+  if(cfBtn) cfBtn.classList.remove('on');
+  if(!afterSave) showToast('New record ready');
+}
+
+// ============================================================
+// TIPO MORFOLOGICO
+// ============================================================
+// Type description registry: {tipo_1: "parenchyma rows", ...} — persisted in localStorage
+let tipoDescRegistry={};
+try{const s=localStorage.getItem('af_tipo_desc');if(s)tipoDescRegistry=JSON.parse(s);}catch(e){}
+
+function saveTipoDescRegistry(){
+  try{localStorage.setItem('af_tipo_desc',JSON.stringify(tipoDescRegistry));}catch(e){}
+}
+
+function onTipoChange(updateDesc=true){
+  const val=document.getElementById('tipo').value;
+  const btn=document.getElementById('btn-risolvi');
+  const lbl=document.getElementById('tipo-rec-lbl');
+  const descEl=document.getElementById('tipo_desc');
+  if(!val){
+    btn.style.display='none';
+    lbl.textContent='';
+    descEl.value='';
+    return;
+  }
+  // conta record con questo tipo
+  const count=records.filter(r=>r.tipo===val).length;
+  btn.style.display='inline-block';
+  lbl.innerHTML=count>0?`<b>${count}</b> recs`:'';
+  // carica descrizione dal registro
+  if(updateDesc) descEl.value=tipoDescRegistry[val]||'';
+}
+
+function saveTipoDesc(){
+  const val=document.getElementById('tipo').value;
+  if(!val) return;
+  tipoDescRegistry[val]=document.getElementById('tipo_desc').value;
+  saveTipoDescRegistry();
+}
+
+function openRisolviModal(){
+  const val=document.getElementById('tipo').value;
+  if(!val) return;
+  const count=records.filter(r=>r.tipo===val).length;
+  const desc=tipoDescRegistry[val]||'—';
+  document.getElementById('risolvi-title').textContent=`Risolvi "${val}"`;
+  document.getElementById('risolvi-info').innerHTML=
+    `<b>${count} record(s)</b> with type = "<b>${val}</b>" (${desc}).<br>
+     Fill in the fields to overwrite — leave blank to keep unchanged.<br>
+     The <b>tipo</b> field will be cleared on all resolved records.`;
+  document.getElementById('btn-apply-risolvi').textContent=`✓ Apply to ${count} records`;
+  ['res-det','res-family','res-eco'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('risolvi-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('res-det').focus(),80);
+}
+
+function closeRisolviModal(){
+  document.getElementById('risolvi-overlay').classList.remove('open');
+}
+
+function applyRisolvi(){
+  const val=document.getElementById('tipo').value;
+  if(!val) return;
+  const newDet=document.getElementById('res-det').value.trim();
+  const newFam=document.getElementById('res-family').value.trim();
+  const newEco=document.getElementById('res-eco').value.trim();
+  if(!newDet&&!newFam&&!newEco){
+    showToast('Fill in at least one field to proceed',true);return;
+  }
+  let updated=0;
+  records.forEach(r=>{
+    if(r.tipo===val){
+      if(newDet){r.det=newDet;}
+      if(newFam){r.family=newFam;}
+      if(newEco){r.eco=newEco;}
+      r.tipo='';r.tipo_desc='';
+      updated++;
+    }
+  });
+  // rimuovi dal registro
+  delete tipoDescRegistry[val];
+  saveTipoDescRegistry();
+  closeRisolviModal();
+  if(currentIndex>=0) loadRecord(currentIndex);
+  if(csvHandle){
+    writeFile().then(ok=>{
+      if(ok) showToast(`✓ "${val}" resolved → ${newDet||'—'} on ${updated} records`);
+      else showToast(`✓ Resolved in memory — save CSV`,true);
+    });
+  } else {
+    showToast(`✓ "${val}" resolved on ${updated} records`);
+  }
+}
+
+// ============================================================
+// UNDETERMINED
+// ============================================================
+function toggleUndet(e){
+  e.stopPropagation();
+  const cb=document.getElementById('undet-cb');
+  const wrap=cb.closest('.undet-wrap');
+  cb.checked=!cb.checked;
+  wrap.classList.toggle('on',cb.checked);
+  const det=document.getElementById('det');
+  if(cb.checked){
+    det._prevValue=det.value;
+    det.value='undetermined';
+    det.readOnly=true;det.style.color='var(--red)';det.style.opacity='.7';
+  } else {
+    det.value=det._prevValue||'';
+    det.readOnly=false;det.style.color='';det.style.opacity='';
+  }
+}
+
+// ============================================================
+// MORFOLOGIA (twig / bark)
+// ============================================================
+function toggleMorpho(id){
+  const cb=document.getElementById(`morph_${id}`);
+  const item=document.getElementById(`${id}-item`);
+  cb.checked=!cb.checked;
+  item.classList.toggle('on',cb.checked);
+  const isBlue=id==='curv';
+  item.style.borderColor=cb.checked?(isBlue?'var(--blue-br)':'var(--acc-br)'):'transparent';
+  item.style.background=cb.checked?(isBlue?'var(--blue-bg)':'var(--acc-bg)'):'';
+}
+
+// ============================================================
+// FOTO
+// ============================================================
+const photoData={trv:null,tan:null,rad:null};
+
+function loadPhoto(input,section){
+  const file=input.files[0];if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    photoData[section]={name:file.name,dataUrl:e.target.result};
+    const prev=document.getElementById(`photo-prev-${section}`);
+    prev.innerHTML=`<img src="${e.target.result}" alt="${section}">`;
+    document.getElementById(`photo-fname-${section}`).textContent=file.name;
+    document.getElementById(`photo-clr-${section}`).style.display='inline-block';
+    document.getElementById(`photo-box-${section}`).style.borderColor='var(--acc-br)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto(section){
+  photoData[section]=null;
+  document.getElementById(`photo-prev-${section}`).innerHTML=`<span class="photo-placeholder">＋ carica foto ${section.toUpperCase()}</span>`;
+  document.getElementById(`photo-fname-${section}`).textContent='—';
+  document.getElementById(`photo-clr-${section}`).style.display='none';
+  document.getElementById(`photo-box-${section}`).style.borderColor='';
+  document.getElementById(`photo-input-${section}`).value='';
+}
+
+function resetPhotos(){
+  ['trv','tan','rad'].forEach(s=>clearPhoto(s));
+}
+
+// ============================================================
+// REPORT PDF
+// ============================================================
+function printReport(){
+  const d=getFormData();
+  function getLabels(data,prefix){
+    const out=[];
+    data.forEach(grp=>{grp.d.forEach(item=>{const cb=document.getElementById(`${prefix}_${item.c}`);if(cb&&cb.checked)out.push({c:item.c,l:item.l,g:grp.g});});});
+    return out;
+  }
+  const trvSel=getLabels(TRV_DATA,'trv');
+  const tanSel=getLabels(TAN_DATA,'tan');
+  const radSel=getLabels(RAD_DATA,'rad');
+  const taphSel=TAPH.filter(t=>document.getElementById(`taph_${t.id}`).checked).map(t=>t.l);
+  const viewsSel=VIEWS.filter(v=>document.getElementById(`view_${v.id}`).checked).map(v=>v.l);
+  const photos=['trv','tan','rad'].map(s=>{
+    if(photoData[s]&&photoData[s].dataUrl) return `<div class="rph"><div class="rph-lbl">${s.toUpperCase()}</div><img src="${photoData[s].dataUrl}"><div class="rph-nm">${photoData[s].name}</div></div>`;
+    if(d[`photo_${s}`]) return `<div class="rph"><div class="rph-lbl">${s.toUpperCase()}</div><div class="rph-noimg">📎 ${d[`photo_${s}`]}</div></div>`;
+    return `<div class="rph"><div class="rph-lbl">${s.toUpperCase()}</div><div class="rph-noimg">—</div></div>`;
+  }).join('');
+  function rows(items){
+    if(!items.length) return '<tr><td colspan="3" style="color:#aaa;font-style:italic;padding:3px 5px">none</td></tr>';
+    return items.map(i=>`<tr><td class="code">${i.c}</td><td class="grp">${i.g}</td><td>${i.l}</td></tr>`).join('');
+  }
+  const iawaCodes=new Set();
+  document.querySelectorAll('.dlist input[type=checkbox]:checked').forEach(cb=>{iawaCodes.add(parseInt(cb.getAttribute('data-code')));});
+  const allCodes=[...iawaCodes].sort((a,b)=>a-b);
+  const fname=`det_${d.id_det}_samp${d.id_samp||'x'}.pdf`;
+
+  // Formatta nome taxon: cf./sp./aff. NON in corsivo
+  function taxonHTML(name){
+    if(!name||name==='—') return name||'—';
+    const PLAIN=new Set(['cf.','sp.','sp','aff.','var.','subsp.','f.','gr.','sect.','ser.']);
+    return name.trim().split(/\s+/).map(t=>
+      `<span style="font-style:${PLAIN.has(t)?'normal':'italic'}">${t}</span>`
+    ).join(' ');
+  }
+
+  const reportBody=`
+<div class="section">
+<div class="sec-title">Sample metadata</div>
+<div class="meta-grid">
+  <div class="mf"><label>id det.</label><span>${d.id_det}</span></div>
+  <div class="mf"><label>id samp.</label><span>${d.id_samp||'—'}</span></div>
+  <div class="mf"><label>site</label><span>${d.site_code||'—'}</span></div>
+  <div class="mf"><label>trench</label><span>${d.trench||'—'}</span></div>
+  <div class="mf"><label>SU</label><span>${d.su||'—'}</span></div>
+  <div class="mf"><label>layer</label><span>${d.layer||'—'}</span></div>
+  <div class="mf"><label>context</label><span>${d.context||'—'}</span></div>
+  <div class="mf"><label>channel</label><span>${d.channel||'—'}</span></div>
+  <div class="mf"><label>fraction</label><span>${d.fraction||'—'}</span></div>
+  <div class="mf"><label>fracture type</label><span>${d.fracture_type||'—'}</span></div>
+  <div class="mf"><label>operator</label><span>${d.operator||'—'}</span></div>
+  <div class="mf"><label>microscope</label><span>${d.microscope||'—'}</span></div>
+  <div class="mf"><label>date</label><span>${d.date||'—'}</span></div>
+  <div class="mf"><label>sat. curv.</label><span>${d.curv_sat||'—'}</span></div>
+</div>
+</div>
+
+<div class="section">
+<div class="sec-title">Determination</div>
+<div class="det-box">
+  <div class="det-main">${d.undetermined=='1'?'<span style="color:#c0392b">UNDETERMINED</span>':taxonHTML(d.det||'—')}</div>
+  <div class="det-sub">
+    <div class="mf"><label>family</label><span>${d.family||'—'}</span></div>
+    <div class="mf"><label>eco</label><span>${d.eco||'—'}</span></div>
+  </div>
+  ${(d.twig=='1'||d.bark=='1'||d.curv=='1')?`<div style="margin-top:6px;display:flex;gap:5px;">${d.twig=='1'?'<span class="tag grn">twig</span>':''}${d.bark=='1'?'<span class="tag grn">bark</span>':''}${d.curv=='1'?'<span class="tag" style="background:#e3f0fd;color:#1a6ab1;">curv</span>':''}</div>`:''}
+</div>
+</div>
+
+<div class="section">
+<div class="sec-title">Taphonomy &amp; Observed Sections</div>
+<div class="taph-views">
+  <div><div class="tv-lbl">Taphonomy</div><div class="tags">${taphSel.length?taphSel.map(t=>`<span class="tag red">${t}</span>`).join(''):'<span style="color:#bbb;font-size:10px">none</span>'}</div></div>
+  <div><div class="tv-lbl">Observed sections</div><div class="tags">${viewsSel.length?viewsSel.map(v=>`<span class="tag">${v}</span>`).join(''):'<span style="color:#bbb;font-size:10px">none</span>'}</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="sec-title">IAWA codes — ${allCodes.length} selected</div>
+<div class="iawa-pills">${allCodes.length?allCodes.map(c=>`<span class="pill">${c}</span>`).join(''):'<span style="color:#bbb;font-size:10px">none</span>'}</div>
+<div class="three-col">
+  <div><table><thead><tr><th>#</th><th>group</th><th>TRV</th></tr></thead><tbody>${rows(trvSel)}</tbody></table></div>
+  <div><table><thead><tr><th>#</th><th>group</th><th>TAN</th></tr></thead><tbody>${rows(tanSel)}</tbody></table></div>
+  <div><table><thead><tr><th>#</th><th>group</th><th>RAD</th></tr></thead><tbody>${rows(radSel)}</tbody></table></div>
+</div>
+</div>
+
+<div class="section">
+<div class="sec-title">Photos</div>
+<div class="photos">${photos}</div>
+</div>
+
+${d.note?`<div class="section"><div class="sec-title">Notes</div><div class="note-box">${d.note.replace(/</g,'&lt;')}</div></div>`:''}
+`;
+
+  const html=`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
+<title>det ${d.id_det} — ${d.det||'undetermined'}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#1a1a1a;background:#fff;padding:14mm 14mm 10mm 14mm;}
+h1{font-size:14px;font-weight:700;margin-bottom:2px;}
+.subtitle{font-size:10px;color:#666;margin-bottom:12px;font-family:monospace;}
+.section{margin-bottom:12px;}
+.sec-title{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#999;border-bottom:1px solid #e0e0e0;padding-bottom:3px;margin-bottom:6px;}
+.meta-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px 10px;}
+.mf label{font-size:8px;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:1px;}
+.mf span{font-size:11px;font-weight:600;font-family:monospace;}
+.det-box{background:#f9f9f9;border:1px solid #e0e0e0;border-radius:4px;padding:6px 10px;margin-bottom:4px;}
+.det-main{font-size:14px;font-weight:700;}
+.det-sub{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-top:5px;}
+.det-sub .mf span{font-size:10px;}
+table{width:100%;border-collapse:collapse;font-size:10px;}
+th{text-align:left;font-size:7.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#aaa;padding:2px 4px;border-bottom:1px solid #e0e0e0;}
+td{padding:2px 4px;border-bottom:1px solid #f0f0f0;vertical-align:top;}
+td.code{font-family:monospace;font-weight:700;color:#b07800;width:24px;}
+td.grp{color:#bbb;font-size:8.5px;width:110px;}
+.iawa-pills{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:7px;}
+.pill{background:#fff8e6;border:1px solid #e6c96b;border-radius:3px;padding:1px 5px;font-family:monospace;font-size:10px;font-weight:700;color:#7a4f00;}
+.tags{display:flex;flex-wrap:wrap;gap:3px;}
+.tag{background:#f0f0f0;border-radius:3px;padding:2px 6px;font-size:10px;color:#444;}
+.tag.red{background:#fde8e8;color:#c0392b;}
+.tag.grn{background:#e8f5e9;color:#2e7d32;}
+.photos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:4px;}
+.rph{text-align:center;}
+.rph-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:3px;}
+.rph img{width:100%;aspect-ratio:1/1;object-fit:cover;border:1px solid #ddd;border-radius:4px;}
+.rph-nm{font-size:8px;color:#aaa;margin-top:2px;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rph-noimg{background:#f5f5f5;border:1px dashed #ccc;border-radius:4px;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:10px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.note-box{background:#fffbf0;border-left:3px solid #e6a817;padding:6px 10px;font-size:11px;line-height:1.5;white-space:pre-wrap;font-family:Arial,sans-serif;}
+.taph-views{display:flex;gap:20px;align-items:flex-start;}
+.tv-lbl{font-size:8px;color:#aaa;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;}
+</style>
+</head><body>
+<h1>AnthracoForm — Charcoal Report</h1>
+<div class="subtitle">det <b>${d.id_det}</b> &nbsp;·&nbsp; samp <b>${d.id_samp||'—'}</b> &nbsp;·&nbsp; site <b>${d.site_code||'—'}</b> &nbsp;·&nbsp; SU <b>${d.su||'—'}</b> &nbsp;·&nbsp; ${d.date||'—'}</div>
+${reportBody}
+<script>
+var FNAME='${fname}';
+function ls(s){return new Promise(function(r){var el=document.createElement('script');el.src=s;el.onload=r;document.head.appendChild(el);})}
+window.onload=async function(){
+  try{
+    await ls('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    await ls('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    var canvas=await html2canvas(document.body,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});
+    var img=canvas.toDataURL('image/jpeg',0.95);
+    var jsPDF=window.jspdf.jsPDF;
+    var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var pw=210,ph=297,mx=14,my=14;
+    var iw=pw-mx*2;
+    var ih=canvas.height*iw/canvas.width;
+    var usable=ph-my*2;
+    var offset=0;var first=true;
+    while(offset<ih){
+      if(!first)pdf.addPage();
+      pdf.addImage(img,'JPEG',mx,my-offset,iw,ih);
+      offset+=usable;first=false;
+    }
+    pdf.save(FNAME);
+    setTimeout(function(){window.close();},600);
+  }catch(e){
+    document.body.insertAdjacentHTML('afterbegin','<div style="background:#fde;color:#c00;padding:8px 12px;font-family:monospace;font-size:11px;margin-bottom:10px">⚠ PDF error: '+e.message+' — use Ctrl+P to print manually.</div>');
+  }
+};
+<\/script>
+</body></html>`;
+
+  const w=window.open('','_blank','width=900,height=1200');
+  if(w){w.document.write(html);w.document.close();}
+  else showToast('⚠ Popup blocked — allow popups for this page',true);
+}
+
+
+
+
+// ============================================================
+// RELOAD CSV → FORM
+// ============================================================
+async function reloadCSV(){
+  if(!csvHandle) return;
+  const dirty=currentIndex===-1&&
+    (document.getElementById('det').value||document.getElementById('id_samp').value);
+  if(dirty&&!confirm('Reload CSV from disk?\nUnsaved form changes will be lost.')) return;
+  try{
+    const file=await csvHandle.getFile();
+    const text=await file.text();
+    const prev=records.length;
+    records=parseCSV(text);
+    const cnt=document.getElementById('h-record-count');
+    if(cnt) cnt.textContent=records.length;
+    updateFileStatus();updateNavUI();
+    if(currentIndex>=0&&currentIndex<records.length) loadRecord(currentIndex);
+    else{currentIndex=-1;newRecord(true);}
+    showToast(`⟳ ${records.length} records (were ${prev}) — reloaded`);
+  }catch(e){
+    showToast('Reload error: '+e.message,true);
+  }
+}
+
+// ============================================================
+// TAXA REGISTRY
+// ============================================================
+let taxaRegistry=[];
+
+function saveTaxaRegistry(){try{localStorage.setItem('af_taxa_registry',JSON.stringify(taxaRegistry));}catch(e){}}
+function addTaxaToRegistry(val){
+  if(!val||val==='undetermined') return;
+  const v=val.trim();if(!v) return;
+  if(!taxaRegistry.includes(v)){taxaRegistry.push(v);taxaRegistry.sort();saveTaxaRegistry();renderTaxaBar();}
+}
+function removeTaxaFromRegistry(val,e){
+  e.stopPropagation();
+  taxaRegistry=taxaRegistry.filter(v=>v!==val);
+  saveTaxaRegistry();renderTaxaBar();
+}
+function selectTaxon(val){
+  const detEl=document.getElementById('det');
+  if(detEl.readOnly) return;
+  detEl.value=val;
+  // reset flag modifica manuale e triggera auto-fill
+  document.getElementById('family')._manualEdit=false;
+  document.getElementById('eco')._manualEdit=false;
+  onDetInput();
+  detEl.focus();
+}
+function renderTaxaBar(){
+  const bar=document.getElementById('taxa-bar');if(!bar) return;
+  bar.innerHTML='<span class="taxa-bar-lbl">TAXA:</span>'
+    +taxaRegistry.map(v=>{
+      const safe=v.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      return `<span class="taxa-pill" onclick="selectTaxon('${safe}')">${v}<span class="taxa-pill-del" onclick="removeTaxaFromRegistry('${safe}',event)" title="Rimuovi">✕</span></span>`;
+    }).join('');
+}
+function syncTaxaFromRecords(){
+  records.forEach(r=>{
+    if(r.det&&r.det!=='undetermined'){const v=r.det.trim();if(v&&!taxaRegistry.includes(v))taxaRegistry.push(v);}
+  });
+  taxaRegistry.sort();saveTaxaRegistry();renderTaxaBar();
+}
+
+// ============================================================
+// DELETE RECORD
+// ============================================================
+function deleteRecord(){
+  if(currentIndex===-1) return;
+  const r=records[currentIndex];
+  if(!confirm(`Delete record id_det=${r.id_det}?\nThis action cannot be undone.`)) return;
+  records.splice(currentIndex,1);
+  if(csvHandle) writeFile().then(ok=>{
+    if(!ok) showToast('⚠ Deleted from memory — save CSV',true);
+  });
+  showToast(`✓ Record ${r.id_det} deleted`);
+  // carica il record adiacente o vai a nuovo
+  if(records.length===0){currentIndex=-1;newRecord(false);}
+  else{
+    const newIdx=Math.min(currentIndex,records.length-1);
+    loadRecord(newIdx);
+  }
+}
+
+// ============================================================
+// TAXA DICTIONARY — auto-fill family & eco
+// ============================================================
+const TAXA_DICT={
+  // da CSV TJB (det → {family, eco})
+  'Arecaceae':                         {family:'Arecaceae',      eco:'riverine'},
+  'Azadirachta indica':                {family:'Meliaceae',      eco:'dry thorn scrubland'},
+  'Calotropis procera':                {family:'Apocynaceae',    eco:'dry thorn scrubland'},
+  'Capparis decidua':                  {family:'Capparaceae',    eco:'dry thorn scrubland'},
+  'Clerodendrum sp.':                  {family:'Lamiaceae',      eco:'dry thorn scrubland'},
+  'Cordia sp.':                        {family:'Boraginaceae',   eco:'dry thorn scrubland'},
+  'Ficus cf. religiosa':               {family:'Moraceae',       eco:'riverine'},
+  'Leptadenia pyrotechnica':           {family:'Apocynaceae',    eco:'dry thorn scrubland'},
+  'Pinus sp.':                         {family:'Pinaceae',       eco:'mountain forest'},
+  'Prosopis cineraria':                {family:'Fabaceae',       eco:'dry thorn scrubland'},
+  'Salvadora cf. persica':             {family:'Salvadoraceae',  eco:'dry thorn scrubland'},
+  'Senegalia cf. senegal':             {family:'Fabaceae',       eco:'dry thorn scrubland'},
+  'Senegalia sp.':                     {family:'Fabaceae',       eco:'dry thorn scrubland'},
+  'Senegalia/Prosopis type':           {family:'Fabaceae',       eco:'dry thorn scrubland'},
+  'Senna cf. auriculata':              {family:'Fabaceae',       eco:'dry thorn scrubland'},
+  'Tamarix cf. aphylla':               {family:'Tamaricaceae',   eco:'riverine'},
+  'Vachellia cf. nilotica':            {family:'Fabaceae',       eco:'riverine'},
+  'Ziziphus cf. mauritiana/nummularia':{family:'Rhamnaceae',     eco:'dry thorn scrubland'},
+  // varianti senza cf. e specie aggiuntive da lista aggiornata
+  'Ficus populifolia':                 {family:'Moraceae',       eco:'riverine'},
+  'Salvadora persica':                 {family:'Salvadoraceae',  eco:'dry thorn scrubland'},
+  'Senegalia senegal':                 {family:'Fabaceae',       eco:'dry thorn scrubland'},
+  'Senna auriculata':                  {family:'Fabaceae',       eco:'dry thorn scrubland'},
+  'Tamarix aphylla':                   {family:'Tamaricaceae',   eco:'riverine'},
+  'Vachellia nilotica':                {family:'Fabaceae',       eco:'riverine'},
+  'Ziziphus mauritiana':               {family:'Rhamnaceae',     eco:'dry thorn scrubland'},
+  'Ziziphus nummularia':               {family:'Rhamnaceae',     eco:'dry thorn scrubland'},
+};
+
+// USER TAXA DICT — auto-fill salvato dall'utente, persistito in localStorage
+let userTaxaDict={};
+try{const s=localStorage.getItem('af_user_taxa');if(s)userTaxaDict=JSON.parse(s);}catch(e){}
+function saveUserTaxaDict(){try{localStorage.setItem('af_user_taxa',JSON.stringify(userTaxaDict));}catch(e){}}
+
+function lookupTaxon(det){
+  if(!det) return null;
+  const v=det.trim();
+  if(!v||v==='undetermined') return null;
+  // 0. dizionario utente ha priorità
+  if(userTaxaDict[v]) return userTaxaDict[v];
+  // 1. corrispondenza esatta in TAXA_DICT
+  if(TAXA_DICT[v]) return TAXA_DICT[v];
+  // 2. normalizza: rimuovi "cf. " e confronta
+  const norm=s=>s.toLowerCase().replace(/\bcf\.\s*/g,'').trim();
+  const vn=norm(v);
+  for(const[k,val] of Object.entries(userTaxaDict)){if(norm(k)===vn) return val;}
+  for(const[k,val] of Object.entries(TAXA_DICT)){if(norm(k)===vn) return val;}
+  // 3. corrispondenza per genere con sp.
+  const genus=v.split(/\s+/)[0];
+  const spKey=`${genus} sp.`;
+  if(userTaxaDict[spKey]) return userTaxaDict[spKey];
+  if(TAXA_DICT[spKey]) return TAXA_DICT[spKey];
+  return null;
+}
+
+// ============================================================
+// DET FIELD — nuova specie + auto-fill
+// ============================================================
+function onDetInput(){
+  const val=document.getElementById('det').value.trim();
+  const badge=document.getElementById('new-taxa-badge');
+  if(!badge) return;
+  if(val && val!=='undetermined'){
+    const currentSU=document.getElementById('su').value.trim();
+    const knownInSU=records.some(r=>r.su===currentSU&&r.det===val);
+    badge.style.display=knownInSU?'none':'inline-block';
+  } else {
+    badge.style.display='none';
+  }
+  // auto-fill family ed eco se il campo è vuoto o era già auto-compilato
+  const match=lookupTaxon(val);
+  const famEl=document.getElementById('family');
+  const ecoEl=document.getElementById('eco');
+  if(match){
+    if(!famEl._manualEdit) famEl.value=match.family;
+    if(!ecoEl._manualEdit) ecoEl.value=match.eco;
+  } else {
+    if(!famEl._manualEdit) famEl.value='';
+    if(!ecoEl._manualEdit) ecoEl.value='';
+  }
+  // sincronizza stato bottone cf.
+  const cfBtn=document.getElementById('btn-cf');
+  if(cfBtn) cfBtn.classList.toggle('on', val.split(/\s+/)[1]==='cf.');
+}
+
+function toggleCf(){
+  const detEl=document.getElementById('det');
+  if(detEl.readOnly) return;
+  const v=detEl.value.trim();
+  if(!v) return;
+  const parts=v.split(/\s+/);
+  if(parts[1]==='cf.'){
+    parts.splice(1,1);
+  } else {
+    parts.splice(1,0,'cf.');
+  }
+  detEl.value=parts.join(' ');
+  onDetInput();
+  detEl.focus();
+}
+
+// ============================================================
+// SATURATION CURVE
+// ============================================================
+function isTaxonCountable(det){
+  if(!det) return false;
+  const v=det.trim();
+  if(!v||v==='undetermined') return false;
+  if(v.includes('/')) return false; // ambiguous e.g. Acacia/Prosopis → non conta
+  return true;
+}
+
+// Saturation curve is anchored to HF+LF only (probabilistic channels).
+// HC / DS / STR / CH14 are excluded so they never distort the saturation curve.
+function isHFLF(r){const c=(r.channel||'').trim().toUpperCase();return c==='HF'||c==='LF';}
+
+function getSatCurveData(su){
+  const suRecords=records
+    .filter(r=>r.su===su && isHFLF(r))
+    .sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
+  const points=[];const seen=new Set();
+  let lastNewIdx=-1; // 0-based index of last fragment that introduced a new taxon
+  let stopAt=null;   // 1-based fragment number where stop criterion (50 consecutive) is first met
+  suRecords.forEach((r,i)=>{
+    const det=(r.det||'').trim();
+    const prevSize=seen.size;
+    if(isTaxonCountable(det)) seen.add(det);
+    if(seen.size>prevSize) lastNewIdx=i;
+    if(stopAt===null){
+      const streak=lastNewIdx<0?i+1:i-lastNewIdx;
+      if(streak>=50) stopAt=i+1; // 1-based
+    }
+    points.push({x:i+1,y:seen.size,det:det||'—',id_det:r.id_det});
+  });
+  // streak from end of current sequence
+  const currentStreak=lastNewIdx<0?suRecords.length:suRecords.length-1-lastNewIdx;
+  return{points,total:suRecords.length,taxa:seen.size,stopAt,currentStreak};
+}
+
+function openSatModal(){
+  const sus=[...new Set(records.map(r=>r.su).filter(v=>v))].sort();
+  const sel=document.getElementById('sat-su-select');
+  sel.innerHTML=sus.length
+    ? sus.map(s=>`<option value="${s}">${s}</option>`).join('')
+    : '<option value="">— no records —</option>';
+  const currentSU=document.getElementById('su').value.trim();
+  if(currentSU&&sus.includes(currentSU)) sel.value=currentSU;
+  renderSatCurve(sel.value);
+  document.getElementById('sat-overlay').classList.add('open');
+}
+
+function closeSatModal(){
+  document.getElementById('sat-overlay').classList.remove('open');
+}
+
+function renderSatCurve(su){
+  const wrap=document.getElementById('sat-svg-wrap');
+  const infoBar=document.getElementById('sat-info-bar');
+  if(!su){
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No SU selected</div>';
+    infoBar.innerHTML='';return;
+  }
+  const{points,total,taxa,stopAt,currentStreak}=getSatCurveData(su);
+  document.getElementById('sat-modal-title').textContent=`Saturation curve (HF+LF) — SU: ${su}`;
+  const criterionMet=stopAt!==null;
+  const streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#768390';
+  infoBar.innerHTML=`<span>records in SU: <b>${total}</b></span>`
+    +`<span>distinct taxa: <b>${taxa}</b></span>`
+    +`<span>current streak: <b style="color:${streakColor}">${currentStreak}/50</b> without new taxon</span>`
+    +(criterionMet
+      ? `<span style="color:#4caf82;font-weight:700">✓ stop criterion met at n=<b>${stopAt}</b></span>`
+      : `<span style="color:#e6812a">⚠ stop criterion not yet met</span>`);
+  if(!points.length){
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No HF/LF records for this SU</div>';
+    return;
+  }
+
+  // layer dal primo record della SU
+  const suRecs=records.filter(r=>r.su===su).sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
+  const layer=suRecs[0]?.layer||'—';
+
+  // --- layout ---
+  const W=620,H=320,ml=52,mr=28,mt=90,mb=38;
+  const pw=W-ml-mr,ph=H-mt-mb;
+  const maxX=points.length,maxY=Math.max(taxa,1);
+  const sx=x=>ml+(x-1)/(maxX>1?maxX-1:1)*pw;
+  const sy=y=>mt+ph-y/maxY*ph;
+
+  // --- ticks ---
+  const yStep=maxY<=5?1:maxY<=10?2:maxY<=20?5:10;
+  const yTicks=[];
+  for(let y=0;y<=maxY;y+=yStep)yTicks.push(y);
+  if(!yTicks.includes(maxY))yTicks.push(maxY);
+  const xStep=Math.max(1,Math.ceil(maxX/8));
+  const xTicks=[];
+  for(let i=1;i<=maxX;i+=xStep)xTicks.push(i);
+  if(!xTicks.includes(maxX))xTicks.push(maxX);
+
+  // --- B&W palette ---
+  const COL={bg:'#ffffff',grid:'#e0e0e0',axis:'#1a1a1a',text:'#1a1a1a',textD:'#666666',
+    line:'#1a1a1a',fill:'rgba(0,0,0,.06)',dotNew:'#1a1a1a',dotRep:'#999999',
+    asymp:'#666666',labelTaxa:'#1a1a1a'};
+  const SERIF="Arial,Helvetica,sans-serif";
+
+  let s=`<svg id="sat-chart-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">`;
+  s+=`<rect width="${W}" height="${H}" fill="${COL.bg}"/>`;
+
+  // --- header in cima ---
+  s+=`<text x="${ml}" y="20" fill="${COL.text}" font-size="13" font-weight="600" font-family="${SERIF}">SU ${su}  ·  Layer ${layer}</text>`;
+  s+=`<text x="${ml}" y="37" fill="${COL.textD}" font-size="10" font-family="${SERIF}" font-style="italic">n = ${total} HF+LF fragments  ·  ${taxa} distinct taxa</text>`;
+
+  // grid y
+  yTicks.forEach(y=>{
+    const cy=sy(y).toFixed(1);
+    s+=`<line x1="${ml}" y1="${cy}" x2="${W-mr}" y2="${cy}" stroke="${COL.grid}" stroke-width="1"/>`;
+    s+=`<text x="${ml-7}" y="${(parseFloat(cy)+4).toFixed(1)}" text-anchor="end" fill="${COL.textD}" font-size="11" font-family="${SERIF}">${y}</text>`;
+  });
+  // grid x
+  xTicks.forEach(x=>{
+    const cx=sx(x).toFixed(1);
+    s+=`<line x1="${cx}" y1="${mt}" x2="${cx}" y2="${mt+ph}" stroke="${COL.grid}" stroke-width="1"/>`;
+    s+=`<text x="${cx}" y="${mt+ph+17}" text-anchor="middle" fill="${COL.textD}" font-size="11" font-family="${SERIF}">${x}</text>`;
+  });
+
+  // assi
+  s+=`<line x1="${ml}" y1="${mt}" x2="${ml}" y2="${mt+ph}" stroke="${COL.axis}" stroke-width="1.5"/>`;
+  s+=`<line x1="${ml}" y1="${mt+ph}" x2="${W-mr}" y2="${mt+ph}" stroke="${COL.axis}" stroke-width="1.5"/>`;
+
+  // assi senza label Y (info nell'header)
+
+  // area fill
+  if(points.length>1){
+    const base=sy(0).toFixed(1);
+    const d=points.map((p,i)=>`${i===0?'M':'L'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
+    s+=`<path d="${d} L${sx(points[points.length-1].x).toFixed(1)},${base} L${sx(points[0].x).toFixed(1)},${base} Z" fill="${COL.fill}"/>`;
+  }
+  // linea
+  if(points.length>1){
+    const d=points.map((p,i)=>`${i===0?'M':'L'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
+    s+=`<path d="${d}" fill="none" stroke="${COL.line}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  }
+
+  // --- stop criterion: shaded post-plateau area + dashed line ---
+  if(stopAt!==null){
+    const cx=parseFloat(sx(stopAt).toFixed(1));
+    const rightEdge=W-mr;
+    if(cx<rightEdge){
+      // grey shaded area after stop point
+      s+=`<rect x="${cx}" y="${mt}" width="${(rightEdge-cx).toFixed(1)}" height="${ph}" fill="rgba(0,0,0,.055)" rx="0"/>`;
+    }
+    // dashed vertical line
+    s+=`<line x1="${cx}" y1="${mt-10}" x2="${cx}" y2="${mt+ph}" stroke="#888" stroke-width="1.3" stroke-dasharray="4,3"/>`;
+    // label above plot area
+    s+=`<text x="${cx}" y="${mt-14}" text-anchor="middle" fill="#555" font-size="9.5" font-family="${SERIF}" font-weight="600">stop n=${stopAt}</text>`;
+    // small Chabal label below
+    s+=`<text x="${cx}" y="${mt-4}" text-anchor="middle" fill="#888" font-size="8.5" font-family="${SERIF}" font-style="italic">Chabal 1990</text>`;
+  }
+
+  // dots + etichette taxa
+  points.forEach((p,i)=>{
+    const cx=parseFloat(sx(p.x).toFixed(1));
+    const cy=parseFloat(sy(p.y).toFixed(1));
+    const isNew=i===0||p.y>points[i-1].y;
+
+    if(isNew){
+      // dot grande — cerchio aperto
+      s+=`<circle cx="${cx}" cy="${cy}" r="5" fill="#ffffff" stroke="${COL.dotNew}" stroke-width="1.8"><title>${p.det} (n=${p.x}, taxa=${p.y})</title></circle>`;
+      // etichetta: verso destra se dot nella metà sinistra, verso sinistra se nella metà destra
+      const label=p.det||'—';
+      const isRightSide=cx > ml+pw*0.55;
+      const lx=isRightSide ? cx-4 : cx+4;
+      const angle=isRightSide ? -125 : -55;
+      s+=`<text x="${lx}" y="${cy-8}" font-size="9.5" font-family="${SERIF}" font-style="italic" fill="${COL.text}" transform="rotate(${angle},${lx},${cy-8})">${label}</text>`;
+    } else {
+      // dot piccolo — cerchio pieno grigio
+      s+=`<circle cx="${cx}" cy="${cy}" r="3" fill="${COL.dotRep}" stroke="none" opacity="0.6"><title>${p.det} (n=${p.x})</title></circle>`;
+    }
+  });
+
+  s+=`</svg>`;
+  wrap.innerHTML=s;
+}
+
+// ============================================================
+// EXPORT PNG — 170mm / 300 DPI
+// ============================================================
+function exportSatPNG(){
+  const svgEl=document.querySelector('#sat-svg-wrap svg');
+  if(!svgEl){showToast('No chart to export',true);return;}
+  const suVal=document.getElementById('sat-su-select').value||'SU';
+  // 170mm a 300 DPI
+  const px={w:Math.round(170/25.4*300),h:Math.round(120/25.4*300)};
+  const vb=svgEl.viewBox.baseVal;
+  const clone=svgEl.cloneNode(true);
+  clone.setAttribute('width',px.w);
+  clone.setAttribute('height',px.h);
+  clone.setAttribute('viewBox',`0 0 ${vb.width} ${vb.height}`);
+  // sfondo bianco esplicito
+  const bgRect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bgRect.setAttribute('width',vb.width);bgRect.setAttribute('height',vb.height);bgRect.setAttribute('fill','#ffffff');
+  clone.insertBefore(bgRect,clone.firstChild);
+  const svgStr=new XMLSerializer().serializeToString(clone);
+  const blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const canvas=document.createElement('canvas');
+  canvas.width=px.w;canvas.height=px.h;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,px.w,px.h);
+  const img=new Image();
+  img.onload=()=>{
+    ctx.drawImage(img,0,0,px.w,px.h);
+    const a=document.createElement('a');
+    a.download=`satcurve_${suVal}_170mm_300dpi.png`;
+    a.href=canvas.toDataURL('image/png');
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`✓ Exported satcurve_${suVal}_170mm_300dpi.png`);
+  };
+  img.onerror=()=>{
+    // fallback SVG
+    const a=document.createElement('a');
+    a.download=`satcurve_${suVal}.svg`;
+    a.href=url;a.click();
+    showToast('PNG failed — downloaded SVG instead',true);
+  };
+  img.src=url;
+}
+
+
+// ============================================================
+// TDC — TAXONOMIC DISCOVERY CURVE  (site-level, HC only)
+// NB: not a statistical saturation curve — HC is eye-selected.
+// DS / STR / CH14 (and HF/LF) never enter the TDC.
+// ============================================================
+function isHC(r){return (r.channel||'').trim().toUpperCase()==='HC';}
+function siteKey(r){return (r.site_code||'').trim().toUpperCase();}
+
+// ---- Tooltip SVG stilizzato (stessa UX della saturation del summary) ----
+// Markup del gruppo tooltip (defs + speech-bubble nascosto), id namespaced per curva.
+function curveTipGroupSVG(prefix,SERIF,colText,colTextD){
+  return '<defs><filter id="'+prefix+'-shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#00000022"/></filter></defs>'
+    +'<g id="'+prefix+'-tip-g" visibility="hidden" pointer-events="none">'
+    +'<rect id="'+prefix+'-tip-bg" rx="5" ry="5" fill="white" stroke="#555" stroke-width="0.8" filter="url(#'+prefix+'-shadow)"/>'
+    +'<polygon id="'+prefix+'-tip-ptr" fill="white" stroke="#555" stroke-width="0.8"/>'
+    +'<text id="'+prefix+'-tip-t1" font-size="10" font-family="'+SERIF+'" fill="'+colText+'"/>'
+    +'<text id="'+prefix+'-tip-t2" font-size="9" font-family="'+SERIF+'" fill="'+colTextD+'"/>'
+    +'</g>';
+}
+// Aggancia i listener ai dot .<dotClass>: mostra il tooltip con nome (data-det) e riga 2 (data-line2).
+function wireCurveTooltip(wrap,prefix,dotClass){
+  var svg=wrap.querySelector('svg');if(!svg) return;
+  var tipG=svg.querySelector('#'+prefix+'-tip-g');
+  var tipBg=svg.querySelector('#'+prefix+'-tip-bg');
+  var tipPtr=svg.querySelector('#'+prefix+'-tip-ptr');
+  var tipT1=svg.querySelector('#'+prefix+'-tip-t1');
+  var tipT2=svg.querySelector('#'+prefix+'-tip-t2');
+  if(!tipG) return;
+  var PLAIN={'cf.':1,'sp.':1,'sp':1,'aff.':1,'var.':1,'subsp.':1,'f.':1,'gr.':1};
+  svg.querySelectorAll('.'+dotClass).forEach(function(c){
+    c.addEventListener('mouseenter',function(){
+      var det=c.getAttribute('data-det')||'';
+      var line2=c.getAttribute('data-line2')||'';
+      var cx=parseFloat(c.getAttribute('cx'));var cy=parseFloat(c.getAttribute('cy'));
+      tipT1.innerHTML='';
+      det.split(/\s+/).forEach(function(tok,j){
+        var ts=document.createElementNS('http://www.w3.org/2000/svg','tspan');
+        ts.setAttribute('font-style',PLAIN[tok]?'normal':'italic');
+        ts.textContent=(j>0?' ':'')+tok;tipT1.appendChild(ts);
+      });
+      tipT2.textContent=line2;
+      var tw=Math.max(det.length*6.5+20,110),th=36;
+      var tx=cx-tw/2,ty=cy-th-10;
+      var vb=svg.viewBox.baseVal;if(vb){tx=Math.max(2,Math.min(vb.width-tw-2,tx));ty=Math.max(2,ty);}
+      tipBg.setAttribute('x',tx);tipBg.setAttribute('y',ty);tipBg.setAttribute('width',tw);tipBg.setAttribute('height',th);
+      var px=cx,py=cy-6;
+      tipPtr.setAttribute('points',(px-5)+','+(ty+th)+' '+(px+5)+','+(ty+th)+' '+px+','+py);
+      tipT1.setAttribute('x',tx+8);tipT1.setAttribute('y',ty+14);
+      tipT2.setAttribute('x',tx+8);tipT2.setAttribute('y',ty+27);
+      tipG.setAttribute('visibility','visible');
+    });
+    c.addEventListener('mouseleave',function(){tipG.setAttribute('visibility','hidden');});
+  });
+}
+
+function getTDCData(site){
+  const recs=records
+    .filter(r=>isHC(r) && (siteKey(r)||'(no site)')===site)
+    .sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
+  const points=[];const seen=new Set();
+  let lastNewIdx=-1,stopAt=null;
+  recs.forEach((r,i)=>{
+    const det=(r.det||'').trim();
+    const prevSize=seen.size;
+    if(isTaxonCountable(det)) seen.add(det);
+    if(seen.size>prevSize) lastNewIdx=i;
+    if(stopAt===null){
+      const streak=lastNewIdx<0?i+1:i-lastNewIdx;
+      if(streak>=50) stopAt=i+1;
+    }
+    points.push({x:i+1,y:seen.size,det:det||'—',id_det:r.id_det});
+  });
+  const currentStreak=lastNewIdx<0?recs.length:recs.length-1-lastNewIdx;
+  const bySU={};
+  recs.forEach(r=>{const su=(r.su||'—').trim()||'—';bySU[su]=(bySU[su]||0)+1;});
+  return{points,total:recs.length,taxa:seen.size,stopAt,currentStreak,bySU};
+}
+
+function openTDCModal(){
+  const sites=[...new Set(records.filter(isHC).map(r=>siteKey(r)||'(no site)'))].sort();
+  const sel=document.getElementById('tdc-site-select');
+  sel.innerHTML=sites.length
+    ? sites.map(s=>`<option value="${s}">${s}</option>`).join('')
+    : '<option value="">— no HC records —</option>';
+  const curSite=(document.getElementById('site_code').value||'').trim().toUpperCase()||'(no site)';
+  if(sites.includes(curSite)) sel.value=curSite;
+  renderTDC(sel.value);
+  document.getElementById('tdc-overlay').classList.add('open');
+}
+
+function closeTDCModal(){
+  document.getElementById('tdc-overlay').classList.remove('open');
+}
+
+function renderTDC(site){
+  const wrap=document.getElementById('tdc-svg-wrap');
+  const infoBar=document.getElementById('tdc-info-bar');
+  const covBar=document.getElementById('tdc-coverage-bar');
+  document.getElementById('tdc-modal-title').textContent=site?`TDC — site: ${site}`:'TDC — Taxonomic Discovery Curve';
+  if(!site){
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No HC records — the TDC is built only from Hand-Collected (HC) fragments.</div>';
+    infoBar.innerHTML='';covBar.innerHTML='';return;
+  }
+  const{points,total,taxa,stopAt,currentStreak,bySU}=getTDCData(site);
+  const criterionMet=stopAt!==null;
+  const streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#768390';
+  infoBar.innerHTML=`<span>HC fragments (site): <b>${total}</b></span>`
+    +`<span>distinct taxa: <b>${taxa}</b></span>`
+    +`<span>current streak: <b style="color:${streakColor}">${currentStreak}/50</b> without new taxon</span>`
+    +(criterionMet
+      ? `<span style="color:#4caf82;font-weight:700">✓ plateau reached at n=<b>${stopAt}</b></span>`
+      : `<span style="color:#e6812a">⚠ plateau not yet reached</span>`);
+  const suKeys=Object.keys(bySU).sort();
+  covBar.innerHTML='<span style="color:var(--text-d)">HC coverage / SU (target 20):</span> '
+    +(suKeys.length
+      ? suKeys.map(su=>{const n=bySU[su];const ok=n>=20;return `<span>SU ${su}: <b style="color:${ok?'#4caf82':'#e6a817'}">${n}/20${ok?' ✓':''}</b></span>`;}).join(' · ')
+      : '<span>—</span>');
+  if(!points.length){
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No HC records for this site.</div>';
+    return;
+  }
+
+  // --- layout (B&W print style, mirrors the saturation curve) ---
+  const W=620,H=340,ml=52,mr=28,mt=92,mb=54;
+  const pw=W-ml-mr,ph=H-mt-mb;
+  const maxX=points.length,maxY=Math.max(taxa,1);
+  const sx=x=>ml+(x-1)/(maxX>1?maxX-1:1)*pw;
+  const sy=y=>mt+ph-y/maxY*ph;
+  const yStep=maxY<=5?1:maxY<=10?2:maxY<=20?5:10;
+  const yTicks=[];for(let y=0;y<=maxY;y+=yStep)yTicks.push(y);if(!yTicks.includes(maxY))yTicks.push(maxY);
+  const xStep=Math.max(1,Math.ceil(maxX/8));
+  const xTicks=[];for(let i=1;i<=maxX;i+=xStep)xTicks.push(i);if(!xTicks.includes(maxX))xTicks.push(maxX);
+  const COL={bg:'#ffffff',grid:'#e0e0e0',axis:'#1a1a1a',text:'#1a1a1a',textD:'#666666',line:'#1a1a1a',fill:'rgba(0,0,0,.06)',dotNew:'#1a1a1a',dotRep:'#999999'};
+  const SERIF="Arial,Helvetica,sans-serif";
+
+  let s=`<svg id="tdc-chart-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">`;
+  s+=`<rect width="${W}" height="${H}" fill="${COL.bg}"/>`;
+  s+=`<text x="${ml}" y="20" fill="${COL.text}" font-size="13" font-weight="600" font-family="${SERIF}">Taxonomic Discovery Curve  ·  Site ${site}</text>`;
+  s+=`<text x="${ml}" y="37" fill="${COL.textD}" font-size="10" font-family="${SERIF}" font-style="italic">HC only  ·  cumulative across SUs  ·  n = ${total} fragments  ·  ${taxa} distinct taxa</text>`;
+  s+=`<text x="${ml}" y="51" fill="#a55555" font-size="9" font-family="${SERIF}" font-style="italic">operator recognition curve — HC is eye-selected, not a random sample; do not report as saturation</text>`;
+  yTicks.forEach(y=>{const cy=sy(y).toFixed(1);s+=`<line x1="${ml}" y1="${cy}" x2="${W-mr}" y2="${cy}" stroke="${COL.grid}" stroke-width="1"/>`;s+=`<text x="${ml-7}" y="${(parseFloat(cy)+4).toFixed(1)}" text-anchor="end" fill="${COL.textD}" font-size="11" font-family="${SERIF}">${y}</text>`;});
+  xTicks.forEach(x=>{const cx=sx(x).toFixed(1);s+=`<line x1="${cx}" y1="${mt}" x2="${cx}" y2="${mt+ph}" stroke="${COL.grid}" stroke-width="1"/>`;s+=`<text x="${cx}" y="${mt+ph+17}" text-anchor="middle" fill="${COL.textD}" font-size="11" font-family="${SERIF}">${x}</text>`;});
+  s+=`<line x1="${ml}" y1="${mt}" x2="${ml}" y2="${mt+ph}" stroke="${COL.axis}" stroke-width="1.5"/>`;
+  s+=`<line x1="${ml}" y1="${mt+ph}" x2="${W-mr}" y2="${mt+ph}" stroke="${COL.axis}" stroke-width="1.5"/>`;
+  s+=`<text x="${ml+pw/2}" y="${H-6}" text-anchor="middle" fill="${COL.textD}" font-size="10.5" font-family="${SERIF}">HC fragments examined (determination order)</text>`;
+  s+=`<text x="14" y="${mt+ph/2}" text-anchor="middle" fill="${COL.textD}" font-size="10.5" font-family="${SERIF}" transform="rotate(-90,14,${mt+ph/2})">cumulative distinct taxa</text>`;
+  if(points.length>1){
+    const base=sy(0).toFixed(1);
+    const d=points.map((p,i)=>`${i===0?'M':'L'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
+    s+=`<path d="${d} L${sx(points[points.length-1].x).toFixed(1)},${base} L${sx(points[0].x).toFixed(1)},${base} Z" fill="${COL.fill}"/>`;
+    s+=`<path d="${d}" fill="none" stroke="${COL.line}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  }
+  if(stopAt!==null){
+    const cx=parseFloat(sx(stopAt).toFixed(1));const rightEdge=W-mr;
+    if(cx<rightEdge) s+=`<rect x="${cx}" y="${mt}" width="${(rightEdge-cx).toFixed(1)}" height="${ph}" fill="rgba(0,0,0,.055)"/>`;
+    s+=`<line x1="${cx}" y1="${mt-10}" x2="${cx}" y2="${mt+ph}" stroke="#888" stroke-width="1.3" stroke-dasharray="4,3"/>`;
+    s+=`<text x="${cx}" y="${mt-14}" text-anchor="middle" fill="#555" font-size="9.5" font-family="${SERIF}" font-weight="600">plateau n=${stopAt}</text>`;
+    s+=`<text x="${cx}" y="${mt-4}" text-anchor="middle" fill="#888" font-size="8.5" font-family="${SERIF}" font-style="italic">Chabal 1990 (practical rule)</text>`;
+  }
+  points.forEach((p,i)=>{
+    const cx=parseFloat(sx(p.x).toFixed(1));const cy=parseFloat(sy(p.y).toFixed(1));
+    const isNew=i===0||p.y>points[i-1].y;
+    if(isNew){
+      s+=`<circle class="tdc-dot-new" cx="${cx}" cy="${cy}" r="5" fill="#ffffff" stroke="${COL.dotNew}" stroke-width="1.8" style="cursor:pointer" data-det="${(p.det||'—').replace(/"/g,'&quot;')}" data-line2="fragment ${p.x} · taxon no. ${p.y}"/>`;
+    } else {
+      s+=`<circle cx="${cx}" cy="${cy}" r="3" fill="${COL.dotRep}" stroke="none" opacity="0.6"/>`;
+    }
+  });
+  s+=curveTipGroupSVG('tdc',SERIF,COL.text,COL.textD);
+  s+=`</svg>`;
+  wrap.innerHTML=s;
+  wireCurveTooltip(wrap,'tdc','tdc-dot-new');
+}
+
+function exportTDCPNG(){
+  const svgEl=document.querySelector('#tdc-svg-wrap svg');
+  if(!svgEl){showToast('No chart to export',true);return;}
+  const siteVal=document.getElementById('tdc-site-select').value||'site';
+  const vb=svgEl.viewBox.baseVal;
+  const px={w:Math.round(170/25.4*300)};
+  px.h=Math.round(px.w*(vb.height/vb.width)); // preserva l'aspect ratio del viewBox
+  const clone=svgEl.cloneNode(true);
+  clone.setAttribute('width',px.w);clone.setAttribute('height',px.h);
+  clone.setAttribute('viewBox',`0 0 ${vb.width} ${vb.height}`);
+  const bgRect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bgRect.setAttribute('width',vb.width);bgRect.setAttribute('height',vb.height);bgRect.setAttribute('fill','#ffffff');
+  clone.insertBefore(bgRect,clone.firstChild);
+  const svgStr=new XMLSerializer().serializeToString(clone);
+  const blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const canvas=document.createElement('canvas');canvas.width=px.w;canvas.height=px.h;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,px.w,px.h);
+  const img=new Image();
+  img.onload=()=>{ctx.drawImage(img,0,0,px.w,px.h);const a=document.createElement('a');a.download=`TDC_${siteVal}_170mm_300dpi.png`;a.href=canvas.toDataURL('image/png');a.click();URL.revokeObjectURL(url);showToast(`✓ Exported TDC_${siteVal}_170mm_300dpi.png`);};
+  img.onerror=()=>{const a=document.createElement('a');a.download=`TDC_${siteVal}.svg`;a.href=url;a.click();showToast('PNG failed — downloaded SVG instead',true);};
+  img.src=url;
+}
+
+
+// ============================================================
+// CDC — CONDITIONAL DISCOVERY CURVE  (DS, per SU)  — protocol §5.1
+// DS curve per SU. The taxa list is INHERITED from HF+LF of the same SU (seed);
+// the "50 without novelty" counter is reset. The streak resets only when the DS
+// finds a taxon the HF+LF seed did not have. Flat line on the baseline = DS adds
+// nothing beyond HF+LF = positive result.
+// Fallback: no HF+LF in the SU → empty seed → plain saturation curve on DS.
+// HC / STR / CH14 never enter the CDC (not the seed, not the curve).
+// ============================================================
+function isDS(r){return (r.channel||'').trim().toUpperCase()==='DS';}
+
+function getCDCData(su){
+  const seed=new Set();
+  records.filter(r=>r.su===su && isHFLF(r)).forEach(r=>{const d=(r.det||'').trim();if(isTaxonCountable(d))seed.add(d);});
+  const seedSize=seed.size;
+  const dsRecs=records
+    .filter(r=>r.su===su && isDS(r))
+    .sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
+  const known=new Set(seed);        // seed ∪ taxa DS visti
+  const points=[];
+  let lastNewIdx=-1,stopAt=null,newFromDS=0;
+  dsRecs.forEach((r,i)=>{
+    const det=(r.det||'').trim();
+    const prev=known.size;
+    if(isTaxonCountable(det)) known.add(det);
+    const grew=known.size>prev;
+    if(grew){lastNewIdx=i;newFromDS++;}
+    if(stopAt===null){
+      const streak=lastNewIdx<0?i+1:i-lastNewIdx;
+      if(streak>=50) stopAt=i+1;
+    }
+    points.push({x:i+1,y:known.size,det:det||'—',isNew:grew,id_det:r.id_det});
+  });
+  const currentStreak=lastNewIdx<0?dsRecs.length:dsRecs.length-1-lastNewIdx;
+  return{points,total:dsRecs.length,seedSize,newFromDS,knownTotal:known.size,stopAt,currentStreak,hasSeed:seedSize>0};
+}
+
+function openCDCModal(){
+  const sus=[...new Set(records.filter(isDS).map(r=>(r.su||'').trim()).filter(v=>v))].sort();
+  const sel=document.getElementById('cdc-su-select');
+  sel.innerHTML=sus.length
+    ? sus.map(s=>`<option value="${s}">${s}</option>`).join('')
+    : '<option value="">— no DS records —</option>';
+  const curSU=(document.getElementById('su').value||'').trim();
+  if(curSU&&sus.includes(curSU)) sel.value=curSU;
+  renderCDC(sel.value);
+  document.getElementById('cdc-overlay').classList.add('open');
+}
+
+function closeCDCModal(){
+  document.getElementById('cdc-overlay').classList.remove('open');
+}
+
+function renderCDC(su){
+  const wrap=document.getElementById('cdc-svg-wrap');
+  const infoBar=document.getElementById('cdc-info-bar');
+  document.getElementById('cdc-modal-title').textContent=su?`CDC (DS) — SU: ${su}`:'CDC — Conditional Discovery Curve (DS)';
+  if(!su){
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No DS records — the CDC is built only from Dry-Sieving (DS) fragments.</div>';
+    infoBar.innerHTML='';return;
+  }
+  const{points,total,seedSize,newFromDS,knownTotal,stopAt,currentStreak,hasSeed}=getCDCData(su);
+  const criterionMet=stopAt!==null;
+  const streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#768390';
+  const addColor=newFromDS>0?'#e6812a':'#4caf82';
+  infoBar.innerHTML=`<span>HF+LF seed: <b>${seedSize}</b> taxa</span>`
+    +`<span>DS fragments: <b>${total}</b></span>`
+    +`<span>new from DS: <b style="color:${addColor}">+${newFromDS}</b></span>`
+    +`<span>current streak: <b style="color:${streakColor}">${currentStreak}/50</b></span>`
+    +(criterionMet
+      ? `<span style="color:#4caf82;font-weight:700">✓ plateau at n=<b>${stopAt}</b></span>`
+      : `<span style="color:#e6812a">⚠ plateau not yet reached</span>`)
+    +(hasSeed
+      ? (newFromDS===0?`<span style="color:#4caf82">DS adds nothing beyond HF+LF (positive result)</span>`:'')
+      : `<span style="color:#a55555">no HF+LF baseline — plain saturation curve</span>`);
+  if(!points.length){
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No DS records for this SU.</div>';
+    return;
+  }
+
+  const dsRecs=records.filter(r=>r.su===su&&isDS(r)).sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
+  const layer=dsRecs[0]&&dsRecs[0].layer?dsRecs[0].layer:'—';
+
+  // --- layout (B&W print style) ---
+  const W=620,H=340,ml=52,mr=28,mt=92,mb=54;
+  const pw=W-ml-mr,ph=H-mt-mb;
+  const maxX=points.length,maxY=Math.max(knownTotal,1);
+  const sx=x=>ml+(x-1)/(maxX>1?maxX-1:1)*pw;
+  const sy=y=>mt+ph-y/maxY*ph;
+  const yStep=maxY<=5?1:maxY<=10?2:maxY<=20?5:10;
+  const yTicks=[];for(let y=0;y<=maxY;y+=yStep)yTicks.push(y);if(!yTicks.includes(maxY))yTicks.push(maxY);
+  const xStep=Math.max(1,Math.ceil(maxX/8));
+  const xTicks=[];for(let i=1;i<=maxX;i+=xStep)xTicks.push(i);if(!xTicks.includes(maxX))xTicks.push(maxX);
+  const COL={bg:'#ffffff',grid:'#e0e0e0',axis:'#1a1a1a',text:'#1a1a1a',textD:'#666666',line:'#1a1a1a',dotNew:'#1a1a1a',dotRep:'#999999',seed:'#2f8a5b'};
+  const SERIF="Arial,Helvetica,sans-serif";
+
+  let s=`<svg id="cdc-chart-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">`;
+  s+=`<rect width="${W}" height="${H}" fill="${COL.bg}"/>`;
+  s+=`<text x="${ml}" y="20" fill="${COL.text}" font-size="13" font-weight="600" font-family="${SERIF}">Conditional Discovery Curve (DS)  ·  SU ${su}  ·  Layer ${layer}</text>`;
+  s+=`<text x="${ml}" y="37" fill="${COL.textD}" font-size="10" font-family="${SERIF}" font-style="italic">seed = ${seedSize} taxa from HF+LF (same SU)  ·  n = ${total} DS fragments  ·  +${newFromDS} new from DS</text>`;
+  s+=`<text x="${ml}" y="51" fill="#a55555" font-size="9" font-family="${SERIF}" font-style="italic">${hasSeed?'inherits the HF+LF taxa list, counter reset — a flat line on the baseline means DS adds nothing':'no HF+LF in this SU — degenerates to a plain saturation curve on DS'}</text>`;
+  yTicks.forEach(y=>{const cy=sy(y).toFixed(1);s+=`<line x1="${ml}" y1="${cy}" x2="${W-mr}" y2="${cy}" stroke="${COL.grid}" stroke-width="1"/>`;s+=`<text x="${ml-7}" y="${(parseFloat(cy)+4).toFixed(1)}" text-anchor="end" fill="${COL.textD}" font-size="11" font-family="${SERIF}">${y}</text>`;});
+  xTicks.forEach(x=>{const cx=sx(x).toFixed(1);s+=`<line x1="${cx}" y1="${mt}" x2="${cx}" y2="${mt+ph}" stroke="${COL.grid}" stroke-width="1"/>`;s+=`<text x="${cx}" y="${mt+ph+17}" text-anchor="middle" fill="${COL.textD}" font-size="11" font-family="${SERIF}">${x}</text>`;});
+  s+=`<line x1="${ml}" y1="${mt}" x2="${ml}" y2="${mt+ph}" stroke="${COL.axis}" stroke-width="1.5"/>`;
+  s+=`<line x1="${ml}" y1="${mt+ph}" x2="${W-mr}" y2="${mt+ph}" stroke="${COL.axis}" stroke-width="1.5"/>`;
+  s+=`<text x="${ml+pw/2}" y="${H-6}" text-anchor="middle" fill="${COL.textD}" font-size="10.5" font-family="${SERIF}">DS fragments examined (determination order)</text>`;
+  s+=`<text x="14" y="${mt+ph/2}" text-anchor="middle" fill="${COL.textD}" font-size="10.5" font-family="${SERIF}" transform="rotate(-90,14,${mt+ph/2})">cumulative known taxa (HF+LF seed + DS)</text>`;
+  // dashed baseline at HF+LF seed level
+  if(hasSeed){
+    const by=sy(seedSize).toFixed(1);
+    s+=`<line x1="${ml}" y1="${by}" x2="${W-mr}" y2="${by}" stroke="${COL.seed}" stroke-width="1.4" stroke-dasharray="6,4"/>`;
+    s+=`<text x="${W-mr}" y="${(parseFloat(by)-4).toFixed(1)}" text-anchor="end" fill="${COL.seed}" font-size="9" font-family="${SERIF}" font-style="italic">HF+LF baseline (${seedSize} taxa)</text>`;
+  }
+  // curve line (no area fill for the CDC)
+  if(points.length>1){
+    const d=points.map((p,i)=>`${i===0?'M':'L'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
+    s+=`<path d="${d}" fill="none" stroke="${COL.line}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  }
+  // plateau marker
+  if(stopAt!==null){
+    const cx=parseFloat(sx(stopAt).toFixed(1));const rightEdge=W-mr;
+    if(cx<rightEdge) s+=`<rect x="${cx}" y="${mt}" width="${(rightEdge-cx).toFixed(1)}" height="${ph}" fill="rgba(0,0,0,.055)"/>`;
+    s+=`<line x1="${cx}" y1="${mt-10}" x2="${cx}" y2="${mt+ph}" stroke="#888" stroke-width="1.3" stroke-dasharray="4,3"/>`;
+    s+=`<text x="${cx}" y="${mt-14}" text-anchor="middle" fill="#555" font-size="9.5" font-family="${SERIF}" font-weight="600">plateau n=${stopAt}</text>`;
+    s+=`<text x="${cx}" y="${mt-4}" text-anchor="middle" fill="#888" font-size="8.5" font-family="${SERIF}" font-style="italic">Chabal 1990 (practical rule)</text>`;
+  }
+  // dots: only DS-new taxa (new to HF+LF) get an open dot; taxon name on hover
+  points.forEach(p=>{
+    const cx=parseFloat(sx(p.x).toFixed(1));const cy=parseFloat(sy(p.y).toFixed(1));
+    if(p.isNew){
+      s+=`<circle class="cdc-dot-new" cx="${cx}" cy="${cy}" r="5" fill="#ffffff" stroke="${COL.dotNew}" stroke-width="1.8" style="cursor:pointer" data-det="${(p.det||'—').replace(/"/g,'&quot;')}" data-line2="DS fragment ${p.x} · new vs HF+LF"/>`;
+    } else {
+      s+=`<circle cx="${cx}" cy="${cy}" r="3" fill="${COL.dotRep}" stroke="none" opacity="0.6"/>`;
+    }
+  });
+  s+=curveTipGroupSVG('cdc',SERIF,COL.text,COL.textD);
+  s+=`</svg>`;
+  wrap.innerHTML=s;
+  wireCurveTooltip(wrap,'cdc','cdc-dot-new');
+}
+
+function exportCDCPNG(){
+  const svgEl=document.querySelector('#cdc-svg-wrap svg');
+  if(!svgEl){showToast('No chart to export',true);return;}
+  const suVal=document.getElementById('cdc-su-select').value||'SU';
+  const vb=svgEl.viewBox.baseVal;
+  const px={w:Math.round(170/25.4*300)};
+  px.h=Math.round(px.w*(vb.height/vb.width));
+  const clone=svgEl.cloneNode(true);
+  clone.setAttribute('width',px.w);clone.setAttribute('height',px.h);
+  clone.setAttribute('viewBox',`0 0 ${vb.width} ${vb.height}`);
+  const bgRect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bgRect.setAttribute('width',vb.width);bgRect.setAttribute('height',vb.height);bgRect.setAttribute('fill','#ffffff');
+  clone.insertBefore(bgRect,clone.firstChild);
+  const svgStr=new XMLSerializer().serializeToString(clone);
+  const blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const canvas=document.createElement('canvas');canvas.width=px.w;canvas.height=px.h;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,px.w,px.h);
+  const img=new Image();
+  img.onload=()=>{ctx.drawImage(img,0,0,px.w,px.h);const a=document.createElement('a');a.download=`CDC_${suVal}_170mm_300dpi.png`;a.href=canvas.toDataURL('image/png');a.click();URL.revokeObjectURL(url);showToast(`✓ Exported CDC_${suVal}_170mm_300dpi.png`);};
+  img.onerror=()=>{const a=document.createElement('a');a.download=`CDC_${suVal}.svg`;a.href=url;a.click();showToast('PNG failed — downloaded SVG instead',true);};
+  img.src=url;
+}
+
+
+// ============================================================
+// SU SUMMARY MODAL
+// ============================================================
+let sumCurrentTab=1;
+
+function openSumModal(preselect){
+  const sus=[...new Set(records.map(r=>r.su).filter(v=>v))].sort();
+  const sel=document.getElementById('sum-su-select');
+  if(sus.length){
+    sel.innerHTML='<option value="__all__">— Whole assemblage —</option>'
+      +sus.map(s=>`<option value="${s}">${s}</option>`).join('');
+  } else {
+    sel.innerHTML='<option value="">— no records —</option>';
+  }
+  if(preselect==='__all__'){
+    sel.value='__all__';
+  } else {
+    const currentSU=document.getElementById('su').value.trim();
+    if(currentSU&&sus.includes(currentSU)) sel.value=currentSU;
+    else if(sus.length) sel.value=sus[0];
+  }
+  switchSumTab(sumCurrentTab,false);
+  renderSumSU(sel.value);
+  document.getElementById('sum-overlay').classList.add('open');
+}
+
+function closeSumModal(){
+  document.getElementById('sum-overlay').classList.remove('open');
+}
+
+function switchSumTab(n,doRender=true){
+  sumCurrentTab=n;
+  document.querySelectorAll('.sum-tab').forEach((t,i)=>t.classList.toggle('active',i===n-1));
+  if(doRender){
+    const su=document.getElementById('sum-su-select').value;
+    renderSumSU(su);
+  }
+}
+
+function renderSumSU(su){
+  const wrap=document.getElementById('sum-svg-wrap');
+  const info=document.getElementById('sum-info-bar');
+  const isAll=su==='__all__';
+  document.getElementById('sum-modal-title').textContent=isAll?'📊 Whole assemblage':'📊 SU Summary'+(su?' — SU: '+su:'');
+  if(!su){wrap.innerHTML=noDataMsg('No SU selected');info.innerHTML='';return;}
+  switch(sumCurrentTab){
+    case 1: renderSum1(su,wrap,info); break;
+    case 2: renderSum2(su,wrap,info); break;
+    case 3: renderSum3(su,wrap,info); break;
+    case 4: renderSum4(su,wrap,info); break;
+    case 5: renderSum5(su,wrap,info); break;
+    case 6: renderSum6(su,wrap,info); break;
+    case 7: renderSum7(su,wrap,info); break;
+    default: wrap.innerHTML=noDataMsg('Unknown tab');
+  }
+}
+
+const SUM_SERIF="Arial,Helvetica,sans-serif";
+const SUM_COL={bg:'#ffffff',grid:'#e0e0e0',axis:'#1a1a1a',text:'#1a1a1a',textD:'#666666',bar:'#1a1a1a',barLight:'#aaaaaa',fill:'rgba(0,0,0,.06)'};
+
+function noDataMsg(msg){
+  return '<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">'+msg+'</div>';
+}
+
+// Helper: restituisce i record filtrati per SU, o tutti se su==='__all__'
+function getRecsForSU(su){
+  if(su==='__all__') return records.slice();
+  return records.filter(function(r){return r.su===su;});
+}
+function suLabel(su){return su==='__all__'?'All assemblage':'SU '+su;}
+
+// Helper: taxon name with cf./sp./aff. NON in corsivo
+function taxonTspans(name,extraAttrs){
+  var PLAIN={'cf.':1,'sp.':1,'sp':1,'aff.':1,'var.':1,'subsp.':1,'f.':1,'gr.':1,'sect.':1,'ser.':1};
+  var tokens=(name||'').trim().split(/\s+/);
+  var tspans=tokens.map(function(t,i){
+    var italic=!PLAIN[t];
+    return '<tspan font-style="'+(italic?'italic':'normal')+'">'+t+(i<tokens.length-1?' ':'')+'</tspan>';
+  }).join('');
+  return '<text '+(extraAttrs||'')+'>'+tspans+'</text>';
+}
+
+// Tab 1: Saturation curve
+function renderSum1(su,wrap,info){
+  function buildCurve(recs){
+    var sorted=recs.slice().sort(function(a,b){return (parseInt(a.id_det)||0)-(parseInt(b.id_det)||0);});
+    var points=[];var seen=new Set();var newTaxa=[];
+    var lastNewIdx=-1;var stopAt=null;
+    sorted.forEach(function(r,i){
+      var det=(r.det||'').trim();
+      var prevSize=seen.size;
+      var isNew=isTaxonCountable(det)&&!seen.has(det);
+      if(isTaxonCountable(det)) seen.add(det);
+      if(seen.size>prevSize) lastNewIdx=i;
+      if(stopAt===null){
+        var streak=lastNewIdx<0?i+1:i-lastNewIdx;
+        if(streak>=50) stopAt=i+1;
+      }
+      points.push({x:i+1,y:seen.size,det:det||'—',isNew:isNew});
+    });
+    var currentStreak=lastNewIdx<0?sorted.length:sorted.length-1-lastNewIdx;
+    return{points:points,total:sorted.length,taxa:seen.size,stopAt:stopAt,currentStreak:currentStreak};
+  }
+  var baseRecs=(su==='__all__'?records:records.filter(function(r){return r.su===su;})).filter(isHFLF);
+  var d=buildCurve(baseRecs);
+  var points=d.points,total=d.total,taxa=d.taxa,stopAt=d.stopAt,currentStreak=d.currentStreak;
+  // taxa in order of appearance
+  var orderedTaxa=[];points.forEach(function(p){if(p.isNew)orderedTaxa.push({det:p.det,x:p.x,taxa:p.y});});
+  var sortedRecs=baseRecs.slice().sort(function(a,b){return (parseInt(a.id_det)||0)-(parseInt(b.id_det)||0);});
+  var layerLabel=su==='__all__'?'':' · Layer '+(sortedRecs[0]&&sortedRecs[0].layer?sortedRecs[0].layer:'—');
+  var criterionMet=stopAt!==null;
+  var streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#666';
+  info.innerHTML='<span>HF+LF fragments: <b>'+total+'</b></span><span>distinct taxa: <b>'+taxa+'</b></span>'
+    +'<span>streak: <b style="color:'+streakColor+'">'+currentStreak+'/50</b></span>'
+    +(criterionMet
+      ?'<span style="color:#4caf82;font-weight:700">✓ stop criterion met at n=<b>'+stopAt+'</b></span>'
+      :'<span style="color:#e6812a">⚠ stop criterion not yet met</span>');
+  if(!points.length){wrap.innerHTML=noDataMsg('No HF/LF records');return;}
+
+  // Layout
+  const W=680,ml=52,mr=28,mt=90,mb=30;
+  const pw=W-ml-mr,ph=220;
+  // taxa legend below chart
+  var nNew=orderedTaxa.length;
+  var legCols=2,legRowH=14,legMt=18,legPad=16;
+  var legRows=Math.ceil(nNew/legCols);
+  var legH=nNew>0?legMt+legRows*legRowH+legPad:0;
+  const H=mt+ph+mb+legH;
+
+  const maxX=points.length,maxY=Math.max(taxa,1);
+  const sx=function(x){return ml+(x-1)/(maxX>1?maxX-1:1)*pw;};
+  const sy=function(y){return mt+ph-y/maxY*ph;};
+  const yStep=maxY<=5?1:maxY<=10?2:maxY<=20?5:10;
+  const yTicks=[];for(let y=0;y<=maxY;y+=yStep)yTicks.push(y);
+  if(!yTicks.includes(maxY))yTicks.push(maxY);
+  const xStep=Math.max(1,Math.ceil(maxX/8));
+  const xTicks=[];for(let i=1;i<=maxX;i+=xStep)xTicks.push(i);
+  if(!xTicks.includes(maxX))xTicks.push(maxX);
+
+  let s='<svg id="sum-chart-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="'+SUM_COL.bg+'"/>';
+  // drop-shadow filter for tooltip
+  s+='<defs><filter id="sat-shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#00000022"/></filter></defs>';
+  s+='<text x="'+ml+'" y="20" fill="'+SUM_COL.text+'" font-size="13" font-weight="600" font-family="'+SUM_SERIF+'">'+suLabel(su)+layerLabel+'</text>';
+  s+='<text x="'+ml+'" y="37" fill="'+SUM_COL.textD+'" font-size="10" font-family="'+SUM_SERIF+'">n = '+total+' fragments · '+taxa+' distinct taxa</text>';
+  yTicks.forEach(function(y){var cy=sy(y).toFixed(1);s+='<line x1="'+ml+'" y1="'+cy+'" x2="'+(W-mr)+'" y2="'+cy+'" stroke="'+SUM_COL.grid+'" stroke-width="1"/>';s+='<text x="'+(ml-7)+'" y="'+(parseFloat(cy)+4).toFixed(1)+'" text-anchor="end" fill="'+SUM_COL.textD+'" font-size="10" font-family="'+SUM_SERIF+'">'+y+'</text>';});
+  xTicks.forEach(function(x){var cx=sx(x).toFixed(1);s+='<line x1="'+cx+'" y1="'+mt+'" x2="'+cx+'" y2="'+(mt+ph)+'" stroke="'+SUM_COL.grid+'" stroke-width="1"/>';s+='<text x="'+cx+'" y="'+(mt+ph+17)+'" text-anchor="middle" fill="'+SUM_COL.textD+'" font-size="10" font-family="'+SUM_SERIF+'">'+x+'</text>';});
+  s+='<line x1="'+ml+'" y1="'+mt+'" x2="'+ml+'" y2="'+(mt+ph)+'" stroke="'+SUM_COL.axis+'" stroke-width="1.5"/>';
+  s+='<line x1="'+ml+'" y1="'+(mt+ph)+'" x2="'+(W-mr)+'" y2="'+(mt+ph)+'" stroke="'+SUM_COL.axis+'" stroke-width="1.5"/>';
+  if(points.length>1){
+    var base=sy(0).toFixed(1);
+    var dp=points.map(function(p,i){return(i===0?'M':'L')+sx(p.x).toFixed(1)+','+sy(p.y).toFixed(1);}).join(' ');
+    s+='<path d="'+dp+' L'+sx(points[points.length-1].x).toFixed(1)+','+base+' L'+sx(points[0].x).toFixed(1)+','+base+' Z" fill="'+SUM_COL.fill+'"/>';
+    s+='<path d="'+dp+'" fill="none" stroke="'+SUM_COL.bar+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  }
+  // Stop criterion: shaded post-plateau area + dashed line
+  if(stopAt!==null){
+    var cx=parseFloat(sx(stopAt).toFixed(1));
+    var rightEdge=W-mr;
+    if(cx<rightEdge){
+      s+='<rect x="'+cx+'" y="'+mt+'" width="'+(rightEdge-cx).toFixed(1)+'" height="'+ph+'" fill="rgba(0,0,0,.055)"/>';
+    }
+    s+='<line x1="'+cx+'" y1="'+(mt-10)+'" x2="'+cx+'" y2="'+(mt+ph)+'" stroke="#888" stroke-width="1.3" stroke-dasharray="4,3"/>';
+    s+='<text x="'+cx+'" y="'+(mt-14)+'" text-anchor="middle" fill="#555" font-size="9.5" font-family="'+SUM_SERIF+'" font-weight="600">stop n='+stopAt+'</text>';
+    s+='<text x="'+cx+'" y="'+(mt-4)+'" text-anchor="middle" fill="#888" font-size="8.5" font-family="'+SUM_SERIF+'" font-style="italic">Chabal 1990</text>';
+  }
+  // Dots with data attributes for custom tooltip
+  points.forEach(function(p,i){
+    var cx=parseFloat(sx(p.x).toFixed(1));
+    var cy=parseFloat(sy(p.y).toFixed(1));
+    if(p.isNew){
+      s+='<circle class="sat-dot-new" cx="'+cx+'" cy="'+cy+'" r="5" fill="#ffffff" stroke="'+SUM_COL.bar+'" stroke-width="1.8" style="cursor:pointer" data-det="'+p.det.replace(/"/g,'&quot;')+'" data-n="'+p.x+'" data-taxa="'+p.y+'"/>';
+    }else{
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="3" fill="'+SUM_COL.barLight+'" stroke="none" opacity="0.6"/>';
+    }
+  });
+
+  // Custom speech-bubble tooltip group (hidden by default; visible in export if shown)
+  s+='<g id="sat-tip-g" visibility="hidden" pointer-events="none">';
+  s+='<rect id="sat-tip-bg" rx="5" ry="5" fill="white" stroke="#555" stroke-width="0.8" filter="url(#sat-shadow)"/>';
+  s+='<polygon id="sat-tip-ptr" fill="white" stroke="#555" stroke-width="0.8"/>';
+  s+='<text id="sat-tip-t1" font-size="10" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.text+'"/>';
+  s+='<text id="sat-tip-t2" font-size="9" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.textD+'"/>';
+  s+='</g>';
+
+  // Taxa legend below chart (always visible → appears in PNG)
+  if(nNew>0){
+    var legY=mt+ph+mb;
+    s+='<line x1="'+ml+'" y1="'+legY+'" x2="'+(W-mr)+'" y2="'+legY+'" stroke="'+SUM_COL.grid+'" stroke-width="0.8"/>';
+    s+='<text x="'+ml+'" y="'+(legY+13)+'" font-size="9" font-weight="600" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.textD+'">New taxa in order of first appearance:</text>';
+    var colW=(W-ml-mr)/legCols;
+    orderedTaxa.forEach(function(t,i){
+      var col=i%legCols;
+      var row=Math.floor(i/legCols);
+      var tx=ml+col*colW;
+      var ty=legY+legMt+(row+1)*legRowH;
+      var label=(i+1)+'. ';
+      s+='<text x="'+tx+'" y="'+ty+'" font-size="9" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.textD+'">';
+      s+='<tspan font-style="normal">'+label+'</tspan>';
+      // taxon name with cf./sp. non in corsivo
+      var PLAIN={'cf.':1,'sp.':1,'sp':1,'aff.':1,'var.':1,'subsp.':1,'f.':1,'gr.':1};
+      t.det.trim().split(/\s+/).forEach(function(tok,j){
+        s+='<tspan font-style="'+(PLAIN[tok]?'normal':'italic')+'">'+(j>0?' ':'')+tok+'</tspan>';
+      });
+      s+='<tspan font-style="normal" fill="'+SUM_COL.textD+'"> (n='+t.x+')</tspan>';
+      s+='</text>';
+    });
+  }
+  s+='</svg>';
+  wrap.innerHTML=s;
+
+  // Attach custom tooltip JS listeners
+  var svg=wrap.querySelector('svg');
+  if(!svg) return;
+  var tipG=svg.querySelector('#sat-tip-g');
+  var tipBg=svg.querySelector('#sat-tip-bg');
+  var tipPtr=svg.querySelector('#sat-tip-ptr');
+  var tipT1=svg.querySelector('#sat-tip-t1');
+  var tipT2=svg.querySelector('#sat-tip-t2');
+  if(!tipG) return;
+  var dots=svg.querySelectorAll('.sat-dot-new');
+  dots.forEach(function(c){
+    c.addEventListener('mouseenter',function(){
+      var det=c.getAttribute('data-det');
+      var nx=c.getAttribute('data-n');
+      var nt=c.getAttribute('data-taxa');
+      var cx=parseFloat(c.getAttribute('cx'));
+      var cy=parseFloat(c.getAttribute('cy'));
+      // Build text (cf./sp. handled via dom)
+      tipT1.innerHTML=''; // clear
+      var PLAIN={'cf.':1,'sp.':1,'sp':1,'aff.':1,'var.':1,'subsp.':1,'f.':1,'gr.':1};
+      var toks=det.split(/\s+/);
+      toks.forEach(function(tok,j){
+        var ts=document.createElementNS('http://www.w3.org/2000/svg','tspan');
+        ts.setAttribute('font-style',PLAIN[tok]?'normal':'italic');
+        ts.textContent=(j>0?' ':'')+tok;
+        tipT1.appendChild(ts);
+      });
+      tipT2.textContent='fragment '+nx+' · taxon no. '+nt;
+      // Measure approximate width
+      var charW=6.5; // approx px per char at font-size 10
+      var tw=Math.max(det.length*charW+20, 110);
+      var th=36;
+      var tx=cx-tw/2; var ty=cy-th-10;
+      // Clamp to SVG bounds
+      var vb=svg.viewBox.baseVal;
+      if(vb){tx=Math.max(2,Math.min(vb.width-tw-2,tx));ty=Math.max(2,ty);}
+      tipBg.setAttribute('x',tx);tipBg.setAttribute('y',ty);tipBg.setAttribute('width',tw);tipBg.setAttribute('height',th);
+      // pointer triangle (downward pointing)
+      var px=cx;var py=cy-6;
+      tipPtr.setAttribute('points',(px-5)+','+(ty+th)+' '+(px+5)+','+(ty+th)+' '+px+','+py);
+      tipT1.setAttribute('x',tx+8);tipT1.setAttribute('y',ty+14);
+      tipT2.setAttribute('x',tx+8);tipT2.setAttribute('y',ty+27);
+      tipG.setAttribute('visibility','visible');
+    });
+    c.addEventListener('mouseleave',function(){
+      tipG.setAttribute('visibility','hidden');
+    });
+  });
+}
+
+// Tab 2: Taxa richness (horizontal bars)
+function renderSum2(su,wrap,info){
+  const suRecs=getRecsForSU(su).filter(function(r){return isTaxonCountable(r.det);});
+  if(!suRecs.length){info.innerHTML='';wrap.innerHTML=noDataMsg('No countable records for this SU');return;}
+  const freq={};
+  suRecs.forEach(function(r){var d=(r.det||'').trim();freq[d]=(freq[d]||0)+1;});
+  const items=Object.entries(freq).sort(function(a,b){return a[0].localeCompare(b[0]);});
+  const nTaxa=items.length,total=suRecs.length;
+  info.innerHTML='<span>records: <b>'+total+'</b></span><span>distinct taxa: <b>'+nTaxa+'</b></span>';
+  const barH=18,barGap=4,ml=180,mr=60,mt=80,mb=20;
+  const H=mt+mb+items.length*(barH+barGap);
+  const W=660,pw=W-ml-mr;
+  const maxVal=Math.max.apply(null,items.map(function(d){return d[1];}));
+  let s='<svg id="sum-chart-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="'+SUM_COL.bg+'"/>';
+  s+='<text x="'+ml+'" y="20" fill="'+SUM_COL.text+'" font-size="13" font-weight="600" font-family="'+SUM_SERIF+'">'+suLabel(su)+' · Taxa richness</text>';
+  s+='<text x="'+ml+'" y="37" fill="'+SUM_COL.textD+'" font-size="10" font-family="'+SUM_SERIF+'" font-style="italic">n = '+total+' fragments · '+nTaxa+' taxa · sorted by frequency</text>';
+  s+='<line x1="'+ml+'" y1="'+(mt-4)+'" x2="'+ml+'" y2="'+(mt+items.length*(barH+barGap))+'" stroke="'+SUM_COL.axis+'" stroke-width="1.2"/>';
+  items.forEach(function(item,i){
+    var taxon=item[0],n=item[1];
+    var y=mt+i*(barH+barGap);
+    var bw=n/maxVal*pw;
+    s+=taxonTspans(taxon,'x="'+(ml-5)+'" y="'+(y+barH*0.72).toFixed(1)+'" text-anchor="end" font-size="10" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.text+'"');
+    s+='<rect x="'+ml+'" y="'+y+'" width="'+bw.toFixed(1)+'" height="'+barH+'" fill="'+SUM_COL.bar+'" rx="2"/>';
+    s+='<text x="'+(ml+bw+5).toFixed(1)+'" y="'+(y+barH*0.72).toFixed(1)+'" font-size="10" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.textD+'">'+n+' ('+(100*n/total).toFixed(0)+'%)</text>';
+  });
+  s+='</svg>';
+  wrap.innerHTML=s;
+}
+
+// Tab 3: Simpson diversity 1-D (compare all SUs)
+function renderSum3(su,wrap,info){
+  const allSUs=[...new Set(records.map(function(r){return r.su;}).filter(function(v){return v;}))].sort();
+  function simpsonForSU(s2){
+    var recs=records.filter(function(r){return r.su===s2&&isTaxonCountable(r.det);});
+    if(recs.length<2) return null;
+    var freq={};
+    recs.forEach(function(r){var d=(r.det||'').trim();freq[d]=(freq[d]||0)+1;});
+    var total=recs.length;
+    var sumSq=Object.values(freq).reduce(function(acc,n){return acc+Math.pow(n/total,2);},0);
+    return parseFloat((1-sumSq).toFixed(4));
+  }
+  const data=allSUs.map(function(s2){return{su:s2,val:simpsonForSU(s2)};}).filter(function(d){return d.val!==null;});
+  if(!data.length){info.innerHTML='';wrap.innerHTML=noDataMsg('Not enough data for Simpson diversity');return;}
+  const currentD=su!=='__all__'?data.find(function(d){return d.su===su;}):null;
+  info.innerHTML=currentD?'<span>SU '+su+': <b>1−D = '+currentD.val.toFixed(4)+'</b></span><span>all SUs compared</span>'
+    :'<span>Simpson (1−D) · all SUs</span>';
+  const barH=20,barGap=4,ml=60,mr=80,mt=70,mb=30;
+  const H=mt+mb+data.length*(barH+barGap);
+  const W=660,pw=W-ml-mr;
+  const maxVal=Math.max.apply(null,data.map(function(d){return d.val;}));
+  let s='<svg id="sum-chart-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="'+SUM_COL.bg+'"/>';
+  s+='<text x="'+ml+'" y="20" fill="'+SUM_COL.text+'" font-size="13" font-weight="600" font-family="'+SUM_SERIF+'">Simpson diversity (1−D) by SU</text>';
+  s+='<text x="'+ml+'" y="37" fill="'+SUM_COL.textD+'" font-size="10" font-family="'+SUM_SERIF+'" font-style="italic">Higher = more diverse · current SU highlighted</text>';
+  s+='<line x1="'+ml+'" y1="'+(mt-4)+'" x2="'+ml+'" y2="'+(mt+data.length*(barH+barGap))+'" stroke="'+SUM_COL.axis+'" stroke-width="1.2"/>';
+  data.forEach(function(item,i){
+    var s2=item.su,val=item.val;
+    var y=mt+i*(barH+barGap);
+    var bw=val/maxVal*pw;
+    var isCurrent=su!=='__all__'&&s2===su;
+    var fill=isCurrent?SUM_COL.bar:SUM_COL.barLight;
+    s+='<text x="'+(ml-5)+'" y="'+(y+barH*0.72).toFixed(1)+'" text-anchor="end" font-size="11" font-family="'+SUM_SERIF+'" fill="'+(isCurrent?SUM_COL.text:SUM_COL.textD)+'" font-weight="'+(isCurrent?'600':'400')+'">'+s2+'</text>';
+    s+='<rect x="'+ml+'" y="'+y+'" width="'+bw.toFixed(1)+'" height="'+barH+'" fill="'+fill+'" rx="2"/>';
+    s+='<text x="'+(ml+bw+5).toFixed(1)+'" y="'+(y+barH*0.72).toFixed(1)+'" font-size="10" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.textD+'">'+val.toFixed(3)+'</text>';
+  });
+  s+='</svg>';
+  wrap.innerHTML=s;
+}
+
+// Tab 4: Ecological composition (100% stacked, all SUs with patterns)
+function renderSum4(su,wrap,info){
+  const ECO_LABELS=['Dry thorn scrubland','Riverine','Mountain forest','other'];
+  const ECO_COLORS=['#D4812A','#4A90D9','#2E7D32','#888888'];
+  function getEco(r){
+    var e=(r.eco||'').trim();
+    if(/^dry/i.test(e)) return 'Dry thorn scrubland';
+    if(/^river/i.test(e)) return 'Riverine';
+    if(/^mount/i.test(e)) return 'Mountain forest';
+    if(/^other$/i.test(e)) return 'other';
+    return null;
+  }
+
+  if(su==='__all__'){
+    // Pie chart: entire assemblage
+    var allCounts={};ECO_LABELS.forEach(function(l){allCounts[l]=0;});
+    records.filter(function(r){return isTaxonCountable(r.det);}).forEach(function(r){var e=getEco(r);if(e)allCounts[e]++;});
+    var totalAll=Object.values(allCounts).reduce(function(a,b){return a+b;},0);
+    if(!totalAll){info.innerHTML='';wrap.innerHTML=noDataMsg('No ecological data');return;}
+    info.innerHTML=ECO_LABELS.map(function(l,j){
+      return '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+ECO_COLORS[j]+'"></span>'+l+': <b>'+allCounts[l]+'</b> ('+(totalAll>0?(allCounts[l]/totalAll*100).toFixed(0):0)+'%)</span>';
+    }).join('');
+    var W=500,H=340,cx=200,cy=175,r=130;
+    var s='<svg id="sum-chart-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">';
+    s+='<rect width="'+W+'" height="'+H+'" fill="'+SUM_COL.bg+'"/>';
+    s+='<text x="20" y="22" fill="'+SUM_COL.text+'" font-size="13" font-weight="600" font-family="'+SUM_SERIF+'">Whole assemblage · Ecological composition</text>';
+    s+='<text x="20" y="38" fill="'+SUM_COL.textD+'" font-size="10" font-family="'+SUM_SERIF+'">n = '+totalAll+' fragments · determinable taxa only</text>';
+    var startAng=-Math.PI/2;
+    ECO_LABELS.forEach(function(l,j){
+      var pct=totalAll>0?allCounts[l]/totalAll:0;
+      if(pct===0) return;
+      var endAng=startAng+pct*2*Math.PI;
+      var x1=cx+r*Math.cos(startAng);var y1=cy+r*Math.sin(startAng);
+      var x2=cx+r*Math.cos(endAng);var y2=cy+r*Math.sin(endAng);
+      var large=pct>0.5?1:0;
+      s+='<path d="M '+cx+' '+cy+' L '+x1.toFixed(1)+' '+y1.toFixed(1)+' A '+r+' '+r+' 0 '+large+' 1 '+x2.toFixed(1)+' '+y2.toFixed(1)+' Z" fill="'+ECO_COLORS[j]+'" stroke="white" stroke-width="1.5"/>';
+      if(pct>0.04){
+        var midAng=startAng+pct*Math.PI;
+        var lx=cx+r*0.62*Math.cos(midAng);var ly=cy+r*0.62*Math.sin(midAng);
+        s+='<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" font-family="'+SUM_SERIF+'" fill="white">'+(pct*100).toFixed(0)+'%</text>';
+      }
+      startAng=endAng;
+    });
+    // Legend to the right
+    var lx=cx+r+25,ly=cy-r/2;
+    ECO_LABELS.forEach(function(l,j){
+      s+='<rect x="'+lx+'" y="'+ly+'" width="13" height="13" fill="'+ECO_COLORS[j]+'" rx="2"/>';
+      s+='<text x="'+(lx+18)+'" y="'+(ly+10.5)+'" font-size="10" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.text+'">'+l+' ('+allCounts[l]+')</text>';
+      ly+=22;
+    });
+    s+='</svg>';
+    wrap.innerHTML=s;
+    return;
+  }
+
+  // ---- single SU: 100% stacked bar chart ----
+  var allSUs=[...new Set(records.map(function(r){return r.su;}).filter(function(v){return v;}))].sort();
+  var suData=allSUs.map(function(s2){
+    var recs=records.filter(function(r){return r.su===s2&&isTaxonCountable(r.det);});
+    var counts={};ECO_LABELS.forEach(function(l){counts[l]=0;});
+    recs.forEach(function(r){var e=getEco(r);if(e)counts[e]++;});
+    var total=Object.values(counts).reduce(function(a,b){return a+b;},0);
+    return{su:s2,counts:counts,total:total};
+  }).filter(function(d){return d.total>0;});
+  if(!suData.length){info.innerHTML='';wrap.innerHTML=noDataMsg('No ecological data for any SU');return;}
+  var currentSUData=suData.find(function(d){return d.su===su;});
+  info.innerHTML=currentSUData?ECO_LABELS.map(function(l,j){
+    return '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+ECO_COLORS[j]+'"></span>'+l+': <b>'+(currentSUData.counts[l])+'</b></span>';
+  }).join(''):'';
+  var LEGEND_W=145,LEGEND_GAP=15;
+  var barGap=10,ml=40,mr=LEGEND_W+LEGEND_GAP+10,mt=75,mb=40;
+  var W=680,chartH=260;
+  var H=mt+mb+chartH;
+  var plotW=W-ml-mr;
+  var barW=Math.max(18,Math.min(52,Math.floor((plotW-suData.length*barGap)/suData.length)));
+  var totalW=suData.length*(barW+barGap);
+  var startX=ml+(plotW-totalW)/2;
+  var s='<svg id="sum-chart-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="'+SUM_COL.bg+'"/>';
+  s+='<text x="'+ml+'" y="22" fill="'+SUM_COL.text+'" font-size="13" font-weight="600" font-family="'+SUM_SERIF+'">Ecological composition by SU</text>';
+  s+='<text x="'+ml+'" y="38" fill="'+SUM_COL.textD+'" font-size="10" font-family="'+SUM_SERIF+'">% fragments per ecological group · determinable taxa only</text>';
+  var axisR=ml+plotW;
+  s+='<line x1="'+ml+'" y1="'+mt+'" x2="'+ml+'" y2="'+(mt+chartH)+'" stroke="'+SUM_COL.axis+'" stroke-width="1.2"/>';
+  s+='<line x1="'+ml+'" y1="'+(mt+chartH)+'" x2="'+axisR+'" y2="'+(mt+chartH)+'" stroke="'+SUM_COL.axis+'" stroke-width="1.2"/>';
+  [0,25,50,75,100].forEach(function(pct){
+    var y=mt+chartH-pct/100*chartH;
+    s+='<line x1="'+ml+'" y1="'+y.toFixed(1)+'" x2="'+axisR+'" y2="'+y.toFixed(1)+'" stroke="'+SUM_COL.grid+'" stroke-width="1"/>';
+    s+='<text x="'+(ml-5)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" font-size="10" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.textD+'">'+pct+'%</text>';
+  });
+  suData.forEach(function(item,i){
+    var s2=item.su,counts=item.counts,total=item.total;
+    var bx=startX+i*(barW+barGap);
+    var cumY=0;
+    var isCurrent=su!=='__all__'&&s2===su;
+    ECO_LABELS.forEach(function(l,j){
+      var pct=total>0?counts[l]/total:0;
+      var bh=pct*chartH;
+      var ry=mt+chartH-cumY-bh;
+      if(bh>0.5)s+='<rect x="'+bx.toFixed(1)+'" y="'+ry.toFixed(1)+'" width="'+barW+'" height="'+bh.toFixed(1)+'" fill="'+ECO_COLORS[j]+'" stroke="white" stroke-width="0.5"/>';
+      cumY+=bh;
+    });
+    s+='<text x="'+(bx+barW/2).toFixed(1)+'" y="'+(mt+chartH+15)+'" text-anchor="middle" font-size="10" font-family="'+SUM_SERIF+'" fill="'+(isCurrent?SUM_COL.text:SUM_COL.textD)+'" font-weight="'+(isCurrent?'600':'400')+'">'+s2+'</text>';
+    if(isCurrent)s+='<rect x="'+(bx-2).toFixed(1)+'" y="'+(mt-2)+'" width="'+(barW+4)+'" height="'+(chartH+4)+'" fill="none" stroke="'+SUM_COL.bar+'" stroke-width="1.5" stroke-dasharray="4,2" rx="2"/>';
+  });
+  // legend — positioned clearly to the right of the plot area
+  var lx=ml+plotW+LEGEND_GAP;var ly=mt+10;
+  ECO_LABELS.forEach(function(l,j){
+    s+='<rect x="'+lx+'" y="'+ly+'" width="12" height="12" fill="'+ECO_COLORS[j]+'" rx="2"/>';
+    s+='<text x="'+(lx+16)+'" y="'+(ly+10)+'" font-size="9.5" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.text+'">'+l+'</text>';
+    ly+=20;
+  });
+  s+='</svg>';
+  wrap.innerHTML=s;
+}
+
+// Tab 5: Taphonomy (% presence per alteration)
+function renderSum5(su,wrap,info){
+  const TAPH_MAP=[
+    {id:'radial_crack',label:'Radial cracking',group:'Thermal'},
+    {id:'vitrification',label:'Vitrification',group:'Thermal'},
+    {id:'wood_compression',label:'Wood compression',group:'Mechanical'},
+    {id:'cell_deformation',label:'Cell deformation',group:'Mechanical'},
+    {id:'xylophagous_activity',label:'Xylophagous activity',group:'Biological'},
+    {id:'mineralisation',label:'Mineralisation',group:'Post-dep.'},
+    {id:'ossidation',label:'Ossidation',group:'Post-dep.'},
+  ];
+  const suRecs=getRecsForSU(su);
+  if(!suRecs.length){info.innerHTML='';wrap.innerHTML=noDataMsg('No records for this SU');return;}
+  const stats=TAPH_MAP.map(function(t){
+    var assessable=suRecs.filter(function(r){var v=String(r[t.id]!=null?r[t.id]:'');return v==='0'||v==='1'||v==='2'||v==='3';});
+    var present=assessable.filter(function(r){var v=String(r[t.id]!=null?r[t.id]:'');return v==='1'||v==='2'||v==='3';});
+    var pct=assessable.length>0?present.length/assessable.length*100:null;
+    return{id:t.id,label:t.label,group:t.group,n_present:present.length,n_assessable:assessable.length,pct:pct};
+  });
+  // Build row layout with group-header rows
+  const barH=18,barGap=4,groupHeaderH=18,groupGap=6;
+  var rows=[];var lastGroup='';
+  stats.forEach(function(item){
+    if(item.group!==lastGroup){lastGroup=item.group;rows.push({type:'group',label:item.group});}
+    rows.push({type:'bar',item:item});
+  });
+  var totalRowH=rows.reduce(function(acc,r){return acc+(r.type==='group'?groupHeaderH+groupGap:barH+barGap);},0);
+  const ml=200,mr=90,mt=75,mb=20;
+  const W=660,pw=W-ml-mr;
+  const H=mt+mb+totalRowH;
+  info.innerHTML='<span>records in SU: <b>'+suRecs.length+'</b></span>';
+  let s='<svg id="sum-chart-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="'+SUM_COL.bg+'"/>';
+  s+='<text x="'+ml+'" y="20" fill="'+SUM_COL.text+'" font-size="13" font-weight="600" font-family="'+SUM_SERIF+'">'+suLabel(su)+' · Taphonomic alterations</text>';
+  s+='<text x="'+ml+'" y="37" fill="'+SUM_COL.textD+'" font-size="10" font-family="'+SUM_SERIF+'" font-style="italic">% presence (value 1–3) over assessable records</text>';
+  // vertical grid lines at 25/50/75/100
+  var gridBottom=mt+totalRowH;
+  [25,50,75,100].forEach(function(pct){
+    var cx=ml+pct/100*pw;
+    s+='<line x1="'+cx.toFixed(1)+'" y1="'+mt+'" x2="'+cx.toFixed(1)+'" y2="'+gridBottom+'" stroke="'+SUM_COL.grid+'" stroke-width="1"/>';
+    s+='<text x="'+cx.toFixed(1)+'" y="'+(mt-8)+'" text-anchor="middle" font-size="9" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.textD+'">'+pct+'%</text>';
+  });
+  s+='<line x1="'+ml+'" y1="'+mt+'" x2="'+ml+'" y2="'+gridBottom+'" stroke="'+SUM_COL.axis+'" stroke-width="1.2"/>';
+  var curY=mt;
+  rows.forEach(function(row){
+    if(row.type==='group'){
+      // group header band
+      s+='<rect x="0" y="'+curY+'" width="'+W+'" height="'+groupHeaderH+'" fill="#f5f5f5"/>';
+      s+='<text x="'+(ml-5)+'" y="'+(curY+groupHeaderH*0.75)+'" text-anchor="end" font-size="9" font-family="'+SUM_SERIF+'" font-weight="600" fill="#555" font-style="italic" letter-spacing="0.04em">'+row.label.toUpperCase()+'</text>';
+      s+='<line x1="0" y1="'+(curY+groupHeaderH)+'" x2="'+W+'" y2="'+(curY+groupHeaderH)+'" stroke="#e0e0e0" stroke-width="1"/>';
+      curY+=groupHeaderH+groupGap;
+    } else {
+      var item=row.item;
+      var y=curY;
+      s+='<text x="'+(ml-7)+'" y="'+(y+barH*0.78).toFixed(1)+'" text-anchor="end" font-size="10" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.text+'">'+item.label+'</text>';
+      if(item.pct===null){
+        s+='<text x="'+(ml+5)+'" y="'+(y+barH*0.78).toFixed(1)+'" font-size="9" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.textD+'">n/a</text>';
+      } else {
+        var bw=item.pct/100*pw;
+        s+='<rect x="'+ml+'" y="'+y+'" width="'+bw.toFixed(1)+'" height="'+barH+'" fill="'+SUM_COL.bar+'" rx="2"/>';
+        s+='<text x="'+(ml+bw+5).toFixed(1)+'" y="'+(y+barH*0.78).toFixed(1)+'" font-size="9" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.textD+'">'+item.pct.toFixed(0)+'% ('+item.n_present+'/'+item.n_assessable+')</text>';
+      }
+      curY+=barH+barGap;
+    }
+  });
+  s+='</svg>';
+  wrap.innerHTML=s;
+}
+
+// Tab 6: Fracture type (bar %)
+function renderSum6(su,wrap,info){
+  const FT_LABELS=['cubical','elongated','wedge shaped','irregular'];
+  const suRecs=getRecsForSU(su).filter(function(r){return r.fracture_type&&r.fracture_type!=='';});
+  if(!suRecs.length){info.innerHTML='';wrap.innerHTML=noDataMsg('No fracture type data for this SU');return;}
+  const freq={};FT_LABELS.forEach(function(l){freq[l]=0;});
+  suRecs.forEach(function(r){var v=(r.fracture_type||'').trim();if(freq.hasOwnProperty(v))freq[v]++;});
+  const total=suRecs.length;
+  info.innerHTML='<span>records with fracture type: <b>'+total+'</b></span>';
+  const items=FT_LABELS.map(function(l){return{label:l,n:freq[l],pct:total>0?freq[l]/total*100:0};});
+  const barH=32,barGap=8,ml=120,mr=100,mt=80,mb=30;
+  const H=mt+mb+items.length*(barH+barGap);
+  const W=660,pw=W-ml-mr;
+  const maxPct=Math.max.apply(null,items.map(function(d){return d.pct;}).concat([1]));
+  let s='<svg id="sum-chart-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="'+SUM_COL.bg+'"/>';
+  s+='<text x="'+ml+'" y="20" fill="'+SUM_COL.text+'" font-size="13" font-weight="600" font-family="'+SUM_SERIF+'">'+suLabel(su)+' · Fracture type</text>';
+  s+='<text x="'+ml+'" y="37" fill="'+SUM_COL.textD+'" font-size="10" font-family="'+SUM_SERIF+'" font-style="italic">n = '+total+' records with fracture type assigned</text>';
+  s+='<line x1="'+ml+'" y1="'+(mt-4)+'" x2="'+ml+'" y2="'+(mt+items.length*(barH+barGap))+'" stroke="'+SUM_COL.axis+'" stroke-width="1.2"/>';
+  items.forEach(function(item,i){
+    var y=mt+i*(barH+barGap);
+    var bw=item.pct/maxPct*pw;
+    s+='<text x="'+(ml-5)+'" y="'+(y+barH*0.68).toFixed(1)+'" text-anchor="end" font-size="11" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.text+'">'+item.label+'</text>';
+    s+='<rect x="'+ml+'" y="'+y+'" width="'+bw.toFixed(1)+'" height="'+barH+'" fill="'+SUM_COL.bar+'" rx="3"/>';
+    s+='<text x="'+(ml+bw+6).toFixed(1)+'" y="'+(y+barH*0.68).toFixed(1)+'" font-size="10" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.textD+'">'+item.pct.toFixed(1)+'% (n='+item.n+')</text>';
+  });
+  s+='</svg>';
+  wrap.innerHTML=s;
+}
+
+// Tab 7: HF / LF by SU
+function renderSum7(su,wrap,info){
+  const allSUs=[...new Set(records.map(function(r){return r.su;}).filter(function(v){return v;}))].sort();
+  function getHFLF(s2){
+    var recs=records.filter(function(r){return r.su===s2;});
+    var hf=recs.filter(function(r){return (r.channel||'').trim().toUpperCase()==='HF';}).length;
+    var lf=recs.filter(function(r){return (r.channel||'').trim().toUpperCase()==='LF';}).length;
+    return{hf:hf,lf:lf,total:recs.length,withFlag:hf+lf};
+  }
+  const data=allSUs.map(function(s2){var d=getHFLF(s2);return{su:s2,hf:d.hf,lf:d.lf,total:d.total,withFlag:d.withFlag};}).filter(function(d){return d.withFlag>0;});
+  if(!data.length){info.innerHTML='';wrap.innerHTML=noDataMsg('No HF/LF data for any SU');return;}
+  const cur=getHFLF(su);
+  const HF_COL='#D4812A', LF_COL='#4A90D9';
+  info.innerHTML='<span style="display:inline-flex;align-items:center;gap:3px;"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+HF_COL+'"></span>HF: <b>'+cur.hf+'</b></span>'
+    +'<span style="display:inline-flex;align-items:center;gap:3px;"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+LF_COL+'"></span>LF: <b>'+cur.lf+'</b></span>'
+    +'<span>total records in SU: <b>'+cur.total+'</b></span>';
+  const barH=22,barGap=5,ml=60,mr=160,mt=80,mb=40;
+  const H=mt+mb+data.length*(barH+barGap);
+  const W=660,pw=W-ml-mr;
+  const maxWith=Math.max.apply(null,data.map(function(d){return d.withFlag;}).concat([1]));
+  let s='<svg id="sum-chart-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="'+SUM_COL.bg+'"/>';
+  s+='<text x="'+ml+'" y="20" fill="'+SUM_COL.text+'" font-size="13" font-weight="600" font-family="'+SUM_SERIF+'">HF / LF by SU</text>';
+  s+='<text x="'+ml+'" y="37" fill="'+SUM_COL.textD+'" font-size="10" font-family="'+SUM_SERIF+'">current SU outlined</text>';
+  s+='<line x1="'+ml+'" y1="'+(mt-4)+'" x2="'+ml+'" y2="'+(mt+data.length*(barH+barGap))+'" stroke="'+SUM_COL.axis+'" stroke-width="1.2"/>';
+  // legend
+  var lx=W-mr+10,ly=mt;
+  s+='<rect x="'+lx+'" y="'+ly+'" width="12" height="10" fill="'+HF_COL+'" rx="2"/>';
+  s+='<text x="'+(lx+16)+'" y="'+(ly+9)+'" font-size="10" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.text+'">HF</text>';
+  ly+=16;
+  s+='<rect x="'+lx+'" y="'+ly+'" width="12" height="10" fill="'+LF_COL+'" rx="2"/>';
+  s+='<text x="'+(lx+16)+'" y="'+(ly+9)+'" font-size="10" font-family="'+SUM_SERIF+'" fill="'+SUM_COL.text+'">LF</text>';
+  data.forEach(function(item,i){
+    var y=mt+i*(barH+barGap);
+    var isCurrent=su!=='__all__'&&item.su===su;
+    var halfH=(barH-2)/2;
+    var hfW=item.hf/maxWith*pw;
+    var lfW=item.lf/maxWith*pw;
+    s+='<rect x="'+ml+'" y="'+y+'" width="'+hfW.toFixed(1)+'" height="'+halfH.toFixed(1)+'" fill="'+HF_COL+'" rx="2"/>';
+    s+='<rect x="'+ml+'" y="'+(y+halfH+2).toFixed(1)+'" width="'+lfW.toFixed(1)+'" height="'+halfH.toFixed(1)+'" fill="'+LF_COL+'" rx="2"/>';
+    s+='<text x="'+(ml-5)+'" y="'+(y+barH*0.62).toFixed(1)+'" text-anchor="end" font-size="11" font-family="'+SUM_SERIF+'" fill="'+(isCurrent?SUM_COL.text:SUM_COL.textD)+'" font-weight="'+(isCurrent?'600':'400')+'">'+item.su+'</text>';
+    var pctHF=item.withFlag>0?(item.hf/item.withFlag*100).toFixed(0):0;
+    var pctLF=item.withFlag>0?(item.lf/item.withFlag*100).toFixed(0):0;
+    var labelX=(ml+Math.max(hfW,lfW)+6).toFixed(1);
+    s+='<text x="'+labelX+'" y="'+(y+halfH*0.8).toFixed(1)+'" font-size="9" font-family="'+SUM_SERIF+'" fill="#a05010">'+item.hf+' ('+pctHF+'%)</text>';
+    s+='<text x="'+labelX+'" y="'+(y+halfH+2+halfH*0.8).toFixed(1)+'" font-size="9" font-family="'+SUM_SERIF+'" fill="#1a5090">'+item.lf+' ('+pctLF+'%)</text>';
+    if(isCurrent)s+='<rect x="'+(ml-2)+'" y="'+(y-2)+'" width="'+(pw+4)+'" height="'+(barH+4)+'" fill="none" stroke="'+SUM_COL.bar+'" stroke-width="1.2" stroke-dasharray="4,2" rx="2"/>';
+  });
+  s+='</svg>';
+  wrap.innerHTML=s;
+}
+
+// Export PNG 300 DPI for sum modal
+function exportSumPNG(){
+  var svgEl=document.querySelector('#sum-svg-wrap svg');
+  if(!svgEl){showToast('No chart to export',true);return;}
+  var suVal=document.getElementById('sum-su-select').value||'SU';
+  var tabNames=['satcurve','richness','simpson','ecology','taphonomy','fracture','hflf'];
+  var tabName=tabNames[sumCurrentTab-1]||'chart';
+  var pxW=Math.round(170/25.4*300);
+  var vb=svgEl.viewBox.baseVal;
+  var pxH=vb.height&&vb.width?Math.round(pxW*vb.height/vb.width):Math.round(120/25.4*300);
+  var clone=svgEl.cloneNode(true);
+  clone.setAttribute('width',pxW);clone.setAttribute('height',pxH);
+  clone.setAttribute('viewBox','0 0 '+vb.width+' '+vb.height);
+  var bgRect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bgRect.setAttribute('width',vb.width);bgRect.setAttribute('height',vb.height);bgRect.setAttribute('fill','#ffffff');
+  clone.insertBefore(bgRect,clone.firstChild);
+  var svgStr=new XMLSerializer().serializeToString(clone);
+  var blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var canvas=document.createElement('canvas');
+  canvas.width=pxW;canvas.height=pxH;
+  var ctx=canvas.getContext('2d');
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,pxW,pxH);
+  var img=new Image();
+  img.onload=function(){
+    ctx.drawImage(img,0,0,pxW,pxH);
+    var a=document.createElement('a');
+    a.download=tabName+'_'+suVal+'_170mm_300dpi.png';
+    a.href=canvas.toDataURL('image/png');
+    a.click();URL.revokeObjectURL(url);
+    showToast('✓ Exported '+tabName+'_'+suVal+'_170mm_300dpi.png');
+  };
+  img.onerror=function(){
+    var a=document.createElement('a');a.download=tabName+'_'+suVal+'.svg';a.href=url;a.click();
+    showToast('PNG failed — downloaded SVG instead',true);
+  };
+  img.src=url;
+}
+
+function showToast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=err?'#e5534b':'#e6a817';t.style.color=err?'#fff':'#0d1117';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),err?4000:2500);
+}
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey&&e.key==='s'){e.preventDefault();saveRecord();}
+  if(e.altKey&&e.key==='ArrowLeft'){e.preventDefault();prevRecord();}
+  if(e.altKey&&e.key==='ArrowRight'){e.preventDefault();nextRecord();}
+});
+
+// ============================================================
+// INIT
+// ============================================================
+(function init(){
+  renderSection('trv-list',TRV_DATA,'trv');
+  renderSection('tan-list',TAN_DATA,'tan');
+  renderSection('rad-list',RAD_DATA,'rad');
+  renderTaph();renderViews();
+  initLocks();
+  renderTaxaBar();
+  document.getElementById('date').value=new Date().toISOString().slice(0,10);
+  // traccia modifiche manuali su family ed eco
+  ['family','eco'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',function(){
+      this._manualEdit=true;
+    });
+  });
+  if(!HAS_FSA){
+    document.getElementById('warn-nofsa').style.display='inline';
+    document.getElementById('btn-connect').style.display='none';
+    document.getElementById('file-status').innerHTML='<span class="fs-none">Non-Chrome browser — use "Download CSV" at end of session</span>';
+  }
+  document.getElementById('h-btn-save').disabled=false;
+  document.getElementById('btn-fallback').style.display='block';
+})();
+
+
+// ============================================================
+// WELCOME MODAL
+// ============================================================
+function closeWelcome(){
+  const ovl=document.getElementById('welcome-overlay');if(!ovl)return;
+  const dont=document.getElementById('welcome-dontshow');
+  if(dont&&dont.checked){try{localStorage.setItem('af_skip_welcome','1');}catch(e){}}
+  ovl.classList.remove('open');
+}
+(function showWelcome(){
+  try{if(localStorage.getItem('af_skip_welcome')==='1')return;}catch(e){}
+  const ovl=document.getElementById('welcome-overlay');
+  if(ovl) ovl.classList.add('open');
+})();
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    const ovl=document.getElementById('welcome-overlay');
+    if(ovl&&ovl.classList.contains('open')) closeWelcome();
+  }
+});
+
+// ============================================================
+// MAIN TABS
+// ============================================================
+function switchMainTab(tab){
+  document.querySelectorAll('.main-tab').forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')===tab));
+  document.getElementById('panel-form').classList.toggle('active',tab==='form');
+  document.getElementById('panel-lookup').classList.toggle('active',tab==='lookup');
+  document.getElementById('panel-key').classList.toggle('active',tab==='key');
+  document.getElementById('panel-compare').classList.toggle('active',tab==='compare');
+  if(tab==='lookup'){ renderLookupResults(); }
+  if(tab==='key'){ if(!keyHist.length && !keyDet) keyRender(); }
+  if(tab==='compare'){ cmpInit(); }
+}
+
+// ============================================================
+// TAXA DATABASE (Lancelotti 2018, S2)
+// ============================================================
+const TAXA_DB=[
+  {name:'Vachellia leucophloea',iawa:[2,5,13,22,25,26,29,30,42,47,52,58,61,66,69,70,71,72,76,79,83,85,89,91,92,98,102,104,115,136,142]},
+  {name:'Senegalia catechu',iawa:[1,5,7,13,22,23,26,29,30,43,46,47,52,53,58,61,66,69,72,79,80,81,83,89,91,92,93,98,104,115,136,138,142]},
+  {name:'Vachellia ferruginea',iawa:[2,5,13,22,25,26,29,30,43,46,47,52,58,61,63,66,69,70,71,72,76,79,80,81,83,89,91,92,98,104,115,136,142]},
+  {name:'Vachellia nilotica',iawa:[2,5,13,22,23,29,61,66,69,79,98,104]},
+  {name:'Senegalia senegal',iawa:[2,5,7,13,22,23,24,26,29,30,45,69,80,81,83,97,98,103,104]},
+  {name:'Vachellia farnesiana',iawa:[2,5,11,13,22,23,26,45,56,70,79,83,85,92,98,103,104,136,141,142]},
+  {name:'Capparis decidua',iawa:[2,5,11,13,22,24,29,30,45,57,61,66,69,79,91,93,97,98,103,104,106,136]},
+  {name:'Azadirachta indica',iawa:[2,5,6,11,13,22,25,30,61,66,69,79,85,86,104,106,136,141,142]},
+  {name:'Prosopis cineraria',iawa:[1,3,10,11,13,22,23,25,26,29,30,45,61,66,69,79,81,83,85,92,97,104,136,143]},
+  {name:'Senna auriculata',iawa:[2,5,7,10,13,22,29,30,61,66,70,79,80,83,85,91,92,97,104,136,142]},
+  {name:'Senna siamea',iawa:[2,5,7,10,13,22,23,26,27,29,45,61,66,70,85,88,91,92,97,104,136,142]},
+  {name:'Ziziphus nummularia',iawa:[2,5,7,10,13,22,29,30,66,69,78,83,84,86,96,102,105,136,137]},
+  {name:'Ziziphus mauritiana',iawa:[2,5,7,10,13,22,66,68,69,79,80,82,96,105,136,137,138]},
+  {name:'Salvadora oleoides',iawa:[2,5,10,11,13,22,30,45,79,83,90,91,92,98,105,120,136,137]},
+  {name:'Suaeda monoica',iawa:[2,5,6,11,13,45,69,78,84,91,92,117,120,136,141]},
+  {name:'Calotropis procera',iawa:[2,5,10,13,22,25,26,29,61,66,68,76,78,91,97,107,108,109,132]},
+  {name:'Tamarix aphylla',iawa:[1,4,5,13,22,23,24,25,30,41,42,45,47,52,58,61,66,69,71,79,83,90,91,99,102,106,107,110,114,120,136,137]},
+  {name:'Balanites aegyptiaca',iawa:[2,5,9,13,22,45,61,62,70,76,98,99,102,106,121]},
+  {name:'Salvadora persica',iawa:[1,4,5,11,13,22,24,90,91,97,106,120,136,137,138]},
+  {name:'Ficus benghalensis',iawa:[2,5,13,22,23,45,56,61,62,66,69,85,91,92,93,103,106,107,136,141]},
+  {name:'Ficus populifolia',iawa:[2,5,7,10,13,22,26,32,65,66,69,85,98,106,107]},
+  {name:'Anacardiaceae',iawa:[1,2,5,7,10,13,22,23,26,27,29,79,83,84,85,96,109,136,137],family:true},
+  {name:'Rotheca multiflora',iawa:[1,4,5,6,10,13,22,23,24,29,30,56,61,65,68,75,97,98,109,136,154,155,157]},
+  {name:'Leptadenia pyrotechnica',iawa:[2,5,7,9,10,13,22,23,25,29,30,62,63,66,69,78,85,99,102,103,109,110,119,120,121,136,137]},
+  {name:'Cordia sp.',iawa:[2,5,10,13,22,45,61,66,69,70,78,79,83,85,86,91,92,97,98,109,120,136,137,154,155]},
+  {name:'Leucaena leucocephala',iawa:[1,5,10,13,22,27,30,45,65,66,68,79,83,92,97,104,136,143]},
+  {name:'Prosopis juliflora',iawa:[1,2,5,13,22,23,25,26,29,30,61,70,79,80,81,83,136,142]},
+];
+
+// ============================================================
+// DICHOTOMOUS KEY (Lancelotti 2018, S2)
+// ============================================================
+const KEY_DEF={
+  1:{label:'Ray structure',a:{text:'Rays homogeneous',next:2},b:{text:'Rays heterogeneous',next:16}},
+  2:{label:'Ray cell types',a:{text:'All ray cells procumbent',next:3},b:{text:'All ray cells upright and/or square',next:13}},
+  3:{label:'Ray size classes',a:{text:'Rays of two distinct classes',next:8},b:{text:'Rays of one class',next:4}},
+  4:{label:'Ray width',a:{text:'Ray width 1-3 cells',next:10},b:{text:'Ray width 4-10 cells',next:5}},
+  5:{label:'Ray height',a:{text:'Ray height > 1 mm',taxon:'Vachellia leucophloea'},b:{text:'Ray height < 1 mm',next:6}},
+  6:{label:'Growth rings',a:{text:'Growth ring boundaries distinct',taxon:'Senegalia catechu'},b:{text:'Growth ring boundaries indistinct or absent',next:7}},
+  7:{label:'Fibre wall thickness',a:{text:'Fibres very thick-walled',taxon:'Vachellia ferruginea'},b:{text:'Fibres thin- to thick-walled',taxon:'Vachellia nilotica'}},
+  8:{label:'Vessel arrangement',a:{text:'Vessel clusters common',next:9},b:{text:'Vessels solitary or in short radial rows',taxon:'Senegalia cf. senegal'}},
+  9:{label:'Fibres + parenchyma',a:{text:'Fibres very thick-walled and axial parenchyma in bands',taxon:'Vachellia farnesiana'},b:{text:'Fibres thin- to thick-walled and parenchyma vasicentric',taxon:'Capparis decidua'}},
+  10:{label:'Vessel arrangement + wall',a:{text:'Vessel clusters common and in tangential bands',taxon:'Azadirachta indica'},b:{text:'Vessels in radial multiples of 4 or more',next:11}},
+  11:{label:'Fibre wall thickness',a:{text:'Fibres very thick-walled',next:12},b:{text:'Fibres thin- to thick-walled',taxon:'Prosopis cineraria'}},
+  12:{label:'Parenchyma pattern',a:{text:'Parenchyma vasicentric, aliform and in irregular bands',taxon:'Senna auriculata'},b:{text:'Parenchyma in regular bands, sometimes scalariform; vasicentric almost absent',taxon:'Senna siamea'}},
+  13:{label:'Ray width',a:{text:'Rays exclusively uniseriate',next:14},b:{text:'Rays multiseriate',next:15}},
+  14:{label:'Ray height + parenchyma',a:{text:'Ray height > 1 mm, parenchyma unilateral paratracheal + in bands ≤3 cells wide',taxon:'Ziziphus nummularia'},b:{text:'Wood not as above',taxon:'Ziziphus mauritiana'}},
+  15:{label:'Rays / wood structure',a:{text:'Rays present',taxon:'Salvadora oleoides'},b:{text:'Wood rayless',taxon:'Suaeda monoica'}},
+  16:{label:'Marginal ray cell arrangement',a:{text:'Ray cells procumbent with marginal rows of upright/square cells',next:17},b:{text:'Procumbent, square and upright cells mixed throughout',next:22}},
+  17:{label:'Number of marginal rows',a:{text:'2-4 and mostly over 4 rows of marginal cells',next:18},b:{text:'1 row of marginal cells',next:19}},
+  18:{label:'Ray width + fibres + lactifers',a:{text:'Ray width 1-3, fibres very thin-walled, lactifers present',taxon:'Calotropis procera'},b:{text:'Rays >10-seriate and >1 mm height',taxon:'Tamarix aphylla'}},
+  19:{label:'Storied structure',a:{text:'Storied structure present',next:20},b:{text:'Storied structure absent',next:21}},
+  20:{label:'What is storied?',a:{text:'Fibres storied and parenchyma diffuse',taxon:'Balanites aegyptiaca'},b:{text:'Axial parenchyma and vessel elements storied',taxon:'Salvadora persica'}},
+  21:{label:'Tyloses + fibres + vessel diam.',a:{text:'Tyloses common, fibres non-septate, vessels of two distinct diameter classes',taxon:'Ficus benghalensis'},b:{text:'Wood not as above',taxon:'Ficus populifolia'}},
+  22:{label:'Ray width',a:{text:'Rays exclusively uniseriate',taxon:'Anacardiaceae',family:true},b:{text:'Rays multiseriate',next:23}},
+  23:{label:'Storied structure',a:{text:'Storied structure present',next:24},b:{text:'Storied structure absent',taxon:'Rotheca multiflora'}},
+  24:{label:'Ray size + sheath cells + fibres',a:{text:'Rays of two distinct sizes, larger >10-seriate, sheath cells present, fibres storied',taxon:'Leptadenia pyrotechnica'},b:{text:'Wood not as above',taxon:'Cordia sp.'}},
+};
+
+// ============================================================
+// SHARED: gather IAWA codes from form's TRV/TAN/RAD checkboxes
+// ============================================================
+function gatherIawa(){
+  const codes=new Set();
+  document.querySelectorAll('.dlist input[type=checkbox]:checked').forEach(cb=>{
+    const c=parseInt(cb.getAttribute('data-code'));
+    if(!isNaN(c)) codes.add(c);
+  });
+  return [...codes].sort((a,b)=>a-b);
+}
+
+// ============================================================
+// APPLY TAXON TO #det FIELD
+// ============================================================
+function applyToDet(taxon){
+  const detEl=document.getElementById('det');
+  if(!detEl) return;
+  // ensure not in undetermined state
+  const undet=document.getElementById('undet-cb');
+  if(undet && undet.checked){
+    undet.checked=false;
+    undet.closest('.undet-wrap').classList.remove('on');
+    detEl.readOnly=false; detEl.style.color=''; detEl.style.opacity='';
+  }
+  detEl.value=taxon;
+  if(typeof onDetInput==='function') onDetInput();
+  // jump back to form tab
+  switchMainTab('form');
+  detEl.focus();
+  if(typeof showToast==='function') showToast('✓ "'+taxon+'" applied to det field');
+}
+
+// ============================================================
+// LOOKUP TAB
+// ============================================================
+let lookupSort='match';
+function setLookupSort(m){
+  lookupSort=m;
+  ['match','cover','abs'].forEach(x=>document.getElementById('lc-sort-'+x).classList.toggle('on',x===m));
+  renderLookupResults();
+}
+
+function renderLookupChips(){
+  const codes=gatherIawa();
+  const wrap=document.getElementById('lookup-chips');
+  if(!wrap) return;
+  if(codes.length===0){
+    wrap.innerHTML='<span class="lookup-chips-empty">No codes selected — go to the Form tab to check IAWA characters in TRV / TAN / RAD</span>';
+  } else {
+    wrap.innerHTML=codes.map(c=>`<span class="l-chip">${c}</span>`).join('');
+  }
+  // update tab badge
+  const badge=document.getElementById('tab-lookup-count');
+  if(badge) badge.textContent=codes.length;
+}
+
+function renderLookupResults(){
+  renderLookupChips();
+  const list=document.getElementById('lookup-results');
+  if(!list) return;
+  const codes=gatherIawa();
+  const minN=parseInt(document.getElementById('lc-min-match').value)||1;
+  if(codes.length===0){
+    list.innerHTML='<div class="lr-empty">Check IAWA codes in the <a onclick="switchMainTab(\'form\')">Form tab</a> to see matching taxa here.</div>';
+    return;
+  }
+  const sel=new Set(codes);
+  let scored=TAXA_DB.map(t=>{
+    const ts=new Set(t.iawa);
+    const matched=codes.filter(c=>ts.has(c));
+    const missing=codes.filter(c=>!ts.has(c));
+    const extra=t.iawa.filter(c=>!sel.has(c));
+    const pM=codes.length?Math.round(matched.length/codes.length*100):0;
+    const pC=t.iawa.length?Math.round(matched.length/t.iawa.length*100):0;
+    return{t,matched,missing,extra,pM,pC,n:matched.length};
+  }).filter(r=>r.n>=minN);
+  if(lookupSort==='match') scored.sort((a,b)=>b.pM-a.pM||b.n-a.n);
+  else if(lookupSort==='cover') scored.sort((a,b)=>b.pC-a.pC||b.n-a.n);
+  else scored.sort((a,b)=>b.n-a.n||b.pM-a.pM);
+  if(!scored.length){list.innerHTML='<div class="lr-empty">No taxa match the minimum threshold. Try lowering "min" or checking more codes.</div>';return;}
+  list.innerHTML=scored.map((r,i)=>{
+    const col=r.pM>70?'var(--acc)':r.pM>40?'#e6a817':'var(--red)';
+    const te=r.t.name.replace(/'/g,"\\'");
+    return `<div class="lr-card${i===0?' top':''}">
+      <div class="lr-head">
+        <div class="lr-head-top">
+          <span class="lr-rank">#${i+1}</span>
+          <span class="lr-name${r.t.family?' fam':''}">${r.t.name}</span>
+        </div>
+        <div class="lr-bar-o"><div class="lr-bar-i" style="width:${r.pM}%;background:${col}"></div></div>
+        <div class="lr-stats">
+          <span><b>${r.pM}%</b> matched</span>
+          <span><b>${r.pC}%</b> covered</span>
+          <span><b>${r.n}</b>/${codes.length} codes</span>
+          ${r.missing.length?`<span class="warn">✕ ${r.missing.length} absent</span>`:`<span class="ok">✓ all present</span>`}
+        </div>
+      </div>
+      <div class="lr-body">
+        ${r.matched.length?`<div><div class="lr-mst">✓ matching</div><div class="lr-mpills">${r.matched.sort((a,b)=>a-b).map(c=>`<span class="lr-mp m">${c}</span>`).join('')}</div></div>`:''}
+        ${r.missing.length?`<div><div class="lr-mst">✕ absent in taxon</div><div class="lr-mpills">${r.missing.sort((a,b)=>a-b).map(c=>`<span class="lr-mp x">${c}</span>`).join('')}</div></div>`:''}
+        ${r.extra.length?`<div><div class="lr-mst">○ in taxon, not checked</div><div class="lr-mpills">${r.extra.sort((a,b)=>a-b).map(c=>`<span class="lr-mp e">${c}</span>`).join('')}</div></div>`:''}
+      </div>
+      <div class="lr-apply-row">
+        <button class="lr-apply" onclick="applyToDet('${te}')">✓ Apply to det</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Update lookup whenever IAWA codes change in the form
+document.addEventListener('change',function(e){
+  if(e.target && e.target.matches && e.target.matches('.dlist input[type=checkbox]')){
+    setTimeout(()=>{
+      renderLookupChips(); // update tab badge always
+      if(document.getElementById('panel-lookup').classList.contains('active')){
+        renderLookupResults();
+      }
+    },0);
+  }
+},true);
+
+// ============================================================
+// DICHOTOMOUS KEY TAB
+// ============================================================
+let keyHist=[],keyCur=1,keyDet=false;
+
+function keyRender(){
+  const el=document.getElementById('key-content-tab');if(!el)return;
+  el.innerHTML='';
+  if(keyDet) return;
+  const c=KEY_DEF[keyCur];if(!c)return;
+  const card=document.createElement('div');card.className='k-coup-card';
+  card.innerHTML=`<div class="k-coup-hdr"><span class="k-coup-num">COUPLET ${keyCur}</span><span class="k-coup-lbl">${c.label}</span></div>
+    <div class="k-coup-body">${keyMkCho('a',c.a)}${keyMkCho('b',c.b)}</div>`;
+  el.appendChild(card);
+  keyUpdateUI();
+}
+function keyMkCho(l,ch){
+  const dest=ch.taxon?`→ <em>${ch.taxon}</em>`:`→ couplet ${ch.next}`;
+  return `<button class="k-cho" onclick="keyChoose('${l}')"><span class="k-cl">${l.toUpperCase()}.</span>
+    <div style="flex:1"><div class="k-ct">${ch.text}</div><div class="k-cd${ch.taxon?' t':''}">${dest}</div></div></button>`;
+}
+function keyRenderDet(taxon,isFamily){
+  const t=TAXA_DB.find(x=>x.name===taxon);
+  const iawa=t?t.iawa:[];
+  const el=document.getElementById('key-content-tab');el.innerHTML='';
+  const card=document.createElement('div');card.className='k-det-card';
+  const te=taxon.replace(/'/g,"\\'");
+  card.innerHTML=`<div class="k-det-hdr">
+      <span class="k-det-badge">DETERMINATION</span>
+      <button class="k-dbtn apply" onclick="applyToDet('${te}')">✓ Apply to det</button>
+    </div>
+    <div class="k-det-body">
+      <div class="k-det-taxon${isFamily?' fam':''}">${taxon}</div>
+      <div class="k-det-note">${isFamily?'Family-level — further analysis required':'sec. Lancelotti 2018'}</div>
+      <div class="k-det-ilbl">IAWA codes — ${iawa.length} characters</div>
+      <div class="k-ipills">${iawa.map(c=>`<span class="k-ipill">${c}</span>`).join('')}</div>
+      <div class="k-det-btns">
+        <button class="k-dbtn sec" onclick="keyGoBack()">← Back</button>
+        <button class="k-dbtn sec" onclick="keyReset()">↺ Restart</button>
+      </div>
+    </div>`;
+  el.appendChild(card);
+  keyUpdateUI();
+}
+function keyChoose(letter){
+  const c=KEY_DEF[keyCur];if(!c)return;
+  const ch=c[letter];
+  keyHist.push({id:keyCur,label:c.label,choice:letter,text:ch.text,dest:ch.taxon||('couplet '+ch.next)});
+  keyRenderPath();
+  if(ch.taxon){keyDet=true;keyRenderDet(ch.taxon,ch.family||false);}
+  else{keyCur=ch.next;keyRender();}
+}
+function keyGoBack(){
+  if(!keyHist.length)return;
+  keyDet=false;keyHist.pop();
+  keyCur=1;
+  keyHist.forEach(s=>{const c=KEY_DEF[s.id];if(c&&c[s.choice]&&c[s.choice].next)keyCur=c[s.choice].next;});
+  keyRenderPath();keyRender();
+}
+function keyReset(){keyHist=[];keyCur=1;keyDet=false;keyRenderPath();keyRender();}
+function keyRenderPath(){
+  const el=document.getElementById('key-path-container');if(!el)return;
+  if(!keyHist.length){el.innerHTML='<div class="key-path-empty">Start navigating the key.</div>';return;}
+  el.innerHTML=keyHist.map((s,i)=>(i?'<div class="key-path-conn"></div>':'')+
+    `<div class="key-path-step"><span class="key-path-num">COUPLET ${s.id} · ${s.label}</span>
+    <span class="key-path-choice">${s.choice.toUpperCase()}. ${s.text}</span>
+    <span class="key-path-arrow">→ ${s.dest}</span></div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+function keyUpdateUI(){
+  const back=document.getElementById('key-btn-back');if(back)back.disabled=!keyHist.length;
+  const p=keyDet?100:Math.min(92,Math.round((keyHist.length/8)*100));
+  const pb=document.getElementById('key-pbar');if(pb)pb.style.width=p+'%';
+  const pl=document.getElementById('key-plbl');if(pl)pl.textContent=`Step ${keyHist.length}${keyDet?' — done':''}`;
+}
+
+// Initial badge update on load
+setTimeout(()=>{renderLookupChips();},100);
+
+
+
+// ============================================================
+// CITATION MODAL
+// ============================================================
+const CIT_TEXT = "Lancelotti, C. (2018). 'Not all that burns is wood'. A social perspective on fuel exploitation and use during the Indus urban period (2600-1900 BC). PLOS ONE. [Dichotomous key and IAWA character lists reproduced verbatim from Supplementary Material S2: Wood and charcoal catalogue]";
+
+function openCit(){document.getElementById('cit-overlay').classList.add('open');}
+function closeCit(){document.getElementById('cit-overlay').classList.remove('open');}
+function copyCit(){
+  navigator.clipboard.writeText(CIT_TEXT).then(()=>{
+    if(typeof showToast==='function') showToast('Citation copied to clipboard');
+  });
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&document.getElementById('cit-overlay').classList.contains('open')) closeCit();
+});
+
+
+// ============================================================
+// TAB 4: COMPARE TAXA  (uses TAXA_DB from Lancelotti 2018 S2)
+// ============================================================
+
+// Flat code→label from existing form arrays
+const CMP_IAWA_LABEL={};
+[...TRV_DATA,...TAN_DATA,...RAD_DATA].forEach(g=>g.d.forEach(f=>{CMP_IAWA_LABEL[f.c]=f.l;}));
+
+// Supplementary labels for codes present in TAXA_DB but not in form checkboxes
+// (metric/quantitative codes, vessel contents, parenchyma strands, crystals, etc.)
+Object.assign(CMP_IAWA_LABEL,{
+  41:'vessel lumen 50–100 µm',
+  42:'vessel lumen 100–200 µm',
+  43:'vessel lumen ≥200 µm',
+  46:'≤5 vessels per mm²',
+  47:'5–20 vessels per mm²',
+  52:'mean vessel element length ≤350 µm',
+  53:'mean vessel element length 350–800 µm',
+  57:'tyloses sclerotic',
+  58:'gums / other deposits in heartwood vessels',
+  71:'mean fibre length ≤900 µm',
+  72:'mean fibre length 900–1600 µm',
+  75:'axial parenchyma absent or extremely rare',
+  88:'axial parenchyma scalariform',
+  89:'axial parenchyma in marginal or seemingly marginal bands',
+  93:'8 (5–8) cells per parenchyma strand',
+  110:'sheath cells',
+  114:'≤4 rays per mm',
+  115:'4–12 rays per mm',
+  117:'wood rayless',
+  132:'lactifers or tanniniferous tubes',
+  141:'prismatic crystals in non-chambered axial parenchyma cells',
+  154:'more than one crystal per cell or chamber',
+  155:'two distinct crystal sizes per cell or chamber',
+  157:'crystals in tyloses',
+});
+
+// Section membership (for display grouping)
+const CMP_TRV_CODES=new Set(TRV_DATA.flatMap(g=>g.d.map(f=>f.c)));
+const CMP_RAD_CODES=new Set(RAD_DATA.flatMap(g=>g.d.map(f=>f.c)));
+const CMP_TAN_CODES=new Set(TAN_DATA.flatMap(g=>g.d.map(f=>f.c)));
+// Section overrides for IAWA codes not in the form's recording arrays
+const CMP_SECTION_OVERRIDE={
+  57:'TRV', // tyloses sclerotic (vessel contents)
+  71:'TRV', // mean fibre length (fibres)
+  75:'TRV', // axial parenchyma absent (parenchyma)
+  88:'TRV', // axial parenchyma scalariform (parenchyma)
+  117:'TAN',// wood rayless (rays)
+  132:'TRV',// lactifers/tanniniferous tubes
+  141:'TAN',// crystals in non-chambered axial parenchyma
+  154:'TAN',// more than one crystal per cell
+  155:'TAN',// two distinct crystal sizes per cell
+  157:'TRV',// crystals in tyloses (vessel contents)
+};
+function cmpSection(c){
+  if(CMP_SECTION_OVERRIDE[c]) return CMP_SECTION_OVERRIDE[c];
+  if(CMP_RAD_CODES.has(c)) return 'RAD';
+  if(CMP_TRV_CODES.has(c)) return 'TRV';
+  if(CMP_TAN_CODES.has(c)) return 'TAN';
+  return '—';
+}
+
+let cmpInited=false;
+let cmpHistory=[];
+
+function cmpInit(){
+  if(cmpInited) return;
+  cmpInited=true;
+  const sa=document.getElementById('cmp-sel-a');
+  const sb=document.getElementById('cmp-sel-b');
+  const sc=document.getElementById('cmp-sel-c');
+  [...TAXA_DB].sort((a,b)=>a.name.localeCompare(b.name)).forEach(t=>{
+    const opt=`<option value="${t.name}">${t.name}</option>`;
+    sa.innerHTML+=opt; sb.innerHTML+=opt; sc.innerHTML+=opt;
+  });
+  sa.value='Tamarix aphylla';
+  sb.value='Salvadora persica';
+  cmpOnSelChange();
+}
+
+function cmpOnSelChange(){
+  const a=document.getElementById('cmp-sel-a').value;
+  const b=document.getElementById('cmp-sel-b').value;
+  const c=document.getElementById('cmp-sel-c').value;
+  const vals=[a,b].filter(Boolean);
+  const allVals=[a,b,c].filter(Boolean);
+  const unique=new Set(allVals);
+  // need at least A+B, and no duplicates among selected
+  document.getElementById('cmp-btn-go').disabled=!a||!b||(unique.size<allVals.length)||a===b;
+}
+
+function cmpRenderHistory(){
+  const bar=document.getElementById('cmp-history');
+  if(!cmpHistory.length){bar.style.display='none';return;}
+  bar.style.display='flex';
+  bar.innerHTML='<span class="cmp-hist-lbl">RECENT:</span>'
+    +cmpHistory.map(h=>{
+      const label=h.c
+        ?`<i>${h.a}</i> · <i>${h.b}</i> · <i>${h.c}</i>`
+        :`<i>${h.a}</i> vs <i>${h.b}</i>`;
+      const esc=s=>s.replace(/'/g,"\\'");
+      const onclick=h.c
+        ?`cmpLoadHist('${esc(h.a)}','${esc(h.b)}','${esc(h.c)}')`
+        :`cmpLoadHist('${esc(h.a)}','${esc(h.b)}')`;
+      return `<span class="cmp-hist-pill" onclick="${onclick}">${label}</span>`;
+    }).join('');
+}
+
+function cmpLoadHist(a,b,c=''){
+  document.getElementById('cmp-sel-a').value=a;
+  document.getElementById('cmp-sel-b').value=b;
+  document.getElementById('cmp-sel-c').value=c;
+  cmpOnSelChange(); cmpDoCompare();
+}
+
+function cmpDoCompare(){
+  const a=document.getElementById('cmp-sel-a').value;
+  const b=document.getElementById('cmp-sel-b').value;
+  const c=document.getElementById('cmp-sel-c').value;
+  if(!a||!b||a===b) return;
+
+  if(c && c!==a && c!==b){
+    // 3-taxon mode
+    const key=[a,b,c].sort().join('|||');
+    cmpHistory=cmpHistory.filter(h=>h.key!==key);
+    cmpHistory.unshift({key,a,b,c});
+    cmpHistory=cmpHistory.slice(0,5);
+    cmpRenderHistory();
+    cmp3DoCompare(a,b,c);
+  } else {
+    // 2-taxon mode (original)
+    const key=[a,b].sort().join('|||');
+    cmpHistory=cmpHistory.filter(h=>h.key!==key);
+    cmpHistory.unshift({key,a,b});
+    cmpHistory=cmpHistory.slice(0,5);
+    cmpRenderHistory();
+    cmp2DoCompare(a,b);
+  }
+}
+
+// ---- 2-TAXON MODE (original) ----
+function cmp2DoCompare(a,b){
+  const da=TAXA_DB.find(t=>t.name===a);
+  const db=TAXA_DB.find(t=>t.name===b);
+  if(!da||!db){
+    document.getElementById('cmp-result').innerHTML=`<div class="cmp-error">⚠ Taxa not found in Lancelotti 2018 database.</div>`;
+    return;
+  }
+  const sa=new Set(da.iawa), sb=new Set(db.iawa);
+  const onlyA=[...sa].filter(c=>!sb.has(c)).sort((x,y)=>x-y);
+  const onlyB=[...sb].filter(c=>!sa.has(c)).sort((x,y)=>x-y);
+  const shared=[...sa].filter(c=>sb.has(c)).sort((x,y)=>x-y);
+  const keyDiffs=[];
+  ['TRV','RAD','TAN'].forEach(sec=>{
+    const ka=onlyA.filter(c=>cmpSection(c)===sec).slice(0,2);
+    const kb=onlyB.filter(c=>cmpSection(c)===sec).slice(0,2);
+    if(ka.length||kb.length) keyDiffs.push({sec,ka,kb});
+  });
+  cmpRenderCard({nameA:a,nameB:b,onlyA,onlyB,shared,keyDiffs});
+}
+
+function cmpRenderCard({nameA,nameB,onlyA,onlyB,shared,keyDiffs}){
+  const secBadge=c=>{const s=cmpSection(c);return `<span class="cmp-sec-badge ${s.toLowerCase()}">${s}</span>`;};
+  function featList(codes,cls){
+    return codes.map(c=>`
+      <div class="cmp-feat ${cls}">
+        ${secBadge(c)}
+        <span class="cmp-feat-txt">${CMP_IAWA_LABEL[c]||'code '+c} <span class="cmp-feat-code">(${c})</span></span>
+      </div>`).join('');
+  }
+  const keyHtml=keyDiffs.map(kd=>{
+    const parts=[];
+    const sn=n=>n.split(' ').slice(0,2).join(' ');
+    if(kd.ka.length) parts.push(`<b class="cmp-kd-ta">${sn(nameA)}</b>: ${kd.ka.map(c=>CMP_IAWA_LABEL[c]||c).join('; ')}`);
+    if(kd.kb.length) parts.push(`<b class="cmp-kd-tb">${sn(nameB)}</b>: ${kd.kb.map(c=>CMP_IAWA_LABEL[c]||c).join('; ')}`);
+    return `<div class="cmp-kd-item"><span class="cmp-kd-sec">${kd.sec}</span><span>${parts.join(' — ')}</span></div>`;
+  }).join('');
+  document.getElementById('cmp-result').innerHTML=`
+  <div class="cmp-card">
+    <div class="cmp-card-head">
+      <div class="cmp-tx-head a"><div class="cmp-tx-name">${nameA}</div></div>
+      <div class="cmp-vs-ctr">VS</div>
+      <div class="cmp-tx-head b"><div class="cmp-tx-name">${nameB}</div></div>
+    </div>
+    <div class="cmp-body">
+      <div class="cmp-keydiff">
+        <div class="cmp-kd-title">⚡ Key distinguishing characters</div>
+        ${keyHtml||'<div style="font-size:11px;color:var(--text-d);font-style:italic;">Very similar IAWA profiles — difficult to distinguish in charcoal.</div>'}
+      </div>
+      <div class="cmp-legend">
+        <span class="cmp-leg cmp-leg-a">■ only A (${onlyA.length})</span>
+        <span class="cmp-leg cmp-leg-s">■ shared (${shared.length})</span>
+        <span class="cmp-leg cmp-leg-b">■ only B (${onlyB.length})</span>
+      </div>
+      <div class="cmp-col-labels">
+        <div class="cmp-col-lbl a"><i>${nameA}</i></div>
+        <div class="cmp-col-lbl s">SHARED</div>
+        <div class="cmp-col-lbl b"><i>${nameB}</i></div>
+      </div>
+      <div class="cmp-3col">
+        <div class="cmp-col-a">${featList(onlyA,'only-a')}</div>
+        <div class="cmp-col-mid">${featList(shared,'shared')}</div>
+        <div class="cmp-col-b">${featList(onlyB,'only-b')}</div>
+      </div>
+      <div style="font-size:9px;color:var(--text-d);margin-top:10px;text-align:right;">Source: Lancelotti 2018 · PLOS ONE · S2</div>
+    </div>
+  </div>`;
+}
+
+// ---- 3-TAXON MODE ----
+function cmp3DoCompare(nameA,nameB,nameC){
+  const da=TAXA_DB.find(t=>t.name===nameA);
+  const db=TAXA_DB.find(t=>t.name===nameB);
+  const dc=TAXA_DB.find(t=>t.name===nameC);
+  if(!da||!db||!dc){
+    document.getElementById('cmp-result').innerHTML=`<div class="cmp-error">⚠ One or more taxa not found in Lancelotti 2018 database.</div>`;
+    return;
+  }
+  const sa=new Set(da.iawa), sb=new Set(db.iawa), sc=new Set(dc.iawa);
+  const allCodes=[...new Set([...sa,...sb,...sc])].sort((x,y)=>x-y);
+
+  const onlyA=allCodes.filter(c=>sa.has(c)&&!sb.has(c)&&!sc.has(c));
+  const onlyB=allCodes.filter(c=>!sa.has(c)&&sb.has(c)&&!sc.has(c));
+  const onlyC=allCodes.filter(c=>!sa.has(c)&&!sb.has(c)&&sc.has(c));
+  const all3=allCodes.filter(c=>sa.has(c)&&sb.has(c)&&sc.has(c));
+
+  const sn=n=>n.split(/\s+/).slice(0,2).join(' ');
+
+  // Key distinguishing summary
+  const summaryItems=[];
+  ['TRV','TAN','RAD'].forEach(sec=>{
+    const ua=onlyA.filter(c=>cmpSection(c)===sec).slice(0,3);
+    const ub=onlyB.filter(c=>cmpSection(c)===sec).slice(0,3);
+    const uc=onlyC.filter(c=>cmpSection(c)===sec).slice(0,3);
+    if(!ua.length&&!ub.length&&!uc.length) return;
+    const parts=[];
+    if(ua.length) parts.push(`<b class="cmp-kd-ta">${sn(nameA)}</b>: ${ua.map(c=>CMP_IAWA_LABEL[c]||c).join('; ')}`);
+    if(ub.length) parts.push(`<b class="cmp-kd-tb">${sn(nameB)}</b>: ${ub.map(c=>CMP_IAWA_LABEL[c]||c).join('; ')}`);
+    if(uc.length) parts.push(`<b class="cmp-kd-tc">${sn(nameC)}</b>: ${uc.map(c=>CMP_IAWA_LABEL[c]||c).join('; ')}`);
+    summaryItems.push(`<div class="cmp-kd-item"><span class="cmp-kd-sec">${sec}</span><span>${parts.join(' — ')}</span></div>`);
+  });
+  const summaryHtml=summaryItems.join('')||'<div style="font-size:11px;color:var(--text-d);font-style:italic;">Very similar IAWA profiles across all three taxa.</div>';
+
+  // Table rows grouped by section
+  const secOrder=['TRV','TAN','RAD','—'];
+  const bySection={'TRV':[],'TAN':[],'RAD':[],'—':[]};
+  allCodes.forEach(c=>{const s=cmpSection(c);(bySection[s]||bySection['—']).push(c);});
+
+  let tbodyHtml='';
+  secOrder.forEach(sec=>{
+    const codes=bySection[sec];
+    if(!codes.length) return;
+    tbodyHtml+=`<tr class="cmp3-sec-row"><td colspan="6">${sec}</td></tr>`;
+    codes.forEach(c=>{
+      const inA=sa.has(c),inB=sb.has(c),inC=sc.has(c);
+      const cnt=[inA,inB,inC].filter(Boolean).length;
+      let rowCls='';
+      if(cnt===3) rowCls='row-all';
+      else if(inA&&!inB&&!inC) rowCls='row-a';
+      else if(!inA&&inB&&!inC) rowCls='row-b';
+      else if(!inA&&!inB&&inC) rowCls='row-c';
+      const chk=(has,cls)=>has
+        ?`<td class="cmp3-td-chk ${cls}">✓</td>`
+        :`<td class="cmp3-td-chk no">—</td>`;
+      tbodyHtml+=`<tr class="${rowCls}">
+        <td class="cmp3-td-code">${c}</td>
+        <td><span class="cmp-sec-badge ${sec.toLowerCase()}">${sec}</span></td>
+        <td class="cmp3-td-feat">${CMP_IAWA_LABEL[c]||'code '+c}</td>
+        ${chk(inA,'a')}${chk(inB,'b')}${chk(inC,'c')}
+      </tr>`;
+    });
+  });
+
+  document.getElementById('cmp-result').innerHTML=`
+  <div class="cmp3-card">
+    <div class="cmp3-head">
+      <div class="cmp3-tx-head"><div class="cmp3-tx-name">${nameA}</div><div class="cmp3-tx-meta"><b class="cmp-kd-ta">${onlyA.length}</b> unique codes</div></div>
+      <div class="cmp3-vs">vs</div>
+      <div class="cmp3-tx-head"><div class="cmp3-tx-name">${nameB}</div><div class="cmp3-tx-meta"><b class="cmp-kd-tb">${onlyB.length}</b> unique codes</div></div>
+      <div class="cmp3-vs">vs</div>
+      <div class="cmp3-tx-head"><div class="cmp3-tx-name">${nameC}</div><div class="cmp3-tx-meta"><b class="cmp-kd-tc">${onlyC.length}</b> unique codes</div></div>
+    </div>
+    <div class="cmp3-body">
+      <div class="cmp-keydiff">
+        <div class="cmp-kd-title">⚡ Key distinguishing characters (unique per taxon)</div>
+        ${summaryHtml}
+      </div>
+      <div class="cmp-legend" style="margin-top:8px;">
+        <span class="cmp-leg cmp-leg-a">■ only A (${onlyA.length})</span>
+        <span class="cmp-leg cmp-leg-b">■ only B (${onlyB.length})</span>
+        <span class="cmp-leg cmp-leg-c">■ only C (${onlyC.length})</span>
+        <span class="cmp-leg cmp-leg-s">■ shared all 3 (${all3.length})</span>
+        <span class="cmp-leg cmp-leg-s">· total codes (${allCodes.length})</span>
+      </div>
+      <table class="cmp3-tbl">
+        <thead><tr>
+          <th style="min-width:24px">#</th>
+          <th style="min-width:36px">SEC</th>
+          <th>Feature</th>
+          <th class="cmp3-th-tx a"><i>${sn(nameA)}</i></th>
+          <th class="cmp3-th-tx b"><i>${sn(nameB)}</i></th>
+          <th class="cmp3-th-tx c"><i>${sn(nameC)}</i></th>
+        </tr></thead>
+        <tbody>${tbodyHtml}</tbody>
+      </table>
+      <div style="font-size:9px;color:var(--text-d);margin-top:10px;text-align:right;">Source: Lancelotti 2018 · PLOS ONE · S2</div>
+    </div>
+  </div>`;
+}
+
+
+</script>
+
+<!-- ============================================================
+     TAB 2 — IAWA REVERSE LOOKUP
+     ============================================================ -->
+<div class="main-panel" id="panel-lookup">
+  <div class="lookup-wrap">
+    <div class="lookup-bar">
+      <span class="lookup-bar-title">Selected IAWA codes</span>
+      <div class="lookup-chips" id="lookup-chips"><span class="lookup-chips-empty">No codes selected — go to the Form tab to check IAWA characters in TRV / TAN / RAD</span></div>
+    </div>
+    <div class="lookup-controls">
+      <span class="lc-lbl">Sort</span>
+      <div class="lc-tip-wrap">
+        <button class="lc-btn on" id="lc-sort-match" onclick="setLookupSort('match')">% matched</button>
+        <div class="lc-tip">How many of <b>your</b> codes are found in the taxon. Best for identification.</div>
+      </div>
+      <div class="lc-tip-wrap">
+        <button class="lc-btn" id="lc-sort-cover" onclick="setLookupSort('cover')">% covered</button>
+        <div class="lc-tip">How much of the taxon's full description you have observed.</div>
+      </div>
+      <div class="lc-tip-wrap">
+        <button class="lc-btn" id="lc-sort-abs" onclick="setLookupSort('abs')">n codes</button>
+        <div class="lc-tip">Absolute number of codes in common, regardless of totals.</div>
+      </div>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text-d);margin-left:auto;">min</span>
+      <input class="lc-min" id="lc-min-match" type="number" value="1" min="0" max="100" onchange="renderLookupResults()">
+    </div>
+    <div class="lookup-results" id="lookup-results">
+      <div class="lr-empty">Check IAWA codes in the Form tab to see matching taxa here.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB 3 — DICHOTOMOUS KEY
+     ============================================================ -->
+<div class="main-panel" id="panel-key">
+  <div class="key-wrap">
+    <div class="key-sidebar">
+      <div class="key-sidebar-title">Path taken</div>
+      <div id="key-path-container"><div class="key-path-empty">Start navigating the key.</div></div>
+    </div>
+    <div class="key-right">
+      <div class="key-nav">
+        <button class="k-btn" onclick="keyGoBack()" id="key-btn-back" disabled>← Back</button>
+        <button class="k-btn dnger" onclick="keyReset()">↺ Restart</button>
+        <div class="k-pbar-wrap"><div class="k-pbar" id="key-pbar" style="width:0%"></div></div>
+        <span class="k-plbl" id="key-plbl">Step 0</span>
+        <button class="cit-badge" onclick="openCit()">📖 Lancelotti 2018 · S2</button>
+      </div>
+      <div class="key-content" id="key-content-tab"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CITATION MINI-MODAL -->
+<div class="cit-overlay" id="cit-overlay" onclick="if(event.target===this)closeCit()">
+  <div class="cit-modal">
+    <div class="cit-head">
+      <span class="cit-head-title">📖 Source</span>
+      <button class="cit-close" onclick="closeCit()">✕</button>
+    </div>
+    <div class="cit-body">
+      <div class="cit-entry">
+        <div class="cit-entry-lbl">Article</div>
+        <div class="cit-entry-text">
+          <a href="https://doi.org/10.1371/journal.pone.0192364" target="_blank" rel="noopener">Lancelotti, C. (2018). 'Not all that burns is wood'. A social perspective on fuel exploitation and use during the Indus urban period (2600–1900 BC). <em>PLOS ONE.</em></a>
+        </div>
+      </div>
+
+    </div>
+    <div class="cit-foot">
+      <button class="cit-copy" onclick="copyCit()">⎘ Copy citation</button>
+    </div>
+  </div>
+</div>
+
+<div class="main-panel" id="panel-compare">
+  <div class="cmp-wrap">
+    <div class="cmp-selector">
+      <div class="cmp-sel-group">
+        <div class="cmp-sel-lbl">Taxon A</div>
+        <select class="cmp-sel-input" id="cmp-sel-a" onchange="cmpOnSelChange()">
+          <option value="">— select —</option>
+        </select>
+      </div>
+      <div class="cmp-vs">vs</div>
+      <div class="cmp-sel-group">
+        <div class="cmp-sel-lbl">Taxon B</div>
+        <select class="cmp-sel-input" id="cmp-sel-b" onchange="cmpOnSelChange()">
+          <option value="">— select —</option>
+        </select>
+      </div>
+      <div class="cmp-vs">vs</div>
+      <div class="cmp-sel-group">
+        <div class="cmp-sel-lbl c">Taxon C <span style="font-size:8px;color:var(--text-d);font-style:italic;">(optional)</span></div>
+        <select class="cmp-sel-input" id="cmp-sel-c" onchange="cmpOnSelChange()">
+          <option value="">— none —</option>
+        </select>
+      </div>
+      <button class="cmp-btn-go" id="cmp-btn-go" onclick="cmpDoCompare()" disabled>Compare →</button>
+    </div>
+    <div class="cmp-history" id="cmp-history" style="display:none"></div>
+    <div id="cmp-result">
+      <div class="cmp-empty">
+        <div class="cmp-empty-icon">🔬</div>
+        Select two taxa and press Compare.<br>
+        <span style="font-size:10px;opacity:.5;">Based on IAWA wood anatomy criteria · powered by Claude</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
