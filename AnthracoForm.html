@@ -645,8 +645,24 @@ textarea{resize:vertical;}
       <div class="lock-item" id="lock-curv_sat" onclick="toggleLock('curv_sat')">
         <input type="checkbox" id="lck-curv_sat"><span>sat. curv.</span>
       </div>
-      <div class="lock-item" id="lock-hflf" onclick="toggleLock('hflf')">
-        <input type="checkbox" id="lck-hflf"><span>HF-LF</span>
+      <span class="lock-lbl" style="margin-left:2px;">channel:</span>
+      <div class="lock-item" id="lock-ch-HF" onclick="toggleChannelLock('HF')">
+        <input type="checkbox" id="lck-ch-HF"><span>HF</span>
+      </div>
+      <div class="lock-item" id="lock-ch-LF" onclick="toggleChannelLock('LF')">
+        <input type="checkbox" id="lck-ch-LF"><span>LF</span>
+      </div>
+      <div class="lock-item" id="lock-ch-HC" onclick="toggleChannelLock('HC')">
+        <input type="checkbox" id="lck-ch-HC"><span>HC</span>
+      </div>
+      <div class="lock-item" id="lock-ch-DS" onclick="toggleChannelLock('DS')">
+        <input type="checkbox" id="lck-ch-DS"><span>DS</span>
+      </div>
+      <div class="lock-item" id="lock-ch-STR" onclick="toggleChannelLock('STR')">
+        <input type="checkbox" id="lck-ch-STR"><span>STR</span>
+      </div>
+      <div class="lock-item" id="lock-ch-C14" onclick="toggleChannelLock('C14')">
+        <input type="checkbox" id="lck-ch-C14"><span>C14</span>
       </div>
       <div class="lock-item" id="lock-fraction" onclick="toggleLock('fraction')">
         <input type="checkbox" id="lck-fraction"><span>fraction</span>
@@ -664,16 +680,24 @@ textarea{resize:vertical;}
       <div class="fg">
         <label style="display:flex;align-items:center;justify-content:space-between;gap:3px;">
           <span>sat. curv.</span>
-          <button onclick="openSumModal()" style="padding:1px 5px;border-radius:3px;border:1px solid var(--blue-br);background:var(--blue-bg);color:var(--blue);font-size:10px;cursor:pointer;line-height:1.4;width:auto;" title="SU Summary / Whole assemblage">📊</button>
+          <span style="display:flex;gap:3px;">
+            <button onclick="openTDCModal()" style="padding:1px 5px;border-radius:3px;border:1px solid var(--acc-br);background:var(--acc-bg);color:var(--acc);font-size:10px;font-weight:700;cursor:pointer;line-height:1.4;width:auto;" title="TDC — Taxonomic Discovery Curve (site-level, HC only)">TDC</button>
+            <button onclick="openCDCModal()" style="padding:1px 5px;border-radius:3px;border:1px solid var(--acc-br);background:var(--acc-bg);color:var(--acc);font-size:10px;font-weight:700;cursor:pointer;line-height:1.4;width:auto;" title="CDC — Conditional Discovery Curve (DS, per SU; inherits HF+LF taxa list)">CDC</button>
+            <button onclick="openSumModal()" style="padding:1px 5px;border-radius:3px;border:1px solid var(--blue-br);background:var(--blue-bg);color:var(--blue);font-size:10px;cursor:pointer;line-height:1.4;width:auto;" title="SU Summary / Whole assemblage">📊</button>
+          </span>
         </label>
         <input id="curv_sat" type="number">
       </div>
     </div>
     <div class="meta-r3">
       <div class="pill-group">
-        <span class="pill-lbl">HF-LF</span>
+        <span class="pill-lbl">CHANNEL</span>
         <div class="pill-opt" data-group="hflf" data-value="HF" onclick="setPill('hflf','HF')">HF</div>
         <div class="pill-opt" data-group="hflf" data-value="LF" onclick="setPill('hflf','LF')">LF</div>
+        <div class="pill-opt" data-group="hflf" data-value="HC" onclick="setPill('hflf','HC')">HC</div>
+        <div class="pill-opt" data-group="hflf" data-value="DS" onclick="setPill('hflf','DS')">DS</div>
+        <div class="pill-opt" data-group="hflf" data-value="STR" onclick="setPill('hflf','STR')">STR</div>
+        <div class="pill-opt" data-group="hflf" data-value="C14" onclick="setPill('hflf','C14')">C14</div>
       </div>
       <div class="pill-group">
         <span class="pill-lbl">FRACTION</span>
@@ -863,6 +887,51 @@ textarea{resize:vertical;}
   </div>
 </div>
 
+<!-- MODAL TDC (Taxonomic Discovery Curve) — site-level, HC only -->
+<div class="modal-overlay" id="tdc-overlay" onclick="if(event.target===this)closeTDCModal()">
+  <div class="modal sat-modal">
+    <div class="modal-head">
+      <span class="modal-title" id="tdc-modal-title">TDC — Taxonomic Discovery Curve</span>
+      <button class="modal-close-btn" onclick="closeTDCModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sat-su-sel">
+        <label>Site:</label>
+        <select id="tdc-site-select" onchange="renderTDC(this.value)"></select>
+      </div>
+      <div class="sat-info-bar" id="tdc-info-bar"></div>
+      <div class="sat-info-bar" id="tdc-coverage-bar" style="margin-top:-4px;"></div>
+      <div class="sat-svg-wrap" id="tdc-svg-wrap"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeTDCModal()">Close</button>
+      <button class="btn-apply" onclick="exportTDCPNG()" style="background:var(--s3);color:var(--text-b);border:1px solid var(--border);">↓ PNG 300 DPI</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CDC (Conditional Discovery Curve) — DS, per SU, inherits HF+LF taxa list -->
+<div class="modal-overlay" id="cdc-overlay" onclick="if(event.target===this)closeCDCModal()">
+  <div class="modal sat-modal">
+    <div class="modal-head">
+      <span class="modal-title" id="cdc-modal-title">CDC — Conditional Discovery Curve (DS)</span>
+      <button class="modal-close-btn" onclick="closeCDCModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sat-su-sel">
+        <label>SU:</label>
+        <select id="cdc-su-select" onchange="renderCDC(this.value)"></select>
+      </div>
+      <div class="sat-info-bar" id="cdc-info-bar"></div>
+      <div class="sat-svg-wrap" id="cdc-svg-wrap"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeCDCModal()">Close</button>
+      <button class="btn-apply" onclick="exportCDCPNG()" style="background:var(--s3);color:var(--text-b);border:1px solid var(--border);">↓ PNG 300 DPI</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL SU SUMMARY -->
 <div class="modal-overlay" id="sum-overlay" onclick="if(event.target===this)closeSumModal()">
   <div class="modal sum-modal">
@@ -1045,7 +1114,7 @@ const ALL_IAWA_CODES=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,2
   83,84,85,86,89,90,91,92,93,94,96,97,98,99,100,102,103,104,105,106,107,108,109,110,
   118,119,120,121,122,136,137,138,142,143];
 
-const CSV_COLS=['id_det','site_code','id_samp','trench','su','layer','context','curv_sat','hflf','fraction','fracture_type',
+const CSV_COLS=['id_det','site_code','id_samp','trench','su','layer','context','curv_sat','channel','fraction','fracture_type',
   'det','family','eco','tipo','tipo_desc',
   'undetermined','twig','bark','curv',
   'radial_crack','wood_compression','xylophagous_activity',
@@ -1067,7 +1136,7 @@ const HAS_FSA='showDirectoryPicker' in window;
 
 // campi bloccabili — id HTML del campo : id del lock-item
 const LOCK_FIELDS=['site_code','id_samp','trench','su','layer','context','operator','microscope','curv_sat'];
-const PILL_LOCK_GROUPS=['hflf','fraction'];
+const PILL_LOCK_GROUPS=['fraction'];
 
 // ============================================================
 // PILL TOGGLE
@@ -1094,6 +1163,27 @@ function resetPills(){
   ['hflf','fraction','fracture_type'].forEach(g=>loadPills(g,''));
 }
 
+// ---- CHANNEL LOCK: caselle radio-like che fissano un canale come default per i nuovi record ----
+const CHANNEL_VALUES=['HF','LF','HC','DS','STR','C14'];
+let channelLock='';
+try{const _cl=localStorage.getItem('af_lock_channel');if(_cl&&CHANNEL_VALUES.includes(_cl))channelLock=_cl;}catch(e){}
+
+function refreshChannelLockChips(){
+  CHANNEL_VALUES.forEach(v=>{
+    const cb=document.getElementById('lck-ch-'+v);
+    const wrap=document.getElementById('lock-ch-'+v);
+    if(cb) cb.checked=(channelLock===v);
+    if(wrap) wrap.classList.toggle('on',channelLock===v);
+  });
+}
+
+function toggleChannelLock(value){
+  channelLock=(channelLock===value)?'':value;      // ri-click sullo stesso chip = sblocca
+  try{localStorage.setItem('af_lock_channel',channelLock);}catch(e){}
+  refreshChannelLockChips();
+  if(channelLock) setPill('hflf',channelLock);      // spuntare imposta anche il canale del record corrente
+}
+
 
 function toggleLock(fieldId){
   const cb=document.getElementById('lck-'+fieldId);
@@ -1112,6 +1202,7 @@ function initLocks(){
       }
     }catch(e){}
   });
+  refreshChannelLockChips();
 }
 
 function getLockedValues(){
@@ -1232,6 +1323,8 @@ function parseCSV(text){
   return lines.slice(1).filter(l=>l.trim()).map(line=>{
     const vals=parseLine(line,sep);const obj={};
     headers.forEach((h,i)=>{obj[h.trim()]=(vals[i]||'').trim();});
+    if(obj.channel===undefined && obj.hflf!==undefined) obj.channel=obj.hflf; // retrocompat: vecchio header 'hflf'
+    delete obj.hflf;
     return obj;
   });
 }
@@ -1360,7 +1453,7 @@ function getFormData(){
     layer:document.getElementById('layer').value,
     context:document.getElementById('context').value,
     curv_sat:document.getElementById('curv_sat').value,
-    hflf:pillValues.hflf,
+    channel:pillValues.hflf,
     fraction:pillValues.fraction,
     fracture_type:pillValues.fracture_type,
     det:document.getElementById('det').value,
@@ -1428,7 +1521,7 @@ function loadRecord(idx){
   onTipoChange(false); // false = non sovrascrivere descrizione se già in registro
   // se il record aveva una descrizione salvata, usa quella
   if(r.tipo_desc) document.getElementById('tipo_desc').value=r.tipo_desc;
-  loadPills('hflf',r.hflf||'');
+  loadPills('hflf',r.channel||'');
   loadPills('fraction',r.fraction||'');
   loadPills('fracture_type',r.fracture_type||'');
   document.querySelectorAll('.ditem').forEach(d=>{d.classList.remove('on');d.querySelector('input').checked=false;});
@@ -1555,11 +1648,15 @@ function updateCurvSatForSU(su){
     .filter(({r})=>r.su===su)
     .sort((a,b)=>(parseInt(a.r.id_det)||0)-(parseInt(b.r.id_det)||0));
 
-  // calcola cumulativo progressivo
+  // cumulativo progressivo — ancorato a HF+LF (DS/STR/C14/HC restano fuori dalla curva)
   const seen=new Set();
   suItems.forEach(({r,i})=>{
-    if(isTaxonCountable(r.det)) seen.add(r.det.trim());
-    records[i].curv_sat=seen.size||'';
+    if(isHFLF(r)){
+      if(isTaxonCountable(r.det)) seen.add(r.det.trim());
+      records[i].curv_sat=seen.size||'';
+    } else {
+      records[i].curv_sat='';
+    }
   });
 
   // aggiorna il campo visibile se il record corrente è in questa SU
@@ -1616,6 +1713,7 @@ function newRecord(afterSave=false){
   document.getElementById('family')._manualEdit=false;
   document.getElementById('eco')._manualEdit=false;
   resetPills();
+  if(channelLock) setPill('hflf',channelLock);   // canale bloccato → default sul nuovo record
   document.getElementById('id_det').value=lastId+1;
   document.getElementById('date').value=new Date().toISOString().slice(0,10);
   const nb=document.getElementById('new-taxa-badge');if(nb)nb.style.display='none';
@@ -1851,7 +1949,7 @@ function printReport(){
   <div class="mf"><label>SU</label><span>${d.su||'—'}</span></div>
   <div class="mf"><label>layer</label><span>${d.layer||'—'}</span></div>
   <div class="mf"><label>context</label><span>${d.context||'—'}</span></div>
-  <div class="mf"><label>HF-LF</label><span>${d.hflf||'—'}</span></div>
+  <div class="mf"><label>channel</label><span>${d.channel||'—'}</span></div>
   <div class="mf"><label>fraction</label><span>${d.fraction||'—'}</span></div>
   <div class="mf"><label>fracture type</label><span>${d.fracture_type||'—'}</span></div>
   <div class="mf"><label>operator</label><span>${d.operator||'—'}</span></div>
@@ -2181,9 +2279,13 @@ function isTaxonCountable(det){
   return true;
 }
 
+// Saturation curve is anchored to HF+LF only (probabilistic channels).
+// HC / DS / STR / CH14 are excluded so they never distort the saturation curve.
+function isHFLF(r){const c=(r.channel||'').trim().toUpperCase();return c==='HF'||c==='LF';}
+
 function getSatCurveData(su){
   const suRecords=records
-    .filter(r=>r.su===su)
+    .filter(r=>r.su===su && isHFLF(r))
     .sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
   const points=[];const seen=new Set();
   let lastNewIdx=-1; // 0-based index of last fragment that introduced a new taxon
@@ -2228,7 +2330,7 @@ function renderSatCurve(su){
     infoBar.innerHTML='';return;
   }
   const{points,total,taxa,stopAt,currentStreak}=getSatCurveData(su);
-  document.getElementById('sat-modal-title').textContent=`Saturation curve — SU: ${su}`;
+  document.getElementById('sat-modal-title').textContent=`Saturation curve (HF+LF) — SU: ${su}`;
   const criterionMet=stopAt!==null;
   const streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#768390';
   infoBar.innerHTML=`<span>records in SU: <b>${total}</b></span>`
@@ -2238,7 +2340,7 @@ function renderSatCurve(su){
       ? `<span style="color:#4caf82;font-weight:700">✓ stop criterion met at n=<b>${stopAt}</b></span>`
       : `<span style="color:#e6812a">⚠ stop criterion not yet met</span>`);
   if(!points.length){
-    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No records for this SU</div>';
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No HF/LF records for this SU</div>';
     return;
   }
 
@@ -2274,7 +2376,7 @@ function renderSatCurve(su){
 
   // --- header in cima ---
   s+=`<text x="${ml}" y="20" fill="${COL.text}" font-size="13" font-weight="600" font-family="${SERIF}">SU ${su}  ·  Layer ${layer}</text>`;
-  s+=`<text x="${ml}" y="37" fill="${COL.textD}" font-size="10" font-family="${SERIF}" font-style="italic">n = ${total} fragments analyzed  ·  ${taxa} distinct taxa</text>`;
+  s+=`<text x="${ml}" y="37" fill="${COL.textD}" font-size="10" font-family="${SERIF}" font-style="italic">n = ${total} HF+LF fragments  ·  ${taxa} distinct taxa</text>`;
 
   // grid y
   yTicks.forEach(y=>{
@@ -2395,6 +2497,371 @@ function exportSatPNG(){
 
 
 // ============================================================
+// TDC — TAXONOMIC DISCOVERY CURVE  (site-level, HC only)
+// NB: not a statistical saturation curve — HC is eye-selected.
+// DS / STR / CH14 (and HF/LF) never enter the TDC.
+// ============================================================
+function isHC(r){return (r.channel||'').trim().toUpperCase()==='HC';}
+function siteKey(r){return (r.site_code||'').trim().toUpperCase();}
+
+// ---- Tooltip SVG stilizzato (stessa UX della saturation del summary) ----
+// Markup del gruppo tooltip (defs + speech-bubble nascosto), id namespaced per curva.
+function curveTipGroupSVG(prefix,SERIF,colText,colTextD){
+  return '<defs><filter id="'+prefix+'-shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#00000022"/></filter></defs>'
+    +'<g id="'+prefix+'-tip-g" visibility="hidden" pointer-events="none">'
+    +'<rect id="'+prefix+'-tip-bg" rx="5" ry="5" fill="white" stroke="#555" stroke-width="0.8" filter="url(#'+prefix+'-shadow)"/>'
+    +'<polygon id="'+prefix+'-tip-ptr" fill="white" stroke="#555" stroke-width="0.8"/>'
+    +'<text id="'+prefix+'-tip-t1" font-size="10" font-family="'+SERIF+'" fill="'+colText+'"/>'
+    +'<text id="'+prefix+'-tip-t2" font-size="9" font-family="'+SERIF+'" fill="'+colTextD+'"/>'
+    +'</g>';
+}
+// Aggancia i listener ai dot .<dotClass>: mostra il tooltip con nome (data-det) e riga 2 (data-line2).
+function wireCurveTooltip(wrap,prefix,dotClass){
+  var svg=wrap.querySelector('svg');if(!svg) return;
+  var tipG=svg.querySelector('#'+prefix+'-tip-g');
+  var tipBg=svg.querySelector('#'+prefix+'-tip-bg');
+  var tipPtr=svg.querySelector('#'+prefix+'-tip-ptr');
+  var tipT1=svg.querySelector('#'+prefix+'-tip-t1');
+  var tipT2=svg.querySelector('#'+prefix+'-tip-t2');
+  if(!tipG) return;
+  var PLAIN={'cf.':1,'sp.':1,'sp':1,'aff.':1,'var.':1,'subsp.':1,'f.':1,'gr.':1};
+  svg.querySelectorAll('.'+dotClass).forEach(function(c){
+    c.addEventListener('mouseenter',function(){
+      var det=c.getAttribute('data-det')||'';
+      var line2=c.getAttribute('data-line2')||'';
+      var cx=parseFloat(c.getAttribute('cx'));var cy=parseFloat(c.getAttribute('cy'));
+      tipT1.innerHTML='';
+      det.split(/\s+/).forEach(function(tok,j){
+        var ts=document.createElementNS('http://www.w3.org/2000/svg','tspan');
+        ts.setAttribute('font-style',PLAIN[tok]?'normal':'italic');
+        ts.textContent=(j>0?' ':'')+tok;tipT1.appendChild(ts);
+      });
+      tipT2.textContent=line2;
+      var tw=Math.max(det.length*6.5+20,110),th=36;
+      var tx=cx-tw/2,ty=cy-th-10;
+      var vb=svg.viewBox.baseVal;if(vb){tx=Math.max(2,Math.min(vb.width-tw-2,tx));ty=Math.max(2,ty);}
+      tipBg.setAttribute('x',tx);tipBg.setAttribute('y',ty);tipBg.setAttribute('width',tw);tipBg.setAttribute('height',th);
+      var px=cx,py=cy-6;
+      tipPtr.setAttribute('points',(px-5)+','+(ty+th)+' '+(px+5)+','+(ty+th)+' '+px+','+py);
+      tipT1.setAttribute('x',tx+8);tipT1.setAttribute('y',ty+14);
+      tipT2.setAttribute('x',tx+8);tipT2.setAttribute('y',ty+27);
+      tipG.setAttribute('visibility','visible');
+    });
+    c.addEventListener('mouseleave',function(){tipG.setAttribute('visibility','hidden');});
+  });
+}
+
+function getTDCData(site){
+  const recs=records
+    .filter(r=>isHC(r) && (siteKey(r)||'(no site)')===site)
+    .sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
+  const points=[];const seen=new Set();
+  let lastNewIdx=-1,stopAt=null;
+  recs.forEach((r,i)=>{
+    const det=(r.det||'').trim();
+    const prevSize=seen.size;
+    if(isTaxonCountable(det)) seen.add(det);
+    if(seen.size>prevSize) lastNewIdx=i;
+    if(stopAt===null){
+      const streak=lastNewIdx<0?i+1:i-lastNewIdx;
+      if(streak>=50) stopAt=i+1;
+    }
+    points.push({x:i+1,y:seen.size,det:det||'—',id_det:r.id_det});
+  });
+  const currentStreak=lastNewIdx<0?recs.length:recs.length-1-lastNewIdx;
+  const bySU={};
+  recs.forEach(r=>{const su=(r.su||'—').trim()||'—';bySU[su]=(bySU[su]||0)+1;});
+  return{points,total:recs.length,taxa:seen.size,stopAt,currentStreak,bySU};
+}
+
+function openTDCModal(){
+  const sites=[...new Set(records.filter(isHC).map(r=>siteKey(r)||'(no site)'))].sort();
+  const sel=document.getElementById('tdc-site-select');
+  sel.innerHTML=sites.length
+    ? sites.map(s=>`<option value="${s}">${s}</option>`).join('')
+    : '<option value="">— no HC records —</option>';
+  const curSite=(document.getElementById('site_code').value||'').trim().toUpperCase()||'(no site)';
+  if(sites.includes(curSite)) sel.value=curSite;
+  renderTDC(sel.value);
+  document.getElementById('tdc-overlay').classList.add('open');
+}
+
+function closeTDCModal(){
+  document.getElementById('tdc-overlay').classList.remove('open');
+}
+
+function renderTDC(site){
+  const wrap=document.getElementById('tdc-svg-wrap');
+  const infoBar=document.getElementById('tdc-info-bar');
+  const covBar=document.getElementById('tdc-coverage-bar');
+  document.getElementById('tdc-modal-title').textContent=site?`TDC — site: ${site}`:'TDC — Taxonomic Discovery Curve';
+  if(!site){
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No HC records — the TDC is built only from Hand-Collected (HC) fragments.</div>';
+    infoBar.innerHTML='';covBar.innerHTML='';return;
+  }
+  const{points,total,taxa,stopAt,currentStreak,bySU}=getTDCData(site);
+  const criterionMet=stopAt!==null;
+  const streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#768390';
+  infoBar.innerHTML=`<span>HC fragments (site): <b>${total}</b></span>`
+    +`<span>distinct taxa: <b>${taxa}</b></span>`
+    +`<span>current streak: <b style="color:${streakColor}">${currentStreak}/50</b> without new taxon</span>`
+    +(criterionMet
+      ? `<span style="color:#4caf82;font-weight:700">✓ plateau reached at n=<b>${stopAt}</b></span>`
+      : `<span style="color:#e6812a">⚠ plateau not yet reached</span>`);
+  const suKeys=Object.keys(bySU).sort();
+  covBar.innerHTML='<span style="color:var(--text-d)">HC coverage / SU (target 20):</span> '
+    +(suKeys.length
+      ? suKeys.map(su=>{const n=bySU[su];const ok=n>=20;return `<span>SU ${su}: <b style="color:${ok?'#4caf82':'#e6a817'}">${n}/20${ok?' ✓':''}</b></span>`;}).join(' · ')
+      : '<span>—</span>');
+  if(!points.length){
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No HC records for this site.</div>';
+    return;
+  }
+
+  // --- layout (B&W print style, mirrors the saturation curve) ---
+  const W=620,H=340,ml=52,mr=28,mt=92,mb=54;
+  const pw=W-ml-mr,ph=H-mt-mb;
+  const maxX=points.length,maxY=Math.max(taxa,1);
+  const sx=x=>ml+(x-1)/(maxX>1?maxX-1:1)*pw;
+  const sy=y=>mt+ph-y/maxY*ph;
+  const yStep=maxY<=5?1:maxY<=10?2:maxY<=20?5:10;
+  const yTicks=[];for(let y=0;y<=maxY;y+=yStep)yTicks.push(y);if(!yTicks.includes(maxY))yTicks.push(maxY);
+  const xStep=Math.max(1,Math.ceil(maxX/8));
+  const xTicks=[];for(let i=1;i<=maxX;i+=xStep)xTicks.push(i);if(!xTicks.includes(maxX))xTicks.push(maxX);
+  const COL={bg:'#ffffff',grid:'#e0e0e0',axis:'#1a1a1a',text:'#1a1a1a',textD:'#666666',line:'#1a1a1a',fill:'rgba(0,0,0,.06)',dotNew:'#1a1a1a',dotRep:'#999999'};
+  const SERIF="Arial,Helvetica,sans-serif";
+
+  let s=`<svg id="tdc-chart-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">`;
+  s+=`<rect width="${W}" height="${H}" fill="${COL.bg}"/>`;
+  s+=`<text x="${ml}" y="20" fill="${COL.text}" font-size="13" font-weight="600" font-family="${SERIF}">Taxonomic Discovery Curve  ·  Site ${site}</text>`;
+  s+=`<text x="${ml}" y="37" fill="${COL.textD}" font-size="10" font-family="${SERIF}" font-style="italic">HC only  ·  cumulative across SUs  ·  n = ${total} fragments  ·  ${taxa} distinct taxa</text>`;
+  s+=`<text x="${ml}" y="51" fill="#a55555" font-size="9" font-family="${SERIF}" font-style="italic">operator recognition curve — HC is eye-selected, not a random sample; do not report as saturation</text>`;
+  yTicks.forEach(y=>{const cy=sy(y).toFixed(1);s+=`<line x1="${ml}" y1="${cy}" x2="${W-mr}" y2="${cy}" stroke="${COL.grid}" stroke-width="1"/>`;s+=`<text x="${ml-7}" y="${(parseFloat(cy)+4).toFixed(1)}" text-anchor="end" fill="${COL.textD}" font-size="11" font-family="${SERIF}">${y}</text>`;});
+  xTicks.forEach(x=>{const cx=sx(x).toFixed(1);s+=`<line x1="${cx}" y1="${mt}" x2="${cx}" y2="${mt+ph}" stroke="${COL.grid}" stroke-width="1"/>`;s+=`<text x="${cx}" y="${mt+ph+17}" text-anchor="middle" fill="${COL.textD}" font-size="11" font-family="${SERIF}">${x}</text>`;});
+  s+=`<line x1="${ml}" y1="${mt}" x2="${ml}" y2="${mt+ph}" stroke="${COL.axis}" stroke-width="1.5"/>`;
+  s+=`<line x1="${ml}" y1="${mt+ph}" x2="${W-mr}" y2="${mt+ph}" stroke="${COL.axis}" stroke-width="1.5"/>`;
+  s+=`<text x="${ml+pw/2}" y="${H-6}" text-anchor="middle" fill="${COL.textD}" font-size="10.5" font-family="${SERIF}">HC fragments examined (determination order)</text>`;
+  s+=`<text x="14" y="${mt+ph/2}" text-anchor="middle" fill="${COL.textD}" font-size="10.5" font-family="${SERIF}" transform="rotate(-90,14,${mt+ph/2})">cumulative distinct taxa</text>`;
+  if(points.length>1){
+    const base=sy(0).toFixed(1);
+    const d=points.map((p,i)=>`${i===0?'M':'L'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
+    s+=`<path d="${d} L${sx(points[points.length-1].x).toFixed(1)},${base} L${sx(points[0].x).toFixed(1)},${base} Z" fill="${COL.fill}"/>`;
+    s+=`<path d="${d}" fill="none" stroke="${COL.line}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  }
+  if(stopAt!==null){
+    const cx=parseFloat(sx(stopAt).toFixed(1));const rightEdge=W-mr;
+    if(cx<rightEdge) s+=`<rect x="${cx}" y="${mt}" width="${(rightEdge-cx).toFixed(1)}" height="${ph}" fill="rgba(0,0,0,.055)"/>`;
+    s+=`<line x1="${cx}" y1="${mt-10}" x2="${cx}" y2="${mt+ph}" stroke="#888" stroke-width="1.3" stroke-dasharray="4,3"/>`;
+    s+=`<text x="${cx}" y="${mt-14}" text-anchor="middle" fill="#555" font-size="9.5" font-family="${SERIF}" font-weight="600">plateau n=${stopAt}</text>`;
+    s+=`<text x="${cx}" y="${mt-4}" text-anchor="middle" fill="#888" font-size="8.5" font-family="${SERIF}" font-style="italic">Chabal 1990 (practical rule)</text>`;
+  }
+  points.forEach((p,i)=>{
+    const cx=parseFloat(sx(p.x).toFixed(1));const cy=parseFloat(sy(p.y).toFixed(1));
+    const isNew=i===0||p.y>points[i-1].y;
+    if(isNew){
+      s+=`<circle class="tdc-dot-new" cx="${cx}" cy="${cy}" r="5" fill="#ffffff" stroke="${COL.dotNew}" stroke-width="1.8" style="cursor:pointer" data-det="${(p.det||'—').replace(/"/g,'&quot;')}" data-line2="fragment ${p.x} · taxon no. ${p.y}"/>`;
+    } else {
+      s+=`<circle cx="${cx}" cy="${cy}" r="3" fill="${COL.dotRep}" stroke="none" opacity="0.6"/>`;
+    }
+  });
+  s+=curveTipGroupSVG('tdc',SERIF,COL.text,COL.textD);
+  s+=`</svg>`;
+  wrap.innerHTML=s;
+  wireCurveTooltip(wrap,'tdc','tdc-dot-new');
+}
+
+function exportTDCPNG(){
+  const svgEl=document.querySelector('#tdc-svg-wrap svg');
+  if(!svgEl){showToast('No chart to export',true);return;}
+  const siteVal=document.getElementById('tdc-site-select').value||'site';
+  const vb=svgEl.viewBox.baseVal;
+  const px={w:Math.round(170/25.4*300)};
+  px.h=Math.round(px.w*(vb.height/vb.width)); // preserva l'aspect ratio del viewBox
+  const clone=svgEl.cloneNode(true);
+  clone.setAttribute('width',px.w);clone.setAttribute('height',px.h);
+  clone.setAttribute('viewBox',`0 0 ${vb.width} ${vb.height}`);
+  const bgRect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bgRect.setAttribute('width',vb.width);bgRect.setAttribute('height',vb.height);bgRect.setAttribute('fill','#ffffff');
+  clone.insertBefore(bgRect,clone.firstChild);
+  const svgStr=new XMLSerializer().serializeToString(clone);
+  const blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const canvas=document.createElement('canvas');canvas.width=px.w;canvas.height=px.h;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,px.w,px.h);
+  const img=new Image();
+  img.onload=()=>{ctx.drawImage(img,0,0,px.w,px.h);const a=document.createElement('a');a.download=`TDC_${siteVal}_170mm_300dpi.png`;a.href=canvas.toDataURL('image/png');a.click();URL.revokeObjectURL(url);showToast(`✓ Exported TDC_${siteVal}_170mm_300dpi.png`);};
+  img.onerror=()=>{const a=document.createElement('a');a.download=`TDC_${siteVal}.svg`;a.href=url;a.click();showToast('PNG failed — downloaded SVG instead',true);};
+  img.src=url;
+}
+
+
+// ============================================================
+// CDC — CONDITIONAL DISCOVERY CURVE  (DS, per SU)  — protocol §5.1
+// DS curve per SU. The taxa list is INHERITED from HF+LF of the same SU (seed);
+// the "50 without novelty" counter is reset. The streak resets only when the DS
+// finds a taxon the HF+LF seed did not have. Flat line on the baseline = DS adds
+// nothing beyond HF+LF = positive result.
+// Fallback: no HF+LF in the SU → empty seed → plain saturation curve on DS.
+// HC / STR / CH14 never enter the CDC (not the seed, not the curve).
+// ============================================================
+function isDS(r){return (r.channel||'').trim().toUpperCase()==='DS';}
+
+function getCDCData(su){
+  const seed=new Set();
+  records.filter(r=>r.su===su && isHFLF(r)).forEach(r=>{const d=(r.det||'').trim();if(isTaxonCountable(d))seed.add(d);});
+  const seedSize=seed.size;
+  const dsRecs=records
+    .filter(r=>r.su===su && isDS(r))
+    .sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
+  const known=new Set(seed);        // seed ∪ taxa DS visti
+  const points=[];
+  let lastNewIdx=-1,stopAt=null,newFromDS=0;
+  dsRecs.forEach((r,i)=>{
+    const det=(r.det||'').trim();
+    const prev=known.size;
+    if(isTaxonCountable(det)) known.add(det);
+    const grew=known.size>prev;
+    if(grew){lastNewIdx=i;newFromDS++;}
+    if(stopAt===null){
+      const streak=lastNewIdx<0?i+1:i-lastNewIdx;
+      if(streak>=50) stopAt=i+1;
+    }
+    points.push({x:i+1,y:known.size,det:det||'—',isNew:grew,id_det:r.id_det});
+  });
+  const currentStreak=lastNewIdx<0?dsRecs.length:dsRecs.length-1-lastNewIdx;
+  return{points,total:dsRecs.length,seedSize,newFromDS,knownTotal:known.size,stopAt,currentStreak,hasSeed:seedSize>0};
+}
+
+function openCDCModal(){
+  const sus=[...new Set(records.filter(isDS).map(r=>(r.su||'').trim()).filter(v=>v))].sort();
+  const sel=document.getElementById('cdc-su-select');
+  sel.innerHTML=sus.length
+    ? sus.map(s=>`<option value="${s}">${s}</option>`).join('')
+    : '<option value="">— no DS records —</option>';
+  const curSU=(document.getElementById('su').value||'').trim();
+  if(curSU&&sus.includes(curSU)) sel.value=curSU;
+  renderCDC(sel.value);
+  document.getElementById('cdc-overlay').classList.add('open');
+}
+
+function closeCDCModal(){
+  document.getElementById('cdc-overlay').classList.remove('open');
+}
+
+function renderCDC(su){
+  const wrap=document.getElementById('cdc-svg-wrap');
+  const infoBar=document.getElementById('cdc-info-bar');
+  document.getElementById('cdc-modal-title').textContent=su?`CDC (DS) — SU: ${su}`:'CDC — Conditional Discovery Curve (DS)';
+  if(!su){
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No DS records — the CDC is built only from Dry-Sieving (DS) fragments.</div>';
+    infoBar.innerHTML='';return;
+  }
+  const{points,total,seedSize,newFromDS,knownTotal,stopAt,currentStreak,hasSeed}=getCDCData(su);
+  const criterionMet=stopAt!==null;
+  const streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#768390';
+  const addColor=newFromDS>0?'#e6812a':'#4caf82';
+  infoBar.innerHTML=`<span>HF+LF seed: <b>${seedSize}</b> taxa</span>`
+    +`<span>DS fragments: <b>${total}</b></span>`
+    +`<span>new from DS: <b style="color:${addColor}">+${newFromDS}</b></span>`
+    +`<span>current streak: <b style="color:${streakColor}">${currentStreak}/50</b></span>`
+    +(criterionMet
+      ? `<span style="color:#4caf82;font-weight:700">✓ plateau at n=<b>${stopAt}</b></span>`
+      : `<span style="color:#e6812a">⚠ plateau not yet reached</span>`)
+    +(hasSeed
+      ? (newFromDS===0?`<span style="color:#4caf82">DS adds nothing beyond HF+LF (positive result)</span>`:'')
+      : `<span style="color:#a55555">no HF+LF baseline — plain saturation curve</span>`);
+  if(!points.length){
+    wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No DS records for this SU.</div>';
+    return;
+  }
+
+  const dsRecs=records.filter(r=>r.su===su&&isDS(r)).sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
+  const layer=dsRecs[0]&&dsRecs[0].layer?dsRecs[0].layer:'—';
+
+  // --- layout (B&W print style) ---
+  const W=620,H=340,ml=52,mr=28,mt=92,mb=54;
+  const pw=W-ml-mr,ph=H-mt-mb;
+  const maxX=points.length,maxY=Math.max(knownTotal,1);
+  const sx=x=>ml+(x-1)/(maxX>1?maxX-1:1)*pw;
+  const sy=y=>mt+ph-y/maxY*ph;
+  const yStep=maxY<=5?1:maxY<=10?2:maxY<=20?5:10;
+  const yTicks=[];for(let y=0;y<=maxY;y+=yStep)yTicks.push(y);if(!yTicks.includes(maxY))yTicks.push(maxY);
+  const xStep=Math.max(1,Math.ceil(maxX/8));
+  const xTicks=[];for(let i=1;i<=maxX;i+=xStep)xTicks.push(i);if(!xTicks.includes(maxX))xTicks.push(maxX);
+  const COL={bg:'#ffffff',grid:'#e0e0e0',axis:'#1a1a1a',text:'#1a1a1a',textD:'#666666',line:'#1a1a1a',dotNew:'#1a1a1a',dotRep:'#999999',seed:'#2f8a5b'};
+  const SERIF="Arial,Helvetica,sans-serif";
+
+  let s=`<svg id="cdc-chart-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">`;
+  s+=`<rect width="${W}" height="${H}" fill="${COL.bg}"/>`;
+  s+=`<text x="${ml}" y="20" fill="${COL.text}" font-size="13" font-weight="600" font-family="${SERIF}">Conditional Discovery Curve (DS)  ·  SU ${su}  ·  Layer ${layer}</text>`;
+  s+=`<text x="${ml}" y="37" fill="${COL.textD}" font-size="10" font-family="${SERIF}" font-style="italic">seed = ${seedSize} taxa from HF+LF (same SU)  ·  n = ${total} DS fragments  ·  +${newFromDS} new from DS</text>`;
+  s+=`<text x="${ml}" y="51" fill="#a55555" font-size="9" font-family="${SERIF}" font-style="italic">${hasSeed?'inherits the HF+LF taxa list, counter reset — a flat line on the baseline means DS adds nothing':'no HF+LF in this SU — degenerates to a plain saturation curve on DS'}</text>`;
+  yTicks.forEach(y=>{const cy=sy(y).toFixed(1);s+=`<line x1="${ml}" y1="${cy}" x2="${W-mr}" y2="${cy}" stroke="${COL.grid}" stroke-width="1"/>`;s+=`<text x="${ml-7}" y="${(parseFloat(cy)+4).toFixed(1)}" text-anchor="end" fill="${COL.textD}" font-size="11" font-family="${SERIF}">${y}</text>`;});
+  xTicks.forEach(x=>{const cx=sx(x).toFixed(1);s+=`<line x1="${cx}" y1="${mt}" x2="${cx}" y2="${mt+ph}" stroke="${COL.grid}" stroke-width="1"/>`;s+=`<text x="${cx}" y="${mt+ph+17}" text-anchor="middle" fill="${COL.textD}" font-size="11" font-family="${SERIF}">${x}</text>`;});
+  s+=`<line x1="${ml}" y1="${mt}" x2="${ml}" y2="${mt+ph}" stroke="${COL.axis}" stroke-width="1.5"/>`;
+  s+=`<line x1="${ml}" y1="${mt+ph}" x2="${W-mr}" y2="${mt+ph}" stroke="${COL.axis}" stroke-width="1.5"/>`;
+  s+=`<text x="${ml+pw/2}" y="${H-6}" text-anchor="middle" fill="${COL.textD}" font-size="10.5" font-family="${SERIF}">DS fragments examined (determination order)</text>`;
+  s+=`<text x="14" y="${mt+ph/2}" text-anchor="middle" fill="${COL.textD}" font-size="10.5" font-family="${SERIF}" transform="rotate(-90,14,${mt+ph/2})">cumulative known taxa (HF+LF seed + DS)</text>`;
+  // dashed baseline at HF+LF seed level
+  if(hasSeed){
+    const by=sy(seedSize).toFixed(1);
+    s+=`<line x1="${ml}" y1="${by}" x2="${W-mr}" y2="${by}" stroke="${COL.seed}" stroke-width="1.4" stroke-dasharray="6,4"/>`;
+    s+=`<text x="${W-mr}" y="${(parseFloat(by)-4).toFixed(1)}" text-anchor="end" fill="${COL.seed}" font-size="9" font-family="${SERIF}" font-style="italic">HF+LF baseline (${seedSize} taxa)</text>`;
+  }
+  // curve line (no area fill for the CDC)
+  if(points.length>1){
+    const d=points.map((p,i)=>`${i===0?'M':'L'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
+    s+=`<path d="${d}" fill="none" stroke="${COL.line}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  }
+  // plateau marker
+  if(stopAt!==null){
+    const cx=parseFloat(sx(stopAt).toFixed(1));const rightEdge=W-mr;
+    if(cx<rightEdge) s+=`<rect x="${cx}" y="${mt}" width="${(rightEdge-cx).toFixed(1)}" height="${ph}" fill="rgba(0,0,0,.055)"/>`;
+    s+=`<line x1="${cx}" y1="${mt-10}" x2="${cx}" y2="${mt+ph}" stroke="#888" stroke-width="1.3" stroke-dasharray="4,3"/>`;
+    s+=`<text x="${cx}" y="${mt-14}" text-anchor="middle" fill="#555" font-size="9.5" font-family="${SERIF}" font-weight="600">plateau n=${stopAt}</text>`;
+    s+=`<text x="${cx}" y="${mt-4}" text-anchor="middle" fill="#888" font-size="8.5" font-family="${SERIF}" font-style="italic">Chabal 1990 (practical rule)</text>`;
+  }
+  // dots: only DS-new taxa (new to HF+LF) get an open dot; taxon name on hover
+  points.forEach(p=>{
+    const cx=parseFloat(sx(p.x).toFixed(1));const cy=parseFloat(sy(p.y).toFixed(1));
+    if(p.isNew){
+      s+=`<circle class="cdc-dot-new" cx="${cx}" cy="${cy}" r="5" fill="#ffffff" stroke="${COL.dotNew}" stroke-width="1.8" style="cursor:pointer" data-det="${(p.det||'—').replace(/"/g,'&quot;')}" data-line2="DS fragment ${p.x} · new vs HF+LF"/>`;
+    } else {
+      s+=`<circle cx="${cx}" cy="${cy}" r="3" fill="${COL.dotRep}" stroke="none" opacity="0.6"/>`;
+    }
+  });
+  s+=curveTipGroupSVG('cdc',SERIF,COL.text,COL.textD);
+  s+=`</svg>`;
+  wrap.innerHTML=s;
+  wireCurveTooltip(wrap,'cdc','cdc-dot-new');
+}
+
+function exportCDCPNG(){
+  const svgEl=document.querySelector('#cdc-svg-wrap svg');
+  if(!svgEl){showToast('No chart to export',true);return;}
+  const suVal=document.getElementById('cdc-su-select').value||'SU';
+  const vb=svgEl.viewBox.baseVal;
+  const px={w:Math.round(170/25.4*300)};
+  px.h=Math.round(px.w*(vb.height/vb.width));
+  const clone=svgEl.cloneNode(true);
+  clone.setAttribute('width',px.w);clone.setAttribute('height',px.h);
+  clone.setAttribute('viewBox',`0 0 ${vb.width} ${vb.height}`);
+  const bgRect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bgRect.setAttribute('width',vb.width);bgRect.setAttribute('height',vb.height);bgRect.setAttribute('fill','#ffffff');
+  clone.insertBefore(bgRect,clone.firstChild);
+  const svgStr=new XMLSerializer().serializeToString(clone);
+  const blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const canvas=document.createElement('canvas');canvas.width=px.w;canvas.height=px.h;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,px.w,px.h);
+  const img=new Image();
+  img.onload=()=>{ctx.drawImage(img,0,0,px.w,px.h);const a=document.createElement('a');a.download=`CDC_${suVal}_170mm_300dpi.png`;a.href=canvas.toDataURL('image/png');a.click();URL.revokeObjectURL(url);showToast(`✓ Exported CDC_${suVal}_170mm_300dpi.png`);};
+  img.onerror=()=>{const a=document.createElement('a');a.download=`CDC_${suVal}.svg`;a.href=url;a.click();showToast('PNG failed — downloaded SVG instead',true);};
+  img.src=url;
+}
+
+
+// ============================================================
 // SU SUMMARY MODAL
 // ============================================================
 let sumCurrentTab=1;
@@ -2497,7 +2964,7 @@ function renderSum1(su,wrap,info){
     var currentStreak=lastNewIdx<0?sorted.length:sorted.length-1-lastNewIdx;
     return{points:points,total:sorted.length,taxa:seen.size,stopAt:stopAt,currentStreak:currentStreak};
   }
-  var baseRecs=su==='__all__'?records:records.filter(function(r){return r.su===su;});
+  var baseRecs=(su==='__all__'?records:records.filter(function(r){return r.su===su;})).filter(isHFLF);
   var d=buildCurve(baseRecs);
   var points=d.points,total=d.total,taxa=d.taxa,stopAt=d.stopAt,currentStreak=d.currentStreak;
   // taxa in order of appearance
@@ -2506,12 +2973,12 @@ function renderSum1(su,wrap,info){
   var layerLabel=su==='__all__'?'':' · Layer '+(sortedRecs[0]&&sortedRecs[0].layer?sortedRecs[0].layer:'—');
   var criterionMet=stopAt!==null;
   var streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#666';
-  info.innerHTML='<span>records: <b>'+total+'</b></span><span>distinct taxa: <b>'+taxa+'</b></span>'
+  info.innerHTML='<span>HF+LF fragments: <b>'+total+'</b></span><span>distinct taxa: <b>'+taxa+'</b></span>'
     +'<span>streak: <b style="color:'+streakColor+'">'+currentStreak+'/50</b></span>'
     +(criterionMet
       ?'<span style="color:#4caf82;font-weight:700">✓ stop criterion met at n=<b>'+stopAt+'</b></span>'
       :'<span style="color:#e6812a">⚠ stop criterion not yet met</span>');
-  if(!points.length){wrap.innerHTML=noDataMsg('No records');return;}
+  if(!points.length){wrap.innerHTML=noDataMsg('No HF/LF records');return;}
 
   // Layout
   const W=680,ml=52,mr=28,mt=90,mb=30;
@@ -2944,8 +3411,8 @@ function renderSum7(su,wrap,info){
   const allSUs=[...new Set(records.map(function(r){return r.su;}).filter(function(v){return v;}))].sort();
   function getHFLF(s2){
     var recs=records.filter(function(r){return r.su===s2;});
-    var hf=recs.filter(function(r){return (r.hflf||'').trim().toUpperCase()==='HF';}).length;
-    var lf=recs.filter(function(r){return (r.hflf||'').trim().toUpperCase()==='LF';}).length;
+    var hf=recs.filter(function(r){return (r.channel||'').trim().toUpperCase()==='HF';}).length;
+    var lf=recs.filter(function(r){return (r.channel||'').trim().toUpperCase()==='LF';}).length;
     return{hf:hf,lf:lf,total:recs.length,withFlag:hf+lf};
   }
   const data=allSUs.map(function(s2){var d=getHFLF(s2);return{su:s2,hf:d.hf,lf:d.lf,total:d.total,withFlag:d.withFlag};}).filter(function(d){return d.withFlag>0;});
