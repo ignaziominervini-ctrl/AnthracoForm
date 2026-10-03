@@ -1,50 +1,77 @@
-# AnthracoForm
+# AnthracoForm — Sindh
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20487673.svg)](https://doi.org/10.5281/zenodo.20487673)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20487674.svg)](https://doi.org/10.5281/zenodo.20487674)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Offline, single-file tool for anthracological determination and analysis.**
-No installation, no server: one HTML file that runs entirely in the browser and stores data as CSV on disk.
+**A single-file, offline tool for anthracological determination and analysis.**
 
-<!-- Add a screenshot here, e.g. the saturation curve or a coded record:
-![AnthracoForm — saturation curve](docs/screenshot.png)
--->
+AnthracoForm is a self-contained HTML application for recording, managing and
+analysing wood-charcoal (anthracological) data. It runs entirely in the browser
+with no installation and no internet connection required, and stores data in a
+CSV format designed to be analysis-ready in R.
 
 ## Features
 
-- **Record coding** — sample metadata, taxonomic determination, IAWA descriptors (transverse / radial / tangential), taphonomy, ring curvature, vitrification, morphology (twig / bark).
-- **Recovery channels** — every fragment is tagged with a recovery channel: `HF`, `LF`, `HC`, `DS`, `STR`, `C14`.
-- **Saturation curve (HF + LF)** — per SU, cumulative taxa vs. fragment order, Chabal (1990) plateau rule. Anchored to HF + LF only; DS / STR / C14 never enter it.
-- **TDC — Taxonomic Discovery Curve** — site-level, HC only, cumulative across SUs. A practical operator-recognition curve (not a statistical saturation test), with HC coverage per SU (target 20).
-- **CDC — Conditional Discovery Curve** — DS per SU. Inherits the HF + LF taxa list of the same SU as a seed (counter reset); the line starts at the HF + LF plateau, with a dashed baseline. Falls back to a plain saturation curve when the SU has no HF + LF.
-- **Export** — CSV (one row per fragment) and 170 mm / 300 DPI B&W PNG charts for print.
-- **Fully offline** — no external dependencies, no network calls, no data leaves the machine.
-
-## Requirements
-
-Google **Chrome (v86+)** or another Chromium-based browser. AnthracoForm uses the **File System Access API** to read and write the CSV in a folder you choose; this API is currently Chromium-only.
+- Charcoal fragment data entry with IAWA anatomical feature coding
+- Taxon determination with a customisable taxa dictionary
+- Automatic saturation (species-accumulation) curves per stratigraphic unit (SU),
+  with a Chabal (1990) stop criterion
+- SU summary and whole-assemblage views
+- Offline taxon comparison tool based on published IAWA reference data
+- Quick record lookup by SU or id_det, for editing existing records
+- Export of publication-ready figures (B&W, 170 mm, 300 DPI)
+- CSV import/export compatible with R workflows
 
 ## Usage
 
-1. Open `AnthracoForm.html` in Chrome.
-2. Click **Select folder** and pick the working folder for the project (the CSV is created/read there).
-3. Code fragments one by one; use the **KEEP** locks to carry constant fields (site, SU, channel…) to the next record.
-4. Open the curve views from the metadata bar: **📊** (SU summary, incl. the HF + LF saturation curve), **TDC**, **CDC**.
+Open `AnthracoForm_Sindh.html` in a modern browser (Chrome recommended, for File System
+Access API support). No server, no dependencies, no internet connection needed.
 
-## Output (CSV)
+## How to cite
 
-One row per determined fragment. Columns include the sample metadata (`site_code`, `trench`, `su`, `layer`, `context`, `id_samp`, `id_det`…), the recovery **`channel`** (`HF` / `LF` / `HC` / `DS` / `STR` / `C14`), the size `fraction`, the taxonomic determination, one binary column per IAWA code (`iawa_*`), taphonomy and morphology flags, and the operator/date fields.
+If you use AnthracoForm in your research, please cite it as:
 
-> **Note (column rename).** As of this version the recovery-channel column is named **`channel`** (previously `hflf`). CSVs exported by older versions are read back with backward compatibility: an `hflf` header is automatically mapped to `channel` on import. Downstream R / Python scripts that read the old `hflf` column should be updated to `channel`.
+> Minervini, I. (2026). *AnthracoForm: Offline single-file tool for anthracological
+> determination and analysis* (v1.0). Zenodo.
+> https://doi.org/10.5281/zenodo.20487674
 
-## Citation
+## Authors
 
-If you use AnthracoForm in your research, please cite the specific version you used (each Zenodo release has its own version DOI). General/concept DOI (always resolves to the latest version):
+Ignazio Minervini, CASEs Research Group (Culture, Archaeology and Socio-Ecological
+Dynamics), Universitat Pompeu Fabra, Barcelona.
 
-> Minervini, I. *AnthracoForm* (software). Zenodo. https://doi.org/10.5281/zenodo.20487673
+## AI Acknowledgement
 
-ORCID: [0009-0003-8064-1659](https://orcid.org/0009-0003-8064-1659)
+AnthracoForm was developed with the assistance of Claude (Anthropic), an AI
+assistant used throughout the design, coding, and testing of the tool. The
+authors acknowledge the role of AI-assisted development in this work, in the
+spirit of transparency encouraged by the scientific community.
 
 ## License
 
-Released under the **MIT License** — see [LICENSE](LICENSE).
+Released under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## References
+
+- Allué, E., Euba Rementeria, I., and Solé, A. (2009). Charcoal taphonomy: the
+  study of the cell structure and surface deformations of *Pinus sylvestris* type
+  for the understanding of formation processes of archaeological charcoal
+  assemblages. *Journal of Taphonomy*, 7(2–3), 57–72.
+
+- Chabal, L. (1990). L'étude paléo-écologique de sites protohistoriques à partir
+  des charbons de bois : la question de l'unité de mesure. *Bulletin de la Société
+  Botanique de France — Actualités Botaniques*, 137(2), 117–129.
+
+- Lancelotti, C. (2018). 'Not all that burns is wood'. A social perspective on
+  fuel exploitation and use during the Indus urban period (2600–1900 BC).
+  *PLOS ONE*, 13(3), 1–23.
+
+- Ruiz-Giralt, A., Bouchaud, C., Salavert, A., Lancelotti, C., and D'Andrea, A.C.
+  (2021). Human-woodland interactions during the Pre-Aksumite and Aksumite periods
+  in northeastern Tigray, Ethiopia: insights from the wood charcoal analyses from
+  Mezber and Ona Adi. *Vegetation History and Archaeobotany*, 30(6), 713–728.
+  https://doi.org/10.1007/s00334-021-00825-2
+
+- Wheeler, E.A., Baas, P., and Gasson, P.E. (eds.) (1989). IAWA list of
+  microscopic features for hardwood identification. *IAWA Bulletin*, 10(3),
+  219–332.

@@ -16,6 +16,11 @@ First public release.
 - Publication-ready figure export (B&W, 170 mm, 300 DPI)
 - R-compatible CSV import/export
 
+## [v1.1] - 2026-09-15
+
+### Added
+- Quick record lookup by SU or id_det (SU search cycles through multiple matches)
+
 <!--
 Template for future entries — copy this block when you make a new release:
 
