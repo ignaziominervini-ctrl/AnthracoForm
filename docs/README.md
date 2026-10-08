@@ -1,38 +1,13 @@
-[README.md](https://github.com/user-attachments/files/33206638/README.md)
-# AnthracoForm
+# AnthracoForm — documentation (CSV schema v1.3)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20487673.svg)](https://doi.org/10.5281/zenodo.20487673)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+Supplementary material for the AnthracoForm article (in preparation). The same files
+describe the software archived on Zenodo: https://doi.org/10.5281/zenodo.20487673
 
-**Offline, single-file tools for anthracological determination and analysis.**
+| File | Content |
+|---|---|
+| `S1_AnthracoForm_data_dictionary_v1.3.xlsx` | Data dictionary: the 220 columns of the CSV file, controlled values, the IAWA hardwood (A) and softwood (G) feature lists used in the form, and an empty template sheet. |
+| `S1_AnthracoForm_template_v1.3.csv` | Empty CSV file with the header of schema v1.3, for converting existing datasets. |
+| `S2_AnthracoForm_analysis_examples_v1.3.R` | Example analyses in R: reading and merging files, saturation curves, abundances, diversity, taphonomy, empirical IAWA profiles. Tested with R 4.3.3 and vegan 2.6-4. |
+| `S3_AnthracoForm_user_guide_v1.3.docx` / `.pdf` | User guide, step by step, with screenshots. |
 
-No installation, no server: each version is one HTML file that runs in any web browser
-(Chrome or Edge recommended: they save directly to a folder) and stores data as R-ready CSV.
-
-## Regional versions
-
-| Version | Folder | Reference taxa | Status |
-|---|---|---|---|
-| Saharo-Sindian (Sindh) | [`Saharo-Sindian/`](Saharo-Sindian) | Indus plain and Thar, angiosperms, 25 taxa | v1.3 |
-| Eastern Mediterranean (Lebanon) | [`Eastern-Mediterranean/`](Eastern-Mediterranean) | gymnosperms + angiosperms, 93 taxa | v0.5 (pre-release) |
-
-Module names follow floristic regions (Loidi & Vynokurov 2024, *Mediterranean Botany*
-45: e92333); the place in brackets is where the reference collection was made.
-Until v1.2 the modules were called Sindh and Lebanon.
-
-Each folder contains the HTML file, its own README, CHANGELOG and LICENSE.
-Documentation (data dictionary, CSV template, R examples, user guide) is in [`docs/`](docs).
-
-## How to cite
-
-Cite the specific version you used; see the README in each folder.
-The Zenodo concept DOI above always resolves to the latest archived release.
-
-## Authors
-
-Ignazio Minervini, CASEs Research Group (Culture, Archaeology and Socio-Ecological
-Dynamics), Universitat Pompeu Fabra, Barcelona.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+The schema is the same in every regional module (Saharo-Sindian (Sindh), Eastern Mediterranean (Lebanon)).
