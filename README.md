@@ -12,8 +12,8 @@ No installation, no server: each version is one HTML file that runs in the brows
 
 | Version | Folder | Reference taxa | Status |
 |---|---|---|---|
-| Sindh (Indus Valley) | [`Sindh/`](Sindh) | South Asia, angiosperms | v1.1 |
-| Lebanon / Levant | [`Lebanon/`](Lebanon) | gymnosperms + angiosperms, 93 taxa | v0.3 (pre-release) |
+| Sindh (Indus Valley) | [`Sindh/`](Sindh) | South Asia, angiosperms | v1.2 |
+| Lebanon / Levant | [`Lebanon/`](Lebanon) | gymnosperms + angiosperms, 93 taxa | v0.4 (pre-release) |
 
 Each folder contains the HTML file, its own README, CHANGELOG and LICENSE.
 
