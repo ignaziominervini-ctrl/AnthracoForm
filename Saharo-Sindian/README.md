@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/33206173/README.md)
 # AnthracoForm – Saharo-Sindian (Sindh)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20487673.svg)](https://doi.org/10.5281/zenodo.20487673)
