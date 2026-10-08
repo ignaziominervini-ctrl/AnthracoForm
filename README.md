@@ -5,17 +5,22 @@
 
 **Offline, single-file tools for anthracological determination and analysis.**
 
-No installation, no server: each version is one HTML file that runs in the browser
-(Chrome recommended) and stores data as R-ready CSV.
+No installation, no server: each version is one HTML file that runs in any web browser
+(Chrome or Edge recommended: they save directly to a folder) and stores data as R-ready CSV.
 
 ## Regional versions
 
 | Version | Folder | Reference taxa | Status |
 |---|---|---|---|
-| Sindh (Indus Valley) | [`Sindh/`](Sindh) | South Asia, angiosperms | v1.2 |
-| Lebanon / Levant | [`Lebanon/`](Lebanon) | gymnosperms + angiosperms, 93 taxa | v0.4 (pre-release) |
+| Saharo-Sindian (Sindh) | [`Saharo-Sindian/`](Saharo-Sindian) | Indus plain and Thar, angiosperms, 25 taxa | v1.3 |
+| Eastern Mediterranean (Lebanon) | [`Eastern-Mediterranean/`](Eastern-Mediterranean) | gymnosperms + angiosperms, 93 taxa | v0.5 (pre-release) |
+
+Module names follow floristic regions (Loidi & Vynokurov 2024, *Mediterranean Botany*
+45: e92333); the place in brackets is where the reference collection was made.
+Until v1.2 the modules were called Sindh and Lebanon.
 
 Each folder contains the HTML file, its own README, CHANGELOG and LICENSE.
+Documentation (data dictionary, CSV template, R examples, user guide) is in [`docs/`](docs).
 
 ## How to cite
 

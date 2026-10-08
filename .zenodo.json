@@ -1,0 +1,22 @@
+{
+  "title": "AnthracoForm: Offline single-file tool for anthracological determination and analysis",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Minervini, Ignazio",
+      "affiliation": "Universitat Pompeu Fabra",
+      "orcid": "0009-0003-8064-1659"
+    }
+  ],
+  "description": "<p>AnthracoForm is a single-file, offline HTML application for recording, managing and analysing wood-charcoal (anthracological) data fragment by fragment: IAWA anatomical features, taphonomy, saturation curves per stratigraphic unit, and an R-ready CSV format documented in docs/ (data dictionary, CSV template, R examples, user guide).</p><p>Regional modules, same code: AnthracoForm – Saharo-Sindian (Sindh) and AnthracoForm – Eastern Mediterranean (Lebanon, pre-release). Module names follow floristic regions (Loidi &amp; Vynokurov 2024); the place in brackets is where the reference collection was made. Until v1.2 the modules were called Sindh and Lebanon.</p><p>Changes in each release: see the CHANGELOG in each module folder.</p>",
+  "license": "MIT",
+  "keywords": [
+    "anthracology",
+    "charcoal analysis",
+    "wood anatomy",
+    "IAWA",
+    "archaeobotany",
+    "data format"
+  ],
+  "access_right": "open"
+}
