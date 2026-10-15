@@ -83,14 +83,9 @@ and embedded in the HTML file, so the tool never needs the internet.
 - Akkemik, Ü., and Yaman, B. (2012). *Wood Anatomy of Eastern Mediterranean Species*. Verlag Kessel.
   ISBN 978-3-941300-59-0.
 
-- Allué, E., Euba Rementeria, I., and Solé, A. (2009). Charcoal taphonomy: the
-  study of the cell structure and surface deformations of *Pinus sylvestris* type
-  for the understanding of formation processes of archaeological charcoal
-  assemblages. *Journal of Taphonomy*, 7(2–3), 57–72.
-
-- Chabal, L. (1990). L'étude paléo-écologique de sites protohistoriques à partir
-  des charbons de bois : la question de l'unité de mesure. *Bulletin de la Société
-  Botanique de France — Actualités Botaniques*, 137(2), 117–129.
+- IAWA Committee (1989). IAWA list of microscopic features for hardwood
+  identification. Wheeler, E.A., Baas, P., and Gasson, P.E. (eds.).
+  *IAWA Bulletin*, 10(3), 219–332.
 
 - IAWA Committee (2004). IAWA list of microscopic features for softwood
   identification. Richter, H.G., Grosser, D., Heinz, I., and Gasson, P.E. (eds.).
@@ -103,13 +98,3 @@ and embedded in the HTML file, so the tool never needs the internet.
 - Loidi, J., and Vynokurov, D. (2024). The biogeographical kingdoms and regions of
   the world. *Mediterranean Botany*, 45(2), e92333.
   https://doi.org/10.5209/mbot.92333
-
-- Ruiz-Giralt, A., Bouchaud, C., Salavert, A., Lancelotti, C., and D'Andrea, A.C.
-  (2021). Human-woodland interactions during the Pre-Aksumite and Aksumite periods
-  in northeastern Tigray, Ethiopia: insights from the wood charcoal analyses from
-  Mezber and Ona Adi. *Vegetation History and Archaeobotany*, 30(6), 713–728.
-  https://doi.org/10.1007/s00334-021-00825-2
-
-- Wheeler, E.A., Baas, P., and Gasson, P.E. (eds.) (1989). IAWA list of
-  microscopic features for hardwood identification. *IAWA Bulletin*, 10(3),
-  219–332.
