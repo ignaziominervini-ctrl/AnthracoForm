@@ -1,7 +1,10 @@
-# AnthracoForm – Eastern Mediterranean (Lebanon)
+# AnthracoForm – Saharo-Sindian (Sindh)
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20487673.svg)](https://doi.org/10.5281/zenodo.20487673)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **A single-file, offline tool for anthracological determination and analysis —
-Eastern Mediterranean regional module (reference collection: Lebanon).**
+Saharo-Sindian regional module (reference collection: Sindh, Indus Valley).**
 
 AnthracoForm is a self-contained HTML application for recording, managing and
 analysing wood-charcoal (anthracological) data. It runs entirely in the browser
@@ -12,14 +15,16 @@ AnthracoForm has two regional modules, Saharo-Sindian (Sindh) and Eastern
 Mediterranean (Lebanon), that run the same code:
 their files differ only in the REGIONAL MODULE DATA block at the top of the HTML
 (reference database, taxa dictionary and ecological categories, dichotomous key,
-sources). This module is configured for the Eastern Mediterranean: reference database of 93
-taxa (gymnosperms and angiosperms) and key to genera from Akkemik & Yaman (2012);
-ecological categories maquis and pine woodland, deciduous woodland, mountain forest,
-riverine and other.
+sources). This module is configured for the eastern part of the Saharo-Sindian
+floristic region (Indus plain and Thar): dichotomous key and reference database
+from Lancelotti (2018, Supplementary Material S2). The key reproduces the
+published one couplet by couplet; the database holds 25 of its 27 taxa, without the
+modern introductions *Prosopis juliflora* and *Leucaena leucocephala*. Ecological
+categories: dry thorn scrubland, riverine, mountain forest and other.
 
 Module names follow floristic regions (Loidi & Vynokurov 2024); the place in
-brackets is where the reference collection was made. Until v0.4 this module was
-called Lebanon.
+brackets is where the reference collection was made. Until v1.2 this module was
+called Sindh.
 
 ## Features
 
@@ -40,23 +45,20 @@ called Lebanon.
 - PDF record sheet; export of publication-ready figures (B&W, 170 mm, 300 DPI)
 - CSV import/export compatible with R workflows
 
-The dichotomous key tab uses the key to genera of Akkemik & Yaman (2012, pp. 293–296), transcribed and
-checked against the original pages.
-
 ## Usage
 
-Open `AnthracoForm_Eastern-Mediterranean.html` in a modern browser (Chrome recommended, for
+Open `AnthracoForm_Saharo-Sindian.html` in a modern browser (Chrome recommended, for
 File System Access API support). No server, no dependencies, no internet connection
 needed. In browsers without folder access, open an existing file with Open CSV and save
 it with Download CSV.
 
 ## How to cite
 
-If you use AnthracoForm – Eastern Mediterranean (Lebanon) in your research, please cite it as:
+If you use AnthracoForm in your research, please cite it as:
 
-> Minervini, I. (2026). *AnthracoForm – Eastern Mediterranean (Lebanon): Offline
-> single-file tool for anthracological determination and analysis* (v0.5.1).
-> Zenodo. https://doi.org/10.5281/zenodo.20487673
+> Minervini, I. (2026). *AnthracoForm: Offline single-file tool for anthracological
+> determination and analysis* (v1.3.1). Zenodo.
+> https://doi.org/10.5281/zenodo.20487673
 
 ## Authors
 
@@ -80,9 +82,6 @@ and embedded in the HTML file, so the tool never needs the internet.
 
 ## References
 
-- Akkemik, Ü., and Yaman, B. (2012). *Wood Anatomy of Eastern Mediterranean Species*. Verlag Kessel.
-  ISBN 978-3-941300-59-0.
-
 - IAWA Committee (1989). IAWA list of microscopic features for hardwood
   identification. Wheeler, E.A., Baas, P., and Gasson, P.E. (eds.).
   *IAWA Bulletin*, 10(3), 219–332.
@@ -94,6 +93,10 @@ and embedded in the HTML file, so the tool never needs the internet.
 - Kabukcu, C., and Chabal, L. (2021). Sampling and quantitative analysis methods in
   anthracology from archaeological contexts: achievements and prospects. *Quaternary
   International*, 593–594, 6–18. https://doi.org/10.1016/j.quaint.2020.11.004
+
+- Lancelotti, C. (2018). 'Not all that burns is wood'. A social perspective on
+  fuel exploitation and use during the Indus urban period (2600–1900 BC).
+  *PLOS ONE*, 13(3), 1–23.
 
 - Loidi, J., and Vynokurov, D. (2024). The biogeographical kingdoms and regions of
   the world. *Mediterranean Botany*, 45(2), e92333.
