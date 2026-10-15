@@ -4,6 +4,27 @@ All notable changes to AnthracoForm – Eastern Mediterranean (Lebanon), formerl
 This project follows simple incremental versioning; v0.x are pre-release builds,
 to be promoted to v1.0 once validated on real assemblages.
 
+## [v0.5.1] - 2026-10-10
+
+Dichotomous Key checked against the original pages of Akkemik & Yaman (2012, pp. 293–296).
+
+### Added
+- Saturation panel next to the determination fields, always visible: one row for each of the three curves — HF+LF of the SU (saturation curve), DS of the SU (CDC) and HC of the site (TDC) — with number of taxa and number of fragments on the curve, shown against the next step (100, 200, 250, 300, 400) with a bar coloured grey, amber from 50 and green from 100; the last step reached is marked (e.g. "→200 ✓100"). 100 is a minimum on the arid-zone assemblages of Sindh and Iranian Sistan; 200–400 follow the sample sizes in Kabukcu & Chabal (2021). The row of the channel being recorded is highlighted; STR and C14 have no curve. The panel follows the SU, site and channel in the form (when the SU is empty, those of the last record)
+- Curve windows (saturation, TDC, CDC, summary): dashed lines at the steps reached, and the number of fragments left out of the curve
+
+### Changed
+- Cumulative curves (saturation curve, `curv_sat`, SU summary, TDC, CDC) follow Kabukcu & Chabal (2021): only fragments with a taxon are on the curve. Indeterminate fragments, *cf.* determinations and determinations with "/" (e.g. *Senegalia/Prosopis* type) are recorded as before but are no longer counted as fragments of the curve (before they counted as fragments, not as taxa); `curv_sat` is empty for them. The curves are computed by one function
+- KEEP row, channel: more than one channel can be ticked at the same time. The channel of a record passes to the next record if it is ticked (tick HF, LF, DS and HC and the channel always carries over); with a single channel ticked, the next record starts with that channel, as before. Ticking a channel no longer changes the channel of the current record, unless it has none
+
+### Fixed
+- Section C, couplets 14–16 as in the book (p. 295): couplet 14 "Vessels solitary and/or in radial multiples" / "All vessels in dendritic pattern"; couplet 15 "All vessels mostly in radial multiples" (→ 16: *Nerium* / *Olea*) / "Vessels solitary and/or in radial multiples" (→ 17). Before, couplet 14 carried the text of couplet 15, and couplets 15 and 16 were merged into one three-way couplet. The results do not change.
+- Gymnosperms: "in earlywood" restored in the cross-field pitting couplets (G2, G2a.1); couplet G2a is labelled as the *Pinus* step, as in the book.
+
+### Removed
+- The stop criterion "no new taxon in 50 consecutive fragments" and its line on the curves: the plateau of an accumulation curve has no mathematically defined end point (Kabukcu & Chabal 2021); the panel and the curves show the steps on the number of fragments instead
+- The warnings "check against the original" on the Picea/Pinus block and on couplets 15–16 of section C.
+- The yellow "new taxon" note under the determination field (it read "new taxon → update saturation curve"): the saturation panel replaces it
+
 ## [v0.5] - 2026-10-08
 
 ### Added

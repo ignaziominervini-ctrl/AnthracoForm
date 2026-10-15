@@ -18,7 +18,7 @@
      ============================================================ -->
 <title>AnthracoForm – Eastern Mediterranean (Lebanon)</title>
 <script>
-// AnthracoForm – Eastern Mediterranean (Lebanon) module, v0.5 (version history: CHANGELOG.md)
+// AnthracoForm – Eastern Mediterranean (Lebanon) module, v0.5.1 (version history: CHANGELOG.md)
 const REGION={
   name:'Eastern Mediterranean (Lebanon)',
   woodType:'g', // wood type of a new record: 'a' angiosperm, 'g' gymnosperm
@@ -343,15 +343,15 @@ const TAXA_DB=[
 // scalariform / simple and scalariform / simple perforation plates. Couplets 1–2 lead to those
 // sections (book headings). A result reaches the genus: det = text written to the det field,
 // db = species of that genus in TAXA_DB; 'c' = third lead, 'warn' = note to check.
-// To check against the original: Picea/Pinus block (G2–G2a.1) and couplets 15–16 of section C.
+// Checked against the original pages (pp. 293–296) on 9 October 2026.
 // ============================================================
 const KEY_DEF={
   1:{"label":"Wood type","a":{"text":"Gymnosperm wood (conifers; also Ephedra)","next":"G1"},"b":{"text":"Angiosperm wood (hardwoods)","next":2}},
   2:{"label":"Perforation plates","a":{"text":"Perforation plates scalariform","next":"A1"},"b":{"text":"Perforation plates both simple and scalariform","next":"B1"},"c":{"text":"Perforation plates simple","next":"C1"}},
   'G1':{"label":"Resin canals","a":{"text":"Resin canals present","next":"G2"},"b":{"text":"Resin canals absent","next":"G3"}},
-  'G2':{"label":"Cross-field pitting","a":{"text":"Cross-field pits piceoid","taxon":"Picea","det":"Picea sp.","db":["Picea orientalis"]},"b":{"text":"Cross-field pits pinoid or window-like (fenestriform)","next":"G2a"},"warn":"Picea/Pinus block reconstructed from a photograph: check against the original."},
-  'G2a':{"label":"Ray tracheid walls","a":{"text":"Ray tracheids with dentate walls","next":"G2a.1"},"b":{"text":"Ray tracheids with smooth walls","taxon":"Pinus pinea","det":"Pinus pinea","db":["Pinus pinea"],"warn":"Picea/Pinus block reconstructed from a photograph: check against the original."},"warn":"Picea/Pinus block reconstructed from a photograph: check against the original."},
-  'G2a.1':{"label":"Cross-field pitting","a":{"text":"Cross-field pits window-like (fenestriform)","taxon":"Pinus nigra","det":"Pinus nigra","db":["Pinus nigra subsp. pallasiana"],"warn":"Picea/Pinus block reconstructed from a photograph: check against the original."},"b":{"text":"Cross-field pits pinoid","taxon":"Pinus brutia / Pinus halepensis","det":"Pinus brutia/halepensis","db":["Pinus brutia","Pinus halepensis"],"warn":"Picea/Pinus block reconstructed from a photograph: check against the original."},"warn":"Picea/Pinus block reconstructed from a photograph: check against the original."},
+  'G2':{"label":"Cross-field pitting","a":{"text":"Cross-field pits in earlywood piceoid","taxon":"Picea","det":"Picea sp.","db":["Picea orientalis"]},"b":{"text":"Cross-field pits in earlywood pinoid or window-like (fenestriform)","next":"G2a"}},
+  'G2a':{"label":"Pinus: ray tracheid walls","a":{"text":"Ray tracheids with dentate walls","next":"G2a.1"},"b":{"text":"Ray tracheids with smooth walls","taxon":"Pinus pinea","det":"Pinus pinea","db":["Pinus pinea"]}},
+  'G2a.1':{"label":"Cross-field pitting","a":{"text":"Cross-field pits in earlywood window-like (fenestriform)","taxon":"Pinus nigra","det":"Pinus nigra","db":["Pinus nigra subsp. pallasiana"]},"b":{"text":"Cross-field pits in earlywood pinoid","taxon":"Pinus brutia / Pinus halepensis","det":"Pinus brutia/halepensis","db":["Pinus brutia","Pinus halepensis"]}},
   'G3':{"label":"Vessels","a":{"text":"Both vessels and tracheids present","taxon":"Ephedra","det":"Ephedra sp.","db":[]},"b":{"text":"Only tracheids present","next":"G4"}},
   'G4':{"label":"Helical thickenings","a":{"text":"Helical thickenings present","taxon":"Taxus","det":"Taxus sp.","db":["Taxus baccata"]},"b":{"text":"Helical thickenings absent","next":"G5"}},
   'G5':{"label":"Torus","a":{"text":"Scalloped torus present","taxon":"Cedrus","det":"Cedrus sp.","db":["Cedrus libani"]},"b":{"text":"Scalloped torus absent","next":"G6"}},
@@ -382,8 +382,9 @@ const KEY_DEF={
   'C11':{"label":"Helical thickenings","a":{"text":"Helical thickenings not observed","taxon":"Pyrus","det":"Pyrus sp.","db":["Pyrus syriaca","Pyrus serikensis"]},"b":{"text":"Helical thickenings present","next":"C12"}},
   'C12':{"label":"Helical thickenings","a":{"text":"Helical thickenings throughout the vessel element body","taxon":"Sorbus","det":"Sorbus sp.","db":["Sorbus torminalis"]},"b":{"text":"Helical thickenings in narrow vessels","taxon":"Crataegus","det":"Crataegus sp.","db":["Crataegus monogyna","Crataegus aronia"]}},
   'C13':{"label":"Axial parenchyma","a":{"text":"Axial parenchyma mostly diffuse-in-aggregates","taxon":"Erica","det":"Erica sp.","db":["Erica arborea","Erica bocquetti","Erica verticillata"]},"b":{"text":"Axial parenchyma diffuse, rare","taxon":"Cistus","det":"Cistus sp.","db":["Cistus creticus","Cistus laurifolius"]}},
-  'C14':{"label":"Vessel arrangement","a":{"text":"All vessels mostly in radial multiples","next":"C15"},"b":{"text":"All vessels in dendritic pattern","next":"C20"}},
-  'C15':{"label":"Vessels and ray cells","a":{"text":"Vessels not common, in radial multiples of up to 8 cells; procumbent body ray cells with 4 or more rows of upright cells; uniseriate rays of upright cells","taxon":"Nerium","det":"Nerium sp.","db":["Nerium oleander"]},"b":{"text":"Vessels common, in radial multiples of up to 5 cells; procumbent body ray cells with 2–4 rows of upright cells; acicular crystals in ray cells","taxon":"Olea","det":"Olea sp.","db":["Olea europaea"]},"c":{"text":"Vessels solitary and/or in radial multiples","next":"C17"},"warn":"Couplets 15-16 are unclear in the transcription (couplet 16 missing): check against the original."},
+  'C14':{"label":"Vessel arrangement","a":{"text":"Vessels solitary and/or in radial multiples","next":"C15"},"b":{"text":"All vessels in dendritic pattern","next":"C20"}},
+  'C15':{"label":"Vessel grouping","a":{"text":"All vessels mostly in radial multiples","next":"C16"},"b":{"text":"Vessels solitary and/or in radial multiples","next":"C17"}},
+  'C16':{"label":"Vessels and ray cells","a":{"text":"Vessels not common, in radial multiples of up to 8 cells; procumbent body ray cells with 4 or more rows of upright cells; uniseriate rays of upright cells","taxon":"Nerium","det":"Nerium sp.","db":["Nerium oleander"]},"b":{"text":"Vessels common, in radial multiples of up to 5 cells; procumbent body ray cells with 2–4 rows of upright cells; acicular crystals in ray cells","taxon":"Olea","det":"Olea sp.","db":["Olea europaea"]}},
   'C17':{"label":"Axial parenchyma and helical thickenings","a":{"text":"Axial parenchyma in tangential bands more than 3 cells wide; vessels very few; helical thickenings absent","taxon":"Ficus","det":"Ficus sp.","db":["Ficus carica"]},"b":{"text":"Axial parenchyma diffuse; helical thickenings present","next":"C18"}},
   'C18':{"label":"Axial parenchyma","a":{"text":"Axial parenchyma diffuse, very rare","taxon":"Acer","det":"Acer sp.","db":["Acer divergens","Acer monspessulanum","Acer platanoides","Acer tataricum","Acer trautvetteri"]},"b":{"text":"Axial parenchyma diffuse-in-aggregates, common","next":"C19"}},
   'C19':{"label":"Ray width and fibre pits","a":{"text":"Rays mostly 2–4 cells wide; fibre pits common in both radial and tangential walls; rays widened at the growth ring boundaries","taxon":"Tilia","det":"Tilia sp.","db":[]},"b":{"text":"Rays mostly 1–3-seriate; vessels fewer; fibre pits very rare; no widened rays","taxon":"Ostrya","det":"Ostrya sp.","db":["Ostrya carpinifolia"]}},
@@ -501,7 +502,7 @@ header{background:var(--s1);border-bottom:1px solid var(--border2);padding:6px 1
 
 /* GRID META */
 .meta-r1{display:grid;grid-template-columns:50px 55px 80px 55px 55px 75px 75px 60px;gap:6px;align-items:end;}
-.meta-r2{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr;gap:6px;align-items:end;margin-top:6px;}
+.meta-r2{display:grid;grid-template-columns:2fr 1.5fr 1fr minmax(230px,1.2fr);gap:6px;align-items:end;margin-top:6px;}
 .meta-r3{display:flex;gap:18px;align-items:flex-end;margin-top:6px;flex-wrap:wrap;}
 
 /* PILL TOGGLE */
@@ -602,8 +603,19 @@ textarea{resize:vertical;}
 
 
 /* NUOVA SPECIE BADGE */
-.new-taxa-badge{display:none;font-family:var(--mono);font-size:9px;font-weight:700;color:#c0392b;background:#fff176;border:1px solid #f9a825;border-radius:3px;padding:1px 6px;margin-left:6px;animation:fadeIn .2s ease;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:translateY(0)}}
+.sat-panel{font-family:var(--mono);font-size:9.5px;background:var(--s1);border:1px solid var(--border2);border-radius:6px;padding:5px 7px 6px;align-self:stretch;display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;}
+.sp-head{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-size:8.5px;letter-spacing:.06em;color:var(--text-d);text-transform:uppercase;font-weight:700;}
+.sp-head span:last-child{text-transform:none;letter-spacing:0;font-weight:600;color:var(--text-b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sp-row{display:grid;grid-template-columns:42px 22px 28px 1fr 64px;align-items:center;gap:5px;padding:2px 4px;border-radius:4px;border-left:3px solid transparent;}
+.sp-row.sp-cols{padding:0 4px;font-size:8px;color:var(--text-d);text-transform:uppercase;letter-spacing:.04em;}
+.sp-row.on{background:var(--acc-bg);border-left-color:var(--acc);}
+.sp-ch{font-weight:700;font-size:9px;text-align:center;border-radius:3px;padding:1px 0;}
+.sp-ch.hflf{background:#e3eefb;color:#2f6db5;}.sp-ch.ds{background:#efe7fb;color:#7b4bb7;}.sp-ch.hc{background:#fdeedc;color:#b8641a;}
+.sp-n{text-align:right;color:var(--text-b);font-weight:600;}
+.sp-bar{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.sp-bar i{display:block;height:100%;width:0;border-radius:3px;transition:width .25s ease;}
+.sp-flat{text-align:right;font-weight:700;white-space:nowrap;}
+.sp-flat small{font-weight:600;font-size:8px;margin-left:2px;}
 .taxa-bar{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;align-items:center;}
 .taxa-bar-lbl{font-family:var(--mono);font-size:8.5px;color:var(--text-d);letter-spacing:.06em;margin-right:2px;white-space:nowrap;}
 .taxa-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:3px;border:1px solid var(--border2);background:var(--s2);font-family:var(--mono);font-size:10px;font-style:italic;color:var(--text-d);cursor:pointer;user-select:none;transition:all .12s;}
@@ -1088,9 +1100,9 @@ textarea{resize:vertical;}
     <div class="meta-r1">
       <div class="fg"><label>id det.</label><input id="id_det" type="number" value="1" min="1"></div>
       <div class="fg"><label>id samp.</label><input id="id_samp" type="number"></div>
-      <div class="fg"><label>site</label><input id="site_code" style="text-transform:uppercase;"></div>
+      <div class="fg"><label>site</label><input id="site_code" style="text-transform:uppercase;" oninput="updateSatPanel()"></div>
       <div class="fg"><label>trench</label><input id="trench"></div>
-      <div class="fg"><label>SU</label><input id="su"></div>
+      <div class="fg"><label>SU</label><input id="su" oninput="updateSatPanel()"></div>
       <div class="fg"><label>layer</label><input id="layer"></div>
       <div class="fg"><label>context</label><input id="context"></div>
       <div class="fg">
@@ -1148,13 +1160,18 @@ textarea{resize:vertical;}
           <input id="det" oninput="onDetInput()" style="flex:1;min-width:0;">
           <button id="btn-cf" onclick="toggleCf()" title="Insert / remove cf." class="btn-cf">cf.</button>
         </div>
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px;">
-          <span class="new-taxa-badge" id="new-taxa-badge">new taxon → update saturation curve</span>
-        </div>
         <div class="taxa-bar" id="taxa-bar"><span class="taxa-bar-lbl">TAXA:</span></div>
       </div>
       <div class="fg"><label>family</label><input id="family"></div>
       <div class="fg"><label>eco</label><input id="eco"></div>
+      <!-- specchietto delle tre curve: HF+LF e DS per US, HC per sito -->
+      <div class="sat-panel" id="sat-panel" title="Fragments on the curve (indeterminate, cf. and / excluded), towards the next step: 100, 200, 250, 300, 400 (Kabukcu &amp; Chabal 2021)">
+        <div class="sp-head"><span>Saturation</span><span id="sp-where">SU — · site —</span></div>
+        <div class="sp-row sp-cols"><span></span><span style="text-align:right">taxa</span><span style="text-align:right">frag.</span><span>step</span><span></span></div>
+        <div class="sp-row" id="sp-hflf"><span class="sp-ch hflf">HF+LF</span><span class="sp-n">–</span><span class="sp-n">–</span><div class="sp-bar"><i></i></div><span class="sp-flat">–</span></div>
+        <div class="sp-row" id="sp-ds"><span class="sp-ch ds">DS</span><span class="sp-n">–</span><span class="sp-n">–</span><div class="sp-bar"><i></i></div><span class="sp-flat">–</span></div>
+        <div class="sp-row" id="sp-hc"><span class="sp-ch hc">HC</span><span class="sp-n">–</span><span class="sp-n">–</span><div class="sp-bar"><i></i></div><span class="sp-flat">–</span></div>
+      </div>
     </div>
     <!-- TIPO ROW -->
     <div class="tipo-row">
@@ -1720,6 +1737,7 @@ function setPill(group,value){
   document.querySelectorAll(`.pill-opt[data-group="${group}"]`).forEach(el=>{
     el.classList.toggle('on',el.getAttribute('data-value')===newVal);
   });
+  if(group==='hflf') updateSatPanel();
 }
 
 function loadPills(group,value){
@@ -1733,25 +1751,34 @@ function resetPills(){
   ['hflf','fraction','fracture_type'].forEach(g=>loadPills(g,''));
 }
 
-// ---- CHANNEL LOCK: caselle radio-like che fissano un canale come default per i nuovi record ----
+// ---- CHANNEL LOCK: uno o più canali spuntati; il canale del record passa al successivo se è spuntato ----
 const CHANNEL_VALUES=['HF','LF','HC','DS','STR','C14'];
-let channelLock='';
-try{const _cl=localStorage.getItem('af_lock_channel');if(_cl&&CHANNEL_VALUES.includes(_cl))channelLock=_cl;}catch(e){}
+let channelLocks=[];
+try{const _cl=localStorage.getItem('af_lock_channel');if(_cl)channelLocks=_cl.split(',').filter(v=>CHANNEL_VALUES.includes(v));}catch(e){}
 
 function refreshChannelLockChips(){
   CHANNEL_VALUES.forEach(v=>{
+    const on=channelLocks.includes(v);
     const cb=document.getElementById('lck-ch-'+v);
     const wrap=document.getElementById('lock-ch-'+v);
-    if(cb) cb.checked=(channelLock===v);
-    if(wrap) wrap.classList.toggle('on',channelLock===v);
+    if(cb) cb.checked=on;
+    if(wrap) wrap.classList.toggle('on',on);
   });
 }
 
 function toggleChannelLock(value){
-  channelLock=(channelLock===value)?'':value;      // ri-click sullo stesso chip = sblocca
-  try{localStorage.setItem('af_lock_channel',channelLock);}catch(e){}
+  channelLocks=channelLocks.includes(value)?channelLocks.filter(v=>v!==value)
+    :CHANNEL_VALUES.filter(v=>v===value||channelLocks.includes(v));
+  try{localStorage.setItem('af_lock_channel',channelLocks.join(','));}catch(e){}
   refreshChannelLockChips();
-  if(channelLock) setPill('hflf',channelLock);      // spuntare imposta anche il canale del record corrente
+  if(channelLocks.includes(value)&&!pillValues.hflf) setPill('hflf',value); // record senza canale: prende quello spuntato
+}
+
+// canale del nuovo record: quello del record precedente se è spuntato; con un solo canale spuntato, quello
+function nextChannel(prev){
+  prev=(prev||'').trim().toUpperCase();
+  if(channelLocks.includes(prev)) return prev;
+  return channelLocks.length===1?channelLocks[0]:'';
 }
 
 
@@ -1874,6 +1901,8 @@ function onFileReady(){
   document.getElementById('btn-connect').style.cssText='background:var(--s3);color:var(--text-d);border-color:var(--border);padding:5px 12px;border-radius:4px;border:1px solid var(--border);font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;';
   document.getElementById('btn-reload').style.display='inline-block';
   syncTaxaFromRecords();
+  const lastRec=records.reduce((a,r)=>(!a||(parseInt(r.id_det)||0)>(parseInt(a.id_det)||0))?r:a,null);
+  satPanelLast=lastRec?{su:(lastRec.su||'').trim(),site:siteKey(lastRec),ch:(lastRec.channel||'').trim().toUpperCase()}:{su:'',site:'',ch:''};
   updateFileStatus();updateNavUI();
 }
 
@@ -2155,8 +2184,6 @@ function loadRecord(idx){
     const p=dateEl.value.split('/');
     if(p.length===3) dateEl.value=`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
   }
-  const badge=document.getElementById('new-taxa-badge');
-  if(badge) badge.style.display='none';
   // tipo: seleziona dalla tendina e carica descrizione dal registro
   currentTipoResolved=r.tipo_resolved||'';
   const tipoEl=document.getElementById('tipo');
@@ -2297,6 +2324,7 @@ function findBySU(){
 }
 
 function updateNavUI(){
+  updateSatPanel();
   const total=records.length;
   const badge=document.getElementById('h-mode-badge');
   const info=document.getElementById('h-nav-info');
@@ -2341,12 +2369,12 @@ function updateCurvSatForSU(su){
     .filter(({r})=>r.su===su)
     .sort((a,b)=>(parseInt(a.r.id_det)||0)-(parseInt(b.r.id_det)||0));
 
-  // cumulativo progressivo — ancorato a HF+LF (DS/STR/C14/HC restano fuori dalla curva)
+  // cumulativo progressivo — solo HF+LF con un taxon (DS/STR/C14/HC, indet., cf. e «/» restano fuori dalla curva)
   const seen=new Set();
   suItems.forEach(({r,i})=>{
-    if(isHFLF(r)){
-      if(isCurveTaxon(r.det)) seen.add(r.det.trim());
-      records[i].curv_sat=seen.size||'';
+    if(isHFLF(r)&&isCurveTaxon(r.det)){
+      seen.add(r.det.trim());
+      records[i].curv_sat=seen.size;
     } else {
       records[i].curv_sat='';
     }
@@ -2377,6 +2405,7 @@ async function saveRecord(){
     }
     const isEdit=currentIndex!==-1;
     if(isEdit){records[currentIndex]=data;}else{records.push(data);}
+    satPanelLast={su:(data.su||'').trim(),site:siteKey(data),ch:(data.channel||'').trim().toUpperCase()};
     // ricalcola curv_sat progressivo per tutti i record della SU
     if(data.su) updateCurvSatForSU(data.su);
     if(isEdit) loadedSnapshot=JSON.stringify(getFormData()); // record appena salvato: le frecce non lo riscrivono
@@ -2408,11 +2437,11 @@ function newRecord(afterSave=false){
   // reset flag modifica manuale family/eco
   document.getElementById('family')._manualEdit=false;
   document.getElementById('eco')._manualEdit=false;
+  const prevCh=pillValues.hflf;
   resetPills();
-  if(channelLock) setPill('hflf',channelLock);   // canale bloccato → default sul nuovo record
+  const nch=nextChannel(prevCh); if(nch) setPill('hflf',nch);   // canale bloccato → passa al nuovo record
   document.getElementById('id_det').value=lastId+1;
   document.getElementById('date').value=new Date().toISOString().slice(0,10);
-  const nb=document.getElementById('new-taxa-badge');if(nb)nb.style.display='none';
   // ripristina i bloccati
   restoreLockedValues(locked);
   // reset checkbox
@@ -2901,15 +2930,6 @@ function lookupTaxon(det){
 // ============================================================
 function onDetInput(){
   const val=document.getElementById('det').value.trim();
-  const badge=document.getElementById('new-taxa-badge');
-  if(!badge) return;
-  if(val && val!=='undetermined'){
-    const currentSU=document.getElementById('su').value.trim();
-    const knownInSU=records.some(r=>r.su===currentSU&&r.det===val);
-    badge.style.display=knownInSU?'none':'inline-block';
-  } else {
-    badge.style.display='none';
-  }
   // auto-fill family ed eco se il campo è vuoto o era già auto-compilato
   const match=lookupTaxon(val);
   const famEl=document.getElementById('family');
@@ -2945,8 +2965,9 @@ function toggleCf(){
 // ============================================================
 // SATURATION CURVE
 // ============================================================
-// "cf." = attribuzione incerta: il frammento conta come frammento, ma non aggiunge un taxon
-// alle curve cumulative (saturazione, curv_sat, riepilogo, TDC, CDC)
+// Curve cumulative (saturazione, curv_sat, riepilogo, TDC, CDC), come in Kabukcu & Chabal 2021:
+// entrano solo i frammenti con un taxon. Indeterminati, "cf." e determinazioni con "/" si registrano
+// ma restano fuori dalla curva (né frammento né taxon).
 function isCurveTaxon(det){
   return isTaxonCountable(det)&&!/(^|\s)cf\.?(\s|$)/i.test((det||'').trim());
 }
@@ -2963,27 +2984,67 @@ function isTaxonCountable(det){
 // HC / DS / STR / CH14 are excluded so they never distort the saturation curve.
 function isHFLF(r){const c=(r.channel||'').trim().toUpperCase();return c==='HF'||c==='LF';}
 
-function getSatCurveData(su){
-  const suRecords=records
-    .filter(r=>r.su===su && isHFLF(r))
+// Tre curve: HF+LF per US (saturazione), DS per US (CDC), HC per sito (TDC).
+// STR e C14 non hanno curva e non compaiono nello specchietto.
+// Soglie sui frammenti della curva: 100 = minimo per contesti poveri; 200–400 come in
+// Kabukcu & Chabal 2021 (200–300 contesti ricchi/tropicali, 250–400 temperati).
+const SAT_STEPS=[100,200,250,300,400];
+// Una sola funzione per tutte le curve. seed = taxa già noti (CDC: taxa HF+LF della US).
+function buildCurve(recs,seed){
+  const onCurve=recs.filter(r=>isCurveTaxon(r.det))
     .sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
-  const points=[];const seen=new Set();
-  let lastNewIdx=-1; // 0-based index of last fragment that introduced a new taxon
-  let stopAt=null;   // 1-based fragment number where stop criterion (50 consecutive) is first met
-  suRecords.forEach((r,i)=>{
-    const det=(r.det||'').trim();
-    const prevSize=seen.size;
-    if(isCurveTaxon(det)) seen.add(det);
-    if(seen.size>prevSize) lastNewIdx=i;
-    if(stopAt===null){
-      const streak=lastNewIdx<0?i+1:i-lastNewIdx;
-      if(streak>=50) stopAt=i+1; // 1-based
-    }
-    points.push({x:i+1,y:seen.size,det:det||'—',id_det:r.id_det});
+  const known=new Set(seed||[]);const points=[];let newCount=0;
+  onCurve.forEach((r,i)=>{
+    const det=r.det.trim();const isNew=!known.has(det);
+    if(isNew){known.add(det);newCount++;}
+    points.push({x:i+1,y:known.size,det,isNew,id_det:r.id_det});
   });
-  // streak from end of current sequence
-  const currentStreak=lastNewIdx<0?suRecords.length:suRecords.length-1-lastNewIdx;
-  return{points,total:suRecords.length,taxa:seen.size,stopAt,currentStreak};
+  return{points,total:onCurve.length,excluded:recs.length-onCurve.length,taxa:known.size,newCount};
+}
+function stepInfo(n){
+  const done=SAT_STEPS.filter(m=>n>=m),next=SAT_STEPS.find(m=>n<m);
+  return (done.length?`<span style="color:#4caf82;font-weight:700">✓ step ${done[done.length-1]}</span>`:'')
+    +(next?`<span style="color:${done.length?'#768390':'#e6812a'}">next step: ${next}</span>`:'');
+}
+function excludedInfo(d){return `<span>not on the curve (indet., cf., /): <b>${d.excluded}</b></span>`;}
+// linee tratteggiate alle soglie raggiunte (asse x = frammenti della curva)
+function stepLines(sx,maxX,mt,ph,font){
+  let s='';
+  SAT_STEPS.filter(m=>m<=maxX).forEach(m=>{
+    const cx=parseFloat(sx(m).toFixed(1));
+    s+=`<line x1="${cx}" y1="${mt-6}" x2="${cx}" y2="${mt+ph}" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>`;
+    s+=`<text x="${cx}" y="${mt-10}" text-anchor="middle" fill="#555" font-size="9" font-family="${font}" font-weight="600">${m}</text>`;
+  });
+  return s;
+}
+// specchietto: US, sito e canale del modulo; se vuoti, quelli dell'ultimo frammento salvato
+let satPanelLast={su:'',site:'',ch:''};
+function updateSatPanel(){
+  if(!document.getElementById('sat-panel')) return;
+  const fSu=document.getElementById('su').value.trim();
+  const fSite=document.getElementById('site_code').value.trim().toUpperCase();
+  const su=fSu||satPanelLast.su, site=fSite||satPanelLast.site;
+  const ch=((pillValues.hflf||'')||(fSu?'':satPanelLast.ch)).toUpperCase();
+  document.getElementById('sp-where').textContent=`SU ${su||'—'} · site ${site||'—'}`+(!fSu&&su?' (last record)':'');
+  const rows=[
+    ['sp-hflf',su?getSatCurveData(su):null,'taxa',ch==='HF'||ch==='LF'],
+    ['sp-ds',su?getCDCData(su):null,'knownTotal',ch==='DS'],
+    ['sp-hc',getTDCData(site||'(no site)'),'taxa',ch==='HC']];
+  rows.forEach(([id,d,tk,on])=>{
+    const row=document.getElementById(id);if(!row)return;
+    row.classList.toggle('on',on);
+    const n=row.querySelectorAll('.sp-n'),bar=row.querySelector('.sp-bar i'),fl=row.querySelector('.sp-flat');
+    if(!d||!d.total){n[0].textContent='–';n[1].textContent='–';bar.style.width='0';fl.textContent='–';fl.style.color='var(--text-d)';return;}
+    const s=d.total,prev=SAT_STEPS.filter(m=>s>=m).pop(),next=SAT_STEPS.find(m=>s<m);
+    const col=s>=SAT_STEPS[0]?'#3a9a6c':s>=SAT_STEPS[0]/2?'#d99a12':'#768390';
+    n[0].textContent=d[tk];n[1].textContent=d.total;
+    bar.style.width=(next?Math.round(100*s/next):100)+'%';bar.style.background=col;
+    fl.style.color=col;
+    fl.innerHTML=(next?`→${next}`:'')+(prev?`<small>✓${prev}</small>`:'');
+  });
+}
+function getSatCurveData(su){
+  return buildCurve(records.filter(r=>r.su===su && isHFLF(r)));
 }
 
 function openSatModal(){
@@ -3009,16 +3070,11 @@ function renderSatCurve(su){
     wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No SU selected</div>';
     infoBar.innerHTML='';return;
   }
-  const{points,total,taxa,stopAt,currentStreak}=getSatCurveData(su);
+  const cd=getSatCurveData(su),{points,total,taxa}=cd;
   document.getElementById('sat-modal-title').textContent=`Saturation curve (HF+LF) — SU: ${su}`;
-  const criterionMet=stopAt!==null;
-  const streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#768390';
-  infoBar.innerHTML=`<span>records in SU: <b>${total}</b></span>`
+  infoBar.innerHTML=`<span>HF+LF fragments on the curve: <b>${total}</b></span>`
     +`<span>distinct taxa: <b>${taxa}</b></span>`
-    +`<span>current streak: <b style="color:${streakColor}">${currentStreak}/50</b> without new taxon</span>`
-    +(criterionMet
-      ? `<span style="color:#4caf82;font-weight:700">✓ stop criterion met at n=<b>${stopAt}</b></span>`
-      : `<span style="color:#e6812a">⚠ stop criterion not yet met</span>`);
+    +excludedInfo(cd)+stepInfo(total);
   if(!points.length){
     wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No HF/LF records for this SU</div>';
     return;
@@ -3089,21 +3145,8 @@ function renderSatCurve(su){
     s+=`<path d="${d}" fill="none" stroke="${COL.line}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   }
 
-  // --- stop criterion: shaded post-plateau area + dashed line ---
-  if(stopAt!==null){
-    const cx=parseFloat(sx(stopAt).toFixed(1));
-    const rightEdge=W-mr;
-    if(cx<rightEdge){
-      // grey shaded area after stop point
-      s+=`<rect x="${cx}" y="${mt}" width="${(rightEdge-cx).toFixed(1)}" height="${ph}" fill="rgba(0,0,0,.055)" rx="0"/>`;
-    }
-    // dashed vertical line
-    s+=`<line x1="${cx}" y1="${mt-10}" x2="${cx}" y2="${mt+ph}" stroke="#888" stroke-width="1.3" stroke-dasharray="4,3"/>`;
-    // label above plot area
-    s+=`<text x="${cx}" y="${mt-14}" text-anchor="middle" fill="#555" font-size="9.5" font-family="${SERIF}" font-weight="600">stop n=${stopAt}</text>`;
-    // small Chabal label below
-    s+=`<text x="${cx}" y="${mt-4}" text-anchor="middle" fill="#888" font-size="8.5" font-family="${SERIF}" font-style="italic">Chabal 1990</text>`;
-  }
+  // --- soglie (Kabukcu & Chabal 2021) ---
+  s+=stepLines(sx,maxX,mt,ph,SERIF);
 
   // dots + etichette taxa
   points.forEach((p,i)=>{
@@ -3232,26 +3275,12 @@ function wireCurveTooltip(wrap,prefix,dotClass){
 }
 
 function getTDCData(site){
-  const recs=records
-    .filter(r=>isHC(r) && (siteKey(r)||'(no site)')===site)
-    .sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
-  const points=[];const seen=new Set();
-  let lastNewIdx=-1,stopAt=null;
-  recs.forEach((r,i)=>{
-    const det=(r.det||'').trim();
-    const prevSize=seen.size;
-    if(isCurveTaxon(det)) seen.add(det);
-    if(seen.size>prevSize) lastNewIdx=i;
-    if(stopAt===null){
-      const streak=lastNewIdx<0?i+1:i-lastNewIdx;
-      if(streak>=50) stopAt=i+1;
-    }
-    points.push({x:i+1,y:seen.size,det:det||'—',id_det:r.id_det});
-  });
-  const currentStreak=lastNewIdx<0?recs.length:recs.length-1-lastNewIdx;
+  const recs=records.filter(r=>isHC(r) && (siteKey(r)||'(no site)')===site);
+  const d=buildCurve(recs);
   const bySU={};
   recs.forEach(r=>{const su=(r.su||'—').trim()||'—';bySU[su]=(bySU[su]||0)+1;});
-  return{points,total:recs.length,taxa:seen.size,stopAt,currentStreak,bySU};
+  d.bySU=bySU;
+  return d;
 }
 
 function openTDCModal(){
@@ -3279,15 +3308,10 @@ function renderTDC(site){
     wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No HC records — the TDC is built only from Hand-Collected (HC) fragments.</div>';
     infoBar.innerHTML='';covBar.innerHTML='';return;
   }
-  const{points,total,taxa,stopAt,currentStreak,bySU}=getTDCData(site);
-  const criterionMet=stopAt!==null;
-  const streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#768390';
-  infoBar.innerHTML=`<span>HC fragments (site): <b>${total}</b></span>`
+  const td=getTDCData(site),{points,total,taxa,bySU}=td;
+  infoBar.innerHTML=`<span>HC fragments on the curve (site): <b>${total}</b></span>`
     +`<span>distinct taxa: <b>${taxa}</b></span>`
-    +`<span>current streak: <b style="color:${streakColor}">${currentStreak}/50</b> without new taxon</span>`
-    +(criterionMet
-      ? `<span style="color:#4caf82;font-weight:700">✓ plateau reached at n=<b>${stopAt}</b></span>`
-      : `<span style="color:#e6812a">⚠ plateau not yet reached</span>`);
+    +excludedInfo(td)+stepInfo(total);
   const suKeys=Object.keys(bySU).sort();
   covBar.innerHTML='<span style="color:var(--text-d)">HC coverage / SU (target 20):</span> '
     +(suKeys.length
@@ -3328,13 +3352,7 @@ function renderTDC(site){
     s+=`<path d="${d} L${sx(points[points.length-1].x).toFixed(1)},${base} L${sx(points[0].x).toFixed(1)},${base} Z" fill="${COL.fill}"/>`;
     s+=`<path d="${d}" fill="none" stroke="${COL.line}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   }
-  if(stopAt!==null){
-    const cx=parseFloat(sx(stopAt).toFixed(1));const rightEdge=W-mr;
-    if(cx<rightEdge) s+=`<rect x="${cx}" y="${mt}" width="${(rightEdge-cx).toFixed(1)}" height="${ph}" fill="rgba(0,0,0,.055)"/>`;
-    s+=`<line x1="${cx}" y1="${mt-10}" x2="${cx}" y2="${mt+ph}" stroke="#888" stroke-width="1.3" stroke-dasharray="4,3"/>`;
-    s+=`<text x="${cx}" y="${mt-14}" text-anchor="middle" fill="#555" font-size="9.5" font-family="${SERIF}" font-weight="600">plateau n=${stopAt}</text>`;
-    s+=`<text x="${cx}" y="${mt-4}" text-anchor="middle" fill="#888" font-size="8.5" font-family="${SERIF}" font-style="italic">Chabal 1990 (practical rule)</text>`;
-  }
+  s+=stepLines(sx,maxX,mt,ph,SERIF);
   points.forEach((p,i)=>{
     const cx=parseFloat(sx(p.x).toFixed(1));const cy=parseFloat(sy(p.y).toFixed(1));
     const isNew=i===0||p.y>points[i-1].y;
@@ -3378,9 +3396,9 @@ function exportTDCPNG(){
 // ============================================================
 // CDC — CONDITIONAL DISCOVERY CURVE  (DS, per SU)  — protocol §5.1
 // DS curve per SU. The taxa list is INHERITED from HF+LF of the same SU (seed);
-// the "50 without novelty" counter is reset. The streak resets only when the DS
+// the fragment count starts again from the DS. The curve rises only when the DS
 // finds a taxon the HF+LF seed did not have. Flat line on the baseline = DS adds
-// nothing beyond HF+LF = positive result.
+// nothing beyond HF+LF = positive result. Indet., cf. and "/" stay out (as in HF+LF).
 // Fallback: no HF+LF in the SU → empty seed → plain saturation curve on DS.
 // HC / STR / CH14 never enter the CDC (not the seed, not the curve).
 // ============================================================
@@ -3388,28 +3406,10 @@ function isDS(r){return (r.channel||'').trim().toUpperCase()==='DS';}
 
 function getCDCData(su){
   const seed=new Set();
-  records.filter(r=>r.su===su && isHFLF(r)).forEach(r=>{const d=(r.det||'').trim();if(isCurveTaxon(d))seed.add(d);});
-  const seedSize=seed.size;
-  const dsRecs=records
-    .filter(r=>r.su===su && isDS(r))
-    .sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
-  const known=new Set(seed);        // seed ∪ taxa DS visti
-  const points=[];
-  let lastNewIdx=-1,stopAt=null,newFromDS=0;
-  dsRecs.forEach((r,i)=>{
-    const det=(r.det||'').trim();
-    const prev=known.size;
-    if(isCurveTaxon(det)) known.add(det);
-    const grew=known.size>prev;
-    if(grew){lastNewIdx=i;newFromDS++;}
-    if(stopAt===null){
-      const streak=lastNewIdx<0?i+1:i-lastNewIdx;
-      if(streak>=50) stopAt=i+1;
-    }
-    points.push({x:i+1,y:known.size,det:det||'—',isNew:grew,id_det:r.id_det});
-  });
-  const currentStreak=lastNewIdx<0?dsRecs.length:dsRecs.length-1-lastNewIdx;
-  return{points,total:dsRecs.length,seedSize,newFromDS,knownTotal:known.size,stopAt,currentStreak,hasSeed:seedSize>0};
+  records.filter(r=>r.su===su && isHFLF(r)).forEach(r=>{if(isCurveTaxon(r.det))seed.add(r.det.trim());});
+  const d=buildCurve(records.filter(r=>r.su===su && isDS(r)),seed);
+  d.seedSize=seed.size;d.newFromDS=d.newCount;d.knownTotal=d.taxa;d.hasSeed=seed.size>0;
+  return d;
 }
 
 function openCDCModal(){
@@ -3436,17 +3436,12 @@ function renderCDC(su){
     wrap.innerHTML='<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-d);">No DS records — the CDC is built only from Dry-Sieving (DS) fragments.</div>';
     infoBar.innerHTML='';return;
   }
-  const{points,total,seedSize,newFromDS,knownTotal,stopAt,currentStreak,hasSeed}=getCDCData(su);
-  const criterionMet=stopAt!==null;
-  const streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#768390';
+  const cd=getCDCData(su),{points,total,seedSize,newFromDS,knownTotal,hasSeed}=cd;
   const addColor=newFromDS>0?'#e6812a':'#4caf82';
   infoBar.innerHTML=`<span>HF+LF seed: <b>${seedSize}</b> taxa</span>`
-    +`<span>DS fragments: <b>${total}</b></span>`
+    +`<span>DS fragments on the curve: <b>${total}</b></span>`
     +`<span>new from DS: <b style="color:${addColor}">+${newFromDS}</b></span>`
-    +`<span>current streak: <b style="color:${streakColor}">${currentStreak}/50</b></span>`
-    +(criterionMet
-      ? `<span style="color:#4caf82;font-weight:700">✓ plateau at n=<b>${stopAt}</b></span>`
-      : `<span style="color:#e6812a">⚠ plateau not yet reached</span>`)
+    +excludedInfo(cd)+stepInfo(total)
     +(hasSeed
       ? (newFromDS===0?`<span style="color:#4caf82">DS adds nothing beyond HF+LF (positive result)</span>`:'')
       : `<span style="color:#a55555">no HF+LF baseline — plain saturation curve</span>`);
@@ -3493,14 +3488,8 @@ function renderCDC(su){
     const d=points.map((p,i)=>`${i===0?'M':'L'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
     s+=`<path d="${d}" fill="none" stroke="${COL.line}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   }
-  // plateau marker
-  if(stopAt!==null){
-    const cx=parseFloat(sx(stopAt).toFixed(1));const rightEdge=W-mr;
-    if(cx<rightEdge) s+=`<rect x="${cx}" y="${mt}" width="${(rightEdge-cx).toFixed(1)}" height="${ph}" fill="rgba(0,0,0,.055)"/>`;
-    s+=`<line x1="${cx}" y1="${mt-10}" x2="${cx}" y2="${mt+ph}" stroke="#888" stroke-width="1.3" stroke-dasharray="4,3"/>`;
-    s+=`<text x="${cx}" y="${mt-14}" text-anchor="middle" fill="#555" font-size="9.5" font-family="${SERIF}" font-weight="600">plateau n=${stopAt}</text>`;
-    s+=`<text x="${cx}" y="${mt-4}" text-anchor="middle" fill="#888" font-size="8.5" font-family="${SERIF}" font-style="italic">Chabal 1990 (practical rule)</text>`;
-  }
+  // soglie (Kabukcu & Chabal 2021)
+  s+=stepLines(sx,maxX,mt,ph,SERIF);
   // dots: only DS-new taxa (new to HF+LF) get an open dot; taxon name on hover
   points.forEach(p=>{
     const cx=parseFloat(sx(p.x).toFixed(1));const cy=parseFloat(sy(p.y).toFixed(1));
@@ -3625,39 +3614,15 @@ function taxonTspans(name,extraAttrs){
 
 // Tab 1: Saturation curve
 function renderSum1(su,wrap,info){
-  function buildCurve(recs){
-    var sorted=recs.slice().sort(function(a,b){return (parseInt(a.id_det)||0)-(parseInt(b.id_det)||0);});
-    var points=[];var seen=new Set();var newTaxa=[];
-    var lastNewIdx=-1;var stopAt=null;
-    sorted.forEach(function(r,i){
-      var det=(r.det||'').trim();
-      var prevSize=seen.size;
-      var isNew=isCurveTaxon(det)&&!seen.has(det);
-      if(isCurveTaxon(det)) seen.add(det);
-      if(seen.size>prevSize) lastNewIdx=i;
-      if(stopAt===null){
-        var streak=lastNewIdx<0?i+1:i-lastNewIdx;
-        if(streak>=50) stopAt=i+1;
-      }
-      points.push({x:i+1,y:seen.size,det:det||'—',isNew:isNew});
-    });
-    var currentStreak=lastNewIdx<0?sorted.length:sorted.length-1-lastNewIdx;
-    return{points:points,total:sorted.length,taxa:seen.size,stopAt:stopAt,currentStreak:currentStreak};
-  }
   var baseRecs=(su==='__all__'?records:records.filter(function(r){return r.su===su;})).filter(isHFLF);
   var d=buildCurve(baseRecs);
-  var points=d.points,total=d.total,taxa=d.taxa,stopAt=d.stopAt,currentStreak=d.currentStreak;
+  var points=d.points,total=d.total,taxa=d.taxa;
   // taxa in order of appearance
   var orderedTaxa=[];points.forEach(function(p){if(p.isNew)orderedTaxa.push({det:p.det,x:p.x,taxa:p.y});});
   var sortedRecs=baseRecs.slice().sort(function(a,b){return (parseInt(a.id_det)||0)-(parseInt(b.id_det)||0);});
   var layerLabel=su==='__all__'?'':' · Layer '+(sortedRecs[0]&&sortedRecs[0].layer?sortedRecs[0].layer:'—');
-  var criterionMet=stopAt!==null;
-  var streakColor=criterionMet?'#4caf82':currentStreak>=30?'#e6a817':'#666';
-  info.innerHTML='<span>HF+LF fragments: <b>'+total+'</b></span><span>distinct taxa: <b>'+taxa+'</b></span>'
-    +'<span>streak: <b style="color:'+streakColor+'">'+currentStreak+'/50</b></span>'
-    +(criterionMet
-      ?'<span style="color:#4caf82;font-weight:700">✓ stop criterion met at n=<b>'+stopAt+'</b></span>'
-      :'<span style="color:#e6812a">⚠ stop criterion not yet met</span>');
+  info.innerHTML='<span>HF+LF fragments on the curve: <b>'+total+'</b></span><span>distinct taxa: <b>'+taxa+'</b></span>'
+    +excludedInfo(d)+stepInfo(total);
   if(!points.length){wrap.innerHTML=noDataMsg('No HF/LF records');return;}
 
   // Layout
@@ -3696,17 +3661,8 @@ function renderSum1(su,wrap,info){
     s+='<path d="'+dp+' L'+sx(points[points.length-1].x).toFixed(1)+','+base+' L'+sx(points[0].x).toFixed(1)+','+base+' Z" fill="'+SUM_COL.fill+'"/>';
     s+='<path d="'+dp+'" fill="none" stroke="'+SUM_COL.bar+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
   }
-  // Stop criterion: shaded post-plateau area + dashed line
-  if(stopAt!==null){
-    var cx=parseFloat(sx(stopAt).toFixed(1));
-    var rightEdge=W-mr;
-    if(cx<rightEdge){
-      s+='<rect x="'+cx+'" y="'+mt+'" width="'+(rightEdge-cx).toFixed(1)+'" height="'+ph+'" fill="rgba(0,0,0,.055)"/>';
-    }
-    s+='<line x1="'+cx+'" y1="'+(mt-10)+'" x2="'+cx+'" y2="'+(mt+ph)+'" stroke="#888" stroke-width="1.3" stroke-dasharray="4,3"/>';
-    s+='<text x="'+cx+'" y="'+(mt-14)+'" text-anchor="middle" fill="#555" font-size="9.5" font-family="'+SUM_SERIF+'" font-weight="600">stop n='+stopAt+'</text>';
-    s+='<text x="'+cx+'" y="'+(mt-4)+'" text-anchor="middle" fill="#888" font-size="8.5" font-family="'+SUM_SERIF+'" font-style="italic">Chabal 1990</text>';
-  }
+  // soglie (Kabukcu & Chabal 2021)
+  s+=stepLines(sx,maxX,mt,ph,SUM_SERIF);
   // Dots with data attributes for custom tooltip
   points.forEach(function(p,i){
     var cx=parseFloat(sx(p.x).toFixed(1));

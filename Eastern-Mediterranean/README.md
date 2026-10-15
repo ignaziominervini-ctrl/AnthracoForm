@@ -30,16 +30,18 @@ called Lebanon.
   ecology)
 - IAWA reverse lookup, dichotomous key and taxon comparison against the reference
   database of the module
-- Automatic saturation (species-accumulation) curves per stratigraphic unit (SU),
-  with a Chabal (1990) stop criterion; *cf.* determinations do not add taxa to the
+- Automatic saturation (taxon accumulation) curves per stratigraphic unit (SU), as in
+  Kabukcu & Chabal (2021): indeterminate, *cf.* and "/" determinations stay out of the
   curves
+- Saturation panel in the form: taxa and fragments on the HF+LF and DS curves of the SU
+  and on the HC curve of the site, with steps at 100, 200, 250, 300 and 400 fragments
 - SU summary and whole-assemblage views, including the ecological composition
 - Quick record lookup by SU or id_det, for editing existing records
 - PDF record sheet; export of publication-ready figures (B&W, 170 mm, 300 DPI)
 - CSV import/export compatible with R workflows
 
-The dichotomous key tab uses the key to genera of Akkemik & Yaman (2012, pp. 293–296), transcribed; two passages
-(Picea/Pinus block; couplets 15–16 of section C) are flagged in the tab and still to be checked against the original.
+The dichotomous key tab uses the key to genera of Akkemik & Yaman (2012, pp. 293–296), transcribed and
+checked against the original pages.
 
 ## Usage
 
@@ -53,7 +55,7 @@ it with Download CSV.
 If you use AnthracoForm – Eastern Mediterranean (Lebanon) in your research, please cite it as:
 
 > Minervini, I. (2026). *AnthracoForm – Eastern Mediterranean (Lebanon): Offline
-> single-file tool for anthracological determination and analysis* (v0.5).
+> single-file tool for anthracological determination and analysis* (v0.5.1).
 > Zenodo. https://doi.org/10.5281/zenodo.20487673
 
 ## Authors
@@ -93,6 +95,10 @@ and embedded in the HTML file, so the tool never needs the internet.
 - IAWA Committee (2004). IAWA list of microscopic features for softwood
   identification. Richter, H.G., Grosser, D., Heinz, I., and Gasson, P.E. (eds.).
   *IAWA Journal*, 25(1), 1–70.
+
+- Kabukcu, C., and Chabal, L. (2021). Sampling and quantitative analysis methods in
+  anthracology from archaeological contexts: achievements and prospects. *Quaternary
+  International*, 593–594, 6–18. https://doi.org/10.1016/j.quaint.2020.11.004
 
 - Loidi, J., and Vynokurov, D. (2024). The biogeographical kingdoms and regions of
   the world. *Mediterranean Botany*, 45(2), e92333.
