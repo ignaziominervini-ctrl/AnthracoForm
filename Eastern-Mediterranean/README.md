@@ -15,7 +15,8 @@ their files differ only in the REGIONAL MODULE DATA block at the top of the HTML
 sources). This module is configured for the Eastern Mediterranean: reference database of 93
 taxa (gymnosperms and angiosperms) and key to genera from Akkemik & Yaman (2012);
 ecological categories maquis and pine woodland, deciduous woodland, mountain forest,
-riverine and other.
+riverine and other. Taxon names follow Plants of the World Online (POWO 2026);
+the names changed from the source are listed in the CHANGELOG.
 
 Module names follow floristic regions (Loidi & Vynokurov 2024); the place in
 brackets is where the reference collection was made. Until v0.4 this module was
@@ -25,19 +26,26 @@ called Lebanon.
 
 - Charcoal fragment data entry with IAWA anatomical feature coding: hardwood list
   (IAWA Committee 1989) for angiosperms, softwood list (IAWA Committee 2004) for
-  gymnosperms
+  gymnosperms; each feature is recorded as absent (0), present (1), required present (2, present and diagnostic),
+  required absent (3, absent and diagnostic) or not assessed (empty), as in the p/a/r/e searches of InsideWood
+- Help mode for new users: an explanation appears when the mouse rests on any element
+  (can be switched off)
 - Taxon determination with a customisable taxa dictionary (auto-fill of family and
   ecology)
 - IAWA reverse lookup, dichotomous key and taxon comparison against the reference
-  database of the module
-- Automatic saturation (taxon accumulation) curves per stratigraphic unit (SU), as in
+  database of the module; the comparison also offers the provisional types of the open file
+- Automatic saturation (taxon accumulation) curves per stratigraphic unit (SU), or per SU
+  and context when the context is filled in, as in
   Kabukcu & Chabal (2021): indeterminate, *cf.* and "/" determinations stay out of the
   curves
-- Saturation panel in the form: taxa and fragments on the HF+LF and DS curves of the SU
-  and on the HC curve of the site, with steps at 100, 200, 250, 300 and 400 fragments
+- Saturation panel in the form: the curve of the current fragment drawn up to the next step,
+  with taxa and fragments on the HF+LF and DS curves of the SU and on the HC curve of the site
+  (steps at 100, 200, 250, 300 and 400 fragments)
 - SU summary and whole-assemblage views, including the ecological composition
 - Quick record lookup by SU or id_det, for editing existing records
-- PDF record sheet; export of publication-ready figures (B&W, 170 mm, 300 DPI)
+- Photographs linked from a project photo folder (several per section; Chrome, Edge)
+- A4 PDF reports of one record, of a taxon or of a provisional type, with all their photographs;
+  export of publication-ready figures (B&W, 170 mm, 300 DPI)
 - CSV import/export compatible with R workflows
 
 The dichotomous key tab uses the key to genera of Akkemik & Yaman (2012, pp. 293–296), transcribed and
@@ -45,9 +53,10 @@ checked against the original pages.
 
 ## Usage
 
-Open `AnthracoForm_Eastern-Mediterranean.html` in a modern browser (Chrome recommended, for
-File System Access API support). No server, no dependencies, no internet connection
-needed. In browsers without folder access, open an existing file with Open CSV and save
+Open `AnthracoForm_Eastern-Mediterranean.html` in a modern browser (Chrome or Edge recommended,
+for File System Access API support: the CSV file is written directly at each
+save). No server, no dependencies, no internet connection
+needed. In browsers without file access, open an existing file with Open CSV and save
 it with Download CSV.
 
 ## How to cite
@@ -55,7 +64,7 @@ it with Download CSV.
 If you use AnthracoForm – Eastern Mediterranean (Lebanon) in your research, please cite it as:
 
 > Minervini, I. (2026). *AnthracoForm – Eastern Mediterranean (Lebanon): Offline
-> single-file tool for anthracological determination and analysis* (v0.5.1).
+> single-file tool for anthracological determination and analysis* (v0.6).
 > Zenodo. https://doi.org/10.5281/zenodo.20487673
 
 ## Authors
@@ -98,3 +107,6 @@ and embedded in the HTML file, so the tool never needs the internet.
 - Loidi, J., and Vynokurov, D. (2024). The biogeographical kingdoms and regions of
   the world. *Mediterranean Botany*, 45(2), e92333.
   https://doi.org/10.5209/mbot.92333
+
+- POWO (2026). *Plants of the World Online*. Royal Botanic Gardens, Kew.
+  https://powo.science.kew.org/ (accessed 19–20 October 2026).
