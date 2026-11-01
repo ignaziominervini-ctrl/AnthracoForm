@@ -17,8 +17,8 @@ a taxon or a provisional type with all their photographs.
 
 | Version | Folder | Reference taxa | Status |
 |---|---|---|---|
-| Saharo-Sindian (Sindh) | [`Saharo-Sindian/`](Saharo-Sindian) | Indus plain and Thar, angiosperms, 25 taxa | v1.4 |
-| Eastern Mediterranean (Lebanon) | [`Eastern-Mediterranean/`](Eastern-Mediterranean) | gymnosperms + angiosperms, 93 taxa | v0.6 (pre-release) |
+| Saharo-Sindian (Sindh) | [`Saharo-Sindian/`](Saharo-Sindian) | Indus plain and Thar, angiosperms, 25 taxa | v1.5 |
+| Eastern Mediterranean (Lebanon) | [`Eastern-Mediterranean/`](Eastern-Mediterranean) | gymnosperms + angiosperms, 93 taxa | v0.7 (pre-release) |
 
 Module names follow floristic regions (Loidi & Vynokurov 2024, *Mediterranean Botany*
 45(2): e92333); the place in brackets is where the reference collection was made.

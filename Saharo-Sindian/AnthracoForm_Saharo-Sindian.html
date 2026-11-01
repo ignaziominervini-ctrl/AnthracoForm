@@ -18,7 +18,7 @@
      ============================================================ -->
 <title>AnthracoForm – Saharo-Sindian (Sindh)</title>
 <script>
-// AnthracoForm – Saharo-Sindian (Sindh) module, v1.4 (version history: CHANGELOG.md)
+// AnthracoForm – Saharo-Sindian (Sindh) module, v1.5 (version history: CHANGELOG.md)
 const REGION={
   name:'Saharo-Sindian (Sindh)',
   woodType:'a', // wood type of a new record: 'a' angiosperm, 'g' gymnosperm
@@ -388,6 +388,8 @@ button{padding:7px 13px;border-radius:5px;border:none;cursor:pointer;font-family
 .dot-green{background:#4caf82;}
 .dot-orange{background:#e6812a;}
 .dot-blue{background:#539bf5;}
+.dot-brown{background:#8d6e4f;}
+.dot-purple{background:#9b6bc9;}
 .dot-yellow{background:#e6c817;}
 textarea{resize:vertical;}
 .h-cases{display:flex;flex-direction:column;line-height:1.15;flex-shrink:0;}
@@ -1039,9 +1041,17 @@ textarea{resize:vertical;}
           <input type="checkbox" id="morph_twig" style="accent-color:var(--acc);">
           <span class="tlabel">twig</span><span class="dot dot-green" title="Green = twig"></span>
         </div>
+        <div class="titem" id="pith-item" onclick="toggleMorpho('pith')">
+          <input type="checkbox" id="morph_pith" style="accent-color:var(--acc);">
+          <span class="tlabel">pith</span><span class="dot dot-brown" title="Brown = pith"></span>
+        </div>
         <div class="titem" id="bark-item" onclick="toggleMorpho('bark')">
           <input type="checkbox" id="morph_bark" style="accent-color:var(--acc);">
           <span class="tlabel">bark</span><span class="dot dot-orange" title="Orange = bark"></span>
+        </div>
+        <div class="titem" id="reaction_wood-item" onclick="toggleMorpho('reaction_wood')">
+          <input type="checkbox" id="morph_reaction_wood" style="accent-color:var(--acc);">
+          <span class="tlabel">reaction wood</span><span class="dot dot-purple" title="Purple = reaction wood"></span>
         </div>
         <div class="titem" id="curv-item" onclick="toggleMorpho('curv')">
           <input type="checkbox" id="morph_curv" style="accent-color:var(--blue);">
@@ -1541,7 +1551,7 @@ function codeTip(c){
 
 const TAPH=[
   {id:'radial_crack',l:'radial crack'},{id:'wood_compression',l:'wood compression'},
-  {id:'xylophagous_activity',l:'xylophagous activity'},{id:'oxidation',l:'oxidation'},
+  {id:'xylophagous_activity',l:'xylophagous activity'},{id:'fungal_hyphae',l:'fungal hyphae'},{id:'oxidation',l:'oxidation'},
   {id:'mineralisation',l:'mineralisation'},{id:'cell_deformation',l:'cell deformation'},
   {id:'vitrification',l:'vitrification'},
 ];
@@ -1558,8 +1568,8 @@ const VIEWS=[...VIEWS_SECTIONS,...VIEWS_PHOTO];
 const CSV_COLS=['id_det','site_code','id_samp','trench','su','context','channel','fraction','fracture_type',
   'wood_type',
   'det','family','eco','tipo','tipo_desc','tipo_resolved',
-  'undetermined','twig','bark','curv',
-  'radial_crack','wood_compression','xylophagous_activity',
+  'undetermined','twig','pith','bark','reaction_wood','curv',
+  'radial_crack','wood_compression','xylophagous_activity','fungal_hyphae',
   'oxidation','mineralisation','cell_deformation','vitrification','other_alteration',
   'trv_view','tan_view','rad_view','photo_done','photo_todo',
   ...ALL_IAWA_CODES.map(c=>`iawa_${c}`),
@@ -2139,7 +2149,9 @@ function getFormData(){
     ...iawaFields,
     undetermined:document.getElementById('undet-cb').checked?1:0,
     twig:document.getElementById('morph_twig').checked?1:0,
+    pith:document.getElementById('morph_pith').checked?1:0,
     bark:document.getElementById('morph_bark').checked?1:0,
+    reaction_wood:document.getElementById('morph_reaction_wood').checked?1:0,
     curv:document.getElementById('morph_curv').checked?1:0,
     note:document.getElementById('note').value,
     operator:document.getElementById('operator').value,
@@ -2222,7 +2234,7 @@ function loadRecord(idx){
   const detEl=document.getElementById('det');
   detEl.readOnly=isUndet;detEl.style.color=isUndet?'var(--red)':'';detEl.style.opacity=isUndet?'.7':'';
   // twig / bark
-  ['twig','bark','curv'].forEach(id=>{
+  ['twig','pith','bark','reaction_wood','curv'].forEach(id=>{
     const cb=document.getElementById(`morph_${id}`);
     const item=document.getElementById(`${id}-item`);
     if(cb){
@@ -2427,7 +2439,7 @@ function newRecord(afterSave=false){
   undetCb.checked=false;undetCb.closest('.undet-wrap').classList.remove('on');
   const detEl=document.getElementById('det');detEl.readOnly=false;detEl.style.color='';detEl.style.opacity='';
   // reset twig/bark
-  ['twig','bark','curv'].forEach(id=>{
+  ['twig','pith','bark','reaction_wood','curv'].forEach(id=>{
     const cb=document.getElementById(`morph_${id}`);const item=document.getElementById(`${id}-item`);
     if(cb){cb.checked=false;if(item){item.classList.remove('on');item.style.borderColor='transparent';item.style.background='';}}
   });
@@ -2558,7 +2570,7 @@ function toggleUndet(e){
 }
 
 // ============================================================
-// MORFOLOGIA (twig / bark)
+// MORFOLOGIA (twig / pith / bark / reaction wood / curv)
 // ============================================================
 function toggleMorpho(id){
   const cb=document.getElementById(`morph_${id}`);
@@ -2860,7 +2872,7 @@ async function printReport(){
   const nP=ALL_IAWA_CODES.filter(c=>iawaState(c)===1).length,nA=ALL_IAWA_CODES.filter(c=>iawaState(c)===0).length,nD=ALL_IAWA_CODES.filter(c=>iawaState(c)!==null&&iawaDiag(c)).length;
   const taph=TAPH.filter(t=>d[t.id]===1).map(t=>`<span class="tag r">${t.l}</span>`);
   if(d.other_alteration) d.other_alteration.split(';').map(x=>x.trim()).filter(Boolean).forEach(x=>taph.push(`<span class="tag r">${escH(x)}</span>`));
-  const morph=['twig','bark','curv'].filter(k=>d[k]==1).map(k=>`<span class="tag g">${k}</span>`);
+  const morph=['twig','pith','bark','reaction_wood','curv'].filter(k=>d[k]==1).map(k=>`<span class="tag g">${k.replace('_',' ')}</span>`);
   const views=VIEWS_SECTIONS.filter(v=>d[v.id]==1).map(v=>`<span class="tag b">${v.l}</span>`);
   const photos=[];for(const s of ['trv','tan','rad']) for(const p of photoData[s]) photos.push({dataUrl:await repShrink(p.dataUrl),name:p.name,cap:`<b>${s.toUpperCase()}</b> ${escH(p.name)}`});
   const ph1=photos.length<=9?photos:photos.slice(0,6),phMore=photos.length<=9?[]:photos.slice(6);
@@ -2889,7 +2901,7 @@ async function printGroupReport(kind,value,recs){
   prof.sort((x,y)=>secOrd[x.sec]-secOrd[y.sec]||y.f-x.f||iawaCompare(x.c,y.c));
   const taph=TAPH.map(t=>({l:t.l,k:recs.filter(r=>String(r[t.id])==='1').length})).filter(x=>x.k);
   const others=cnt(r=>r.other_alteration).filter(x=>x[0]!=='—');
-  const morph=['twig','bark','curv'].map(k=>({l:k,k:recs.filter(r=>String(r[k])==='1').length}));
+  const morph=['twig','pith','bark','reaction_wood','curv'].map(k=>({l:k.replace('_',' '),k:recs.filter(r=>String(r[k])==='1').length}));
   // foto: tutte quelle dei frammenti del taxon o del tipo, in ordine di id_det e di sezione (dalla cartella foto)
   const photos=[];
   const recsById=recs.slice().sort((a,b)=>(parseInt(a.id_det)||0)-(parseInt(b.id_det)||0));
@@ -4113,6 +4125,7 @@ function renderSum5(su,wrap,info){
     {id:'wood_compression',label:'Wood compression',group:'Mechanical'},
     {id:'cell_deformation',label:'Cell deformation',group:'Mechanical'},
     {id:'xylophagous_activity',label:'Xylophagous activity',group:'Biological'},
+    {id:'fungal_hyphae',label:'Fungal hyphae',group:'Biological'},
     {id:'mineralisation',label:'Mineralisation',group:'Post-dep.'},
     {id:'oxidation',label:'Oxidation',group:'Post-dep.'},
   ];
@@ -5019,7 +5032,9 @@ const HELP=[
  ['#taph-list .titem','Taphonomic alteration seen on the fragment. Tick only what you see: an alteration that is not seen is left empty, never "absent".'],
  ['#other_alteration','Other alteration: free text for anything not in the list (several separated by ;).'],
  ['#twig-item','Twig: the fragment comes from a small branch (pith or strong ring curvature).'],
+ ['#pith-item','Pith present on the fragment.'],
  ['#bark-item','Bark present on the fragment.'],
+ ['#reaction_wood-item','Reaction wood: eccentric growth of a branch or leaning stem; in softwoods, thick-walled tracheids with oblique striations. Not the same as "wood compression" in Taphonomy.'],
  ['#curv-item','Curv: ring curvature measurable, useful to estimate the original diameter of the wood.'],
  ['#view-list .vitem','Observed sections: which sections of the fragment you looked at (transverse, tangential, radial). A feature can be absent only on a section you observed.'],
  ['#view-photo-list .vitem','Photo status: photographed, or still to be photographed.'],

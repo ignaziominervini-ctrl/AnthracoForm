@@ -28,6 +28,8 @@ called Lebanon.
   (IAWA Committee 1989) for angiosperms, softwood list (IAWA Committee 2004) for
   gymnosperms; each feature is recorded as absent (0), present (1), required present (2, present and diagnostic),
   required absent (3, absent and diagnostic) or not assessed (empty), as in the p/a/r/e searches of InsideWood
+- Taphonomic alterations (among them xylophagous activity and fungal hyphae) and morphology
+  (twig, pith, bark, reaction wood, measurable ring curvature) recorded for each fragment
 - Help mode for new users: an explanation appears when the mouse rests on any element
   (can be switched off)
 - Taxon determination with a customisable taxa dictionary (auto-fill of family and
@@ -64,7 +66,7 @@ it with Download CSV.
 If you use AnthracoForm – Eastern Mediterranean (Lebanon) in your research, please cite it as:
 
 > Minervini, I. (2026). *AnthracoForm – Eastern Mediterranean (Lebanon): Offline
-> single-file tool for anthracological determination and analysis* (v0.6).
+> single-file tool for anthracological determination and analysis* (v0.7).
 > Zenodo. https://doi.org/10.5281/zenodo.20487673
 
 ## Authors

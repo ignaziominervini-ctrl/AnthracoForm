@@ -4,6 +4,16 @@ All notable changes to AnthracoForm – Eastern Mediterranean (Lebanon), formerl
 This project follows simple incremental versioning; v0.x are pre-release builds,
 to be promoted to v1.0 once validated on real assemblages.
 
+## [v0.7] - 2026-11-01
+
+### Added
+- Morphology: **pith**, after twig (column `pith`): 1 = pith present on the fragment, 0 = not present. Shown on the PDF record sheet and counted in the taxon and type reports
+- Morphology: **reaction wood**, after bark (column `reaction_wood`): 1 = reaction wood on the fragment (eccentric growth; in softwoods, thick-walled tracheids with oblique striations), 0 = not present. Shown on the PDF record sheet and counted in the taxon and type reports
+- Taphonomy: **fungal hyphae**, after xylophagous activity (column `fungal_hyphae`): 1 = fungal hyphae seen, empty = not seen or not recorded (never 0), like the other alterations. Listed in the Taphonomy tab of the SU summary (Biological, with xylophagous activity) and in the PDF reports
+
+### Changed
+- CSV schema v1.5: 223 columns (44 descriptive), with `pith` after `twig`, `reaction_wood` after `bark` and `fungal_hyphae` after `xylophagous_activity`. CSV files saved with earlier versions import unchanged; the three columns are added, empty (not recorded), at the next save. Data dictionary: S1 v1.5
+
 ## [v0.6] - 2026-10-30
 
 ### Added
